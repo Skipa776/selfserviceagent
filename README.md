@@ -16,7 +16,7 @@ university service.
 
 The complete ServiceNow demonstration requires either:
 
-- Access to the university ServiceNow REST Table API with approved credentials
+- Access to an institutional ServiceNow REST Table API with approved credentials
   and fields, or
 - A ServiceNow Personal Developer Instance (PDI) configured as described below.
 
@@ -47,13 +47,44 @@ Supported demonstration topics include campus Wi-Fi, wired networking, VPN, web
 portals, and classroom audiovisual equipment.
 
 The duplicate rule counts distinct reporter hashes, not raw submissions. Early
-reports still create tickets so ITS can see emerging evidence. Once a topic's
+reports still create tickets so IT can see emerging evidence. Once a topic's
 demonstration threshold is reached, a later report links to existing tickets and
 creates nothing. The reporter can reject that match and file separately.
 
 ## Architecture
 
-![Campus Issue Reporter architecture](architecture-diagram.svg)
+```mermaid
+flowchart TD
+    caller["<b>Caller</b><br/>web form or chat assistant"]
+
+    subgraph service ["Report service"]
+        api["<b>HTTP API</b><br/>POST /report"]
+        parser["<b>Parser</b><br/>LLM, keyword fallback"]
+        core["<b>Deterministic core</b><br/>identity → throttle<br/>dedupe → completeness<br/>search → decide"]
+        composer["<b>Response composer</b><br/>fixed templates"]
+        audit["<b>Audit log</b><br/>pattern detector<br/>advisory only"]
+    end
+
+    llm["<b>LLM provider</b><br/>OpenAI-compatible"]
+    snow[("<b>ServiceNow</b><br/>read open INC / REQ<br/>create at most one")]
+    reply(["<b>Reply</b><br/>matched · filed<br/>needs detail · throttled<br/>unavailable"])
+
+    caller -->|report text| api
+    api --> parser
+    parser -->|bounded fields| core
+    core --> composer
+    core -.-> audit
+    parser -.->|optional| llm
+    core -->|search, create| snow
+    composer --> reply
+
+    subgraph analyst ["Analyst workspace"]
+        workspace["<b>Separate process</b><br/>model comparison<br/>approved local records<br/>no ServiceNow access"]
+    end
+    workspace -.-> llm
+```
+
+Solid arrows are the request path. Dashed arrows are optional or side paths.
 
 The synchronous request path is intentionally narrow: callers submit text, the
 parser produces bounded fields, and deterministic code owns identity, throttling,
@@ -79,7 +110,7 @@ ServiceNow.
 - Node.js 24.x
 - npm
 - Optional AI provider credentials
-- Optional ServiceNow PDI or approved university ServiceNow Table API access
+- Optional ServiceNow PDI or approved institutional ServiceNow Table API access
 
 ## Install
 
@@ -131,7 +162,7 @@ SNOW_TIMEOUT_MS=15000
 ```
 
 Use the instance origin only, with no trailing path. The local PDI demo uses Basic
-authentication over HTTPS. Production the university authentication and least-privilege
+authentication over HTTPS. Production authentication and least-privilege
 roles require separate approval and configuration.
 
 Never commit `.env` or real credentials.
@@ -349,9 +380,9 @@ tests/     unit and integration tests with synthetic fixtures
 - Production Caller, Assignment group, Channel, Service, Service offering, and
   Configuration item mappings are not implemented.
 - The current demo creates `INC` for location/service-wide reports and `REQ` for
-  individual reports. the university must decide whether customer intake should use Customer
+  individual reports. The deploying institution must decide whether customer intake should use Customer
   Service cases (`CS`) instead.
-- Assignment routing is intentionally not implemented. A downstream ITS
+- Assignment routing is intentionally not implemented. A downstream IT
   Classifier could route newly created records after the create decision.
 - Generalized analyst-created ServiceNow records remain disabled.
 - Production hosting, SSO, monitoring, on-call ownership, kill switch, and security

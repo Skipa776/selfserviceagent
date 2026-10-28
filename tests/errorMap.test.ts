@@ -20,7 +20,7 @@ import { configureThrottle, resetThrottle } from '../src/throttleLimits';
 import { CORPUS_NOW } from './corpus';
 import { harness, IDENTITY_REF, TEST_GATE, TEST_THROTTLE } from './harness';
 
-const MUIR_WIFI: ProblemReport = {
+const NORTH_HALL_WIFI: ProblemReport = {
   service: 'wifi',
   scope: 'location',
   location: 'North Residence Hall',
@@ -32,7 +32,7 @@ const MUIR_WIFI: ProblemReport = {
 };
 
 const request = (over?: Partial<Parameters<typeof handleReport>[0]>) => ({
-  text: MUIR_WIFI.verbatim,
+  text: NORTH_HALL_WIFI.verbatim,
   identityRef: IDENTITY_REF,
   canFollowUp: true,
   ...over,
@@ -88,7 +88,7 @@ describe('incoherent_report', () => {
     // What the parser hands over after applyCoherence: the scope was downgraded
     // but the location it could not justify is still absent. The orchestrator
     // recognizes that fingerprint and logs the row without widening the seam.
-    const incoherent: ProblemReport = { ...MUIR_WIFI, scope: 'unknown', location: 'North Residence Hall' };
+    const incoherent: ProblemReport = { ...NORTH_HALL_WIFI, scope: 'unknown', location: 'North Residence Hall' };
     const h = harness(incoherent);
     const res = await handleReport(request(), h.deps);
 
@@ -100,7 +100,7 @@ describe('incoherent_report', () => {
 
 describe('identity_unavailable', () => {
   it('returns UNAVAILABLE with a human path — never an unthrottled pass', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.identity.failTimes = Number.POSITIVE_INFINITY;
     const res = await handleReport(request(), h.deps);
 
@@ -115,7 +115,7 @@ describe('identity_unavailable', () => {
 
 describe('incident_search_failed', () => {
   it('retries exactly once, and a transient failure is rescued by the retry', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.incidents.failTimes = 1; // first call throws, retry succeeds
     const res = await handleReport(request(), h.deps);
 
@@ -124,7 +124,7 @@ describe('incident_search_failed', () => {
   });
 
   it('a persistent failure returns UNAVAILABLE and files nothing', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.incidents.failTimes = Number.POSITIVE_INFINITY;
     const res = await handleReport(request(), h.deps);
 
@@ -148,11 +148,11 @@ describe('incident_source_malformed', () => {
       openedAt: CORPUS_NOW,
       matchScore: 0.9,
       reporterHash: 'rh_z',
-      url: 'https://its.example.edu/ticket/REQ999',
+      url: 'https://it.example.edu/ticket/REQ999',
       status: 'service is down', // illegal on a peer (match_candidate.md)
     } as unknown as PeerTicket;
 
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.incidents.seed([poisoned]);
     const res = await handleReport(request(), h.deps);
 
@@ -167,7 +167,7 @@ describe('incident_source_malformed', () => {
 
 describe('ticket_create_failed', () => {
   it('retries once and succeeds on the retry', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.tickets.failTimes = 1;
     const res = await handleReport(request(), h.deps);
 
@@ -176,7 +176,7 @@ describe('ticket_create_failed', () => {
   });
 
   it('on a second failure returns UNAVAILABLE and NEVER a fabricated ticket number', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.tickets.failTimes = Number.POSITIVE_INFINITY;
     const res = await handleReport(request(), h.deps);
 
@@ -190,7 +190,7 @@ describe('ticket_create_failed', () => {
 
 describe('ticket_create_ambiguous', () => {
   it('does NOT retry blind, and says the report may already be filed', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.tickets.failTimes = 1;
     h.tickets.ambiguous = true;
     const res = await handleReport(request(), h.deps);
@@ -210,7 +210,7 @@ describe('ticket_create_ambiguous', () => {
 
 describe('stream_publish_failed', () => {
   it("is swallowed — the user's result is unchanged and correct, audit line only", async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.stream.fail = true;
     const res = await handleReport(request(), h.deps);
 
@@ -233,10 +233,10 @@ describe('feedback_sink_failed', () => {
       openedAt: CORPUS_NOW,
       matchScore: 0.95,
       reporterHash: 'rh_a',
-      url: 'https://its.example.edu/ticket/REQ300',
+      url: 'https://it.example.edu/ticket/REQ300',
     };
 
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     h.incidents.seed([peer]);
     h.feedback.failTimes = Number.POSITIVE_INFINITY;
     const res = await handleReport(request({ overrideMatchId: 'REQ300' }), h.deps);
@@ -282,7 +282,7 @@ describe('the shared invariant across every row', () => {
 
   for (const [kind, induce] of inducers) {
     it(`${kind}: no stack trace, no internal identifier, always a human path`, async () => {
-      const h = harness(MUIR_WIFI);
+      const h = harness(NORTH_HALL_WIFI);
       induce(h);
       const res = await handleReport(request(), h.deps);
 

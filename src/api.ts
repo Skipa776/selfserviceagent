@@ -2,7 +2,7 @@
 //
 // This project owns an HTTP API. It is not a plugin, not a library, and not a
 // component of somebody else's application. Two thin callers (the campus AI assistant
-// ticketing agent and the ITS help-desk site) post text and render a reply;
+// ticketing agent and the IT help-desk site) post text and render a reply;
 // neither parses, decides, or matches, which is why a third caller costs nothing.
 //
 // This module is deliberately thin: normalize an untrusted request, call the

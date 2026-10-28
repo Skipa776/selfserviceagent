@@ -1,5 +1,5 @@
-// Canonical campus location boundary. This is curated from the public-source
-// inventory; the inventory itself is provenance only and is never parsed here.
+// Synthetic campus location boundary. Building names and codes are fictional
+// and do not describe any real campus.
 
 export type Building = {
   readonly code: string;
@@ -8,32 +8,32 @@ export type Building = {
 };
 
 export const BUILDINGS: readonly Building[] = [
-  { code: 'APM', name: 'Applied Physics and Mathematics', aliases: ['AP&M', 'APM'] },
-  { code: 'CENTR', name: 'Lecture Hall', aliases: ['Lecture Hall', 'CENTR'] },
-  { code: 'CICC', name: 'Copley International Conference Center', aliases: ['Copley International Conference Center', 'CICC'] },
-  { code: 'COA', name: 'Coalition', aliases: ['COA', 'Coalition Building'] },
-  { code: 'CSB', name: 'Cognitive Science Building', aliases: ['Cognitive Science Building', 'CSB'] },
-  { code: 'CTL', name: 'Catalyst', aliases: ['CTL', 'Catalyst Building'] },
-  { code: 'FAH', name: 'Franklin Antonio Hall', aliases: ['Franklin Antonio Hall', 'FAH'] },
-  { code: 'HSS', name: 'Humanities and Social Sciences', aliases: ['Humanities and Social Sciences', 'HSS'] },
-  { code: 'LEDDN', name: 'Ledden Auditorium', aliases: ['Ledden Auditorium', 'LEDDN'] },
-  { code: 'MALK', name: 'Brian C. Malk Hall', aliases: ['Brian C. Malk Hall', 'Malk Hall', 'MALK'] },
-  { code: 'MANDE', name: 'Mandeville Center', aliases: ['Mandeville Center', 'MANDE'] },
-  { code: 'MCGIL', name: 'McGill Hall', aliases: ['McGill Hall', 'MCGIL'] },
-  { code: 'MOS', name: 'Mosaic', aliases: ['MOS', 'Mosaic Building'] },
-  { code: 'PCYNH', name: 'Pepper Canyon Hall', aliases: ['Pepper Canyon Hall', 'PCYNH'] },
-  { code: 'PETER', name: 'Peterson Hall', aliases: ['Peterson Hall', 'PETER'] },
-  { code: 'PODEM', name: 'Podemos', aliases: ['PODEM', 'Podemos Building'] },
-  { code: 'PRICE', name: 'Student Center', aliases: ['Student Center', 'PRICE'] },
-  { code: 'RBC', name: 'Robinson Building 2 - Auditorium', aliases: ['Robinson Building 2', 'Robinson Building 2 - Auditorium', 'RBC'] },
-  { code: 'RWAC', name: 'Ridge Walk Academic Building', aliases: ['Ridge Walk Academic Building', 'RWAC'] },
-  { code: 'SOLIS', name: 'Solis Hall', aliases: ['Solis Hall', 'SOLIS'] },
+  { code: 'SEB', name: 'Science and Engineering Building', aliases: ['S&E', 'SEB'] },
+  { code: 'LECT', name: 'Lecture Hall', aliases: ['Lecture Hall', 'LECT'] },
+  { code: 'CONF', name: 'Conference Center', aliases: ['Conference Center', 'CONF'] },
+  { code: 'BCN', name: 'Beacon', aliases: ['BCN', 'Beacon Building'] },
+  { code: 'PSYB', name: 'Psychology Building', aliases: ['Psychology Building', 'PSYB'] },
+  { code: 'SMT', name: 'Summit', aliases: ['SMT', 'Summit Building'] },
+  { code: 'ENGR', name: 'Engineering Hall', aliases: ['Engineering Hall', 'ENGR'] },
+  { code: 'HUMN', name: 'Humanities Building', aliases: ['Humanities Building', 'HUMN'] },
+  { code: 'AUD', name: 'Main Auditorium', aliases: ['Main Auditorium', 'AUD'] },
+  { code: 'OAKLY', name: 'Dana C. Oakley Hall', aliases: ['Dana C. Oakley Hall', 'Oakley Hall', 'OAKLY'] },
+  { code: 'ARTC', name: 'Arts Center', aliases: ['Arts Center', 'ARTC'] },
+  { code: 'MAPL', name: 'Maple Hall', aliases: ['Maple Hall', 'MAPL'] },
+  { code: 'MRD', name: 'Meridian', aliases: ['MRD', 'Meridian Building'] },
+  { code: 'CDRH', name: 'Cedar Hall', aliases: ['Cedar Hall', 'CDRH'] },
+  { code: 'PINEH', name: 'Pine Hall', aliases: ['Pine Hall', 'PINEH'] },
+  { code: 'HRB', name: 'Harbor', aliases: ['HRB', 'Harbor Building'] },
+  { code: 'STUC', name: 'Student Center', aliases: ['Student Center', 'STUC'] },
+  { code: 'WB2', name: 'West Building 2 - Auditorium', aliases: ['West Building 2', 'West Building 2 - Auditorium', 'WB2'] },
+  { code: 'HAB', name: 'Hillside Academic Building', aliases: ['Hillside Academic Building', 'HAB'] },
+  { code: 'BRCH', name: 'Birch Hall', aliases: ['Birch Hall', 'BRCH'] },
   { code: 'SSB', name: 'Social Sciences Building', aliases: ['Social Sciences Building', 'SSB'] },
-  { code: 'WLH', name: 'Lecture Hall West', aliases: ['Lecture Hall West', 'WLH'] },
-  { code: 'YORK', name: 'York Hall', aliases: ['York Hall', 'YORK'] },
-  { code: 'DIB', name: 'Design and Innovation Building', aliases: ['Design and Innovation Building', 'DIB'] },
-  { code: 'JEANN', name: 'The Jeannie', aliases: ['The Jeannie', 'JEANN'] },
-  { code: 'GEISEL', name: 'Main Library', aliases: ['Main Library', 'GEISEL'] },
+  { code: 'LHW', name: 'Lecture Hall West', aliases: ['Lecture Hall West', 'LHW'] },
+  { code: 'ELMH', name: 'Elm Hall', aliases: ['Elm Hall', 'ELMH'] },
+  { code: 'INNOV', name: 'Innovation Building', aliases: ['Innovation Building', 'INNOV'] },
+  { code: 'LNTN', name: 'The Lantern', aliases: ['The Lantern', 'LNTN'] },
+  { code: 'LIB', name: 'Main Library', aliases: ['Main Library', 'LIB'] },
 ] as const;
 
 export const AREA_TOKENS = ['North Residence Hall', 'South Residence Hall'] as const;

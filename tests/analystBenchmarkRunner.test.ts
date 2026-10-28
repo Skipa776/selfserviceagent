@@ -6,13 +6,13 @@ import type { ChatClient } from '../src/parser/chatClient';
 import type { EvalRow } from './corpus';
 
 const row: EvalRow = {
-  id: 'av-wlh', groupId: 'av-wlh', role: 'faculty', input: 'Projector in WLH is down',
-  service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'WLH', room: '',
+  id: 'av-lhw', groupId: 'av-lhw', role: 'faculty', input: 'Projector in LHW is down',
+  service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'LHW', room: '',
   symptom: 'equipment_unavailable',
 };
 
 const answer = JSON.stringify({
-  service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'WLH', room: '',
+  service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'LHW', room: '',
   symptom: 'equipment_unavailable', observedAt: '',
 });
 
@@ -43,8 +43,8 @@ describe('multi-model parser benchmark', () => {
     expect(results.every((result) => result.fieldAccuracy === 1 && result.exactAccuracy === 1)).toBe(true);
     expect(results.every((result) => result.totalFields === 12 && result.fieldFailures === 0 && result.reportFailures === 0)).toBe(true);
     expect(results.every((result) => result.corpusDigest === corpusDigest([row]))).toBe(true);
-    expect(results[0].samples).toEqual([{ rowId: 'av-wlh', input: row.input, output: {
-      service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'WLH', room: '',
+    expect(results[0].samples).toEqual([{ rowId: 'av-lhw', input: row.input, output: {
+      service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'LHW', room: '',
       symptom: 'equipment_unavailable', observedAt: '', verbatim: row.input,
     }, source: 'llm', repairAttempted: false, exact: true, misses: [] }]);
     expect(results[0]).toMatchObject({ promptTokens: 0, completionTokens: 0, totalTokens: 0, countedPromptTokens: 0 });

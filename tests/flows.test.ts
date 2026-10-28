@@ -206,7 +206,7 @@ describe('deflect outcomes create nothing and always offer recourse', () => {
     expect(response.cluster?.tickets).toEqual(
       response.cluster?.ticketIds.map((ticketNumber) => ({
         ticketNumber,
-        url: `https://its.example.edu/ticket/${ticketNumber}`,
+        url: `https://it.example.edu/ticket/${ticketNumber}`,
       })),
     );
     expect(response.override?.matchId).toBe('REQ300');

@@ -8,10 +8,10 @@
 // index never emits.
 //
 // PLACEHOLDER: the service, location, and symptom sets are the working Stage-1
-// vocabulary pending ITS's real catalog. Scope and ticket
+// vocabulary pending IT's real catalog. Scope and ticket
 // class are canonical.
 
-// ── Services (PLACEHOLDER — pending the real ITS service catalog) ─────────────
+// ── Services (PLACEHOLDER — pending the real IT service catalog) ─────────────
 export const SERVICES = ['wifi', 'wired_network', 'vpn', 'web_portal', 'classroom_av', 'unknown'] as const;
 export type Service = (typeof SERVICES)[number];
 

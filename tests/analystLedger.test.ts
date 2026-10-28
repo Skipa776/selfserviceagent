@@ -10,7 +10,7 @@ const event = (overrides: Partial<ReportEvent> = {}): ReportEvent => ({
   service: 'classroom_av',
   scope: 'location',
   location: 'Lecture Hall West',
-  building: 'WLH',
+  building: 'LHW',
   room: '',
   symptom: 'equipment_unavailable',
   observedAt: '',

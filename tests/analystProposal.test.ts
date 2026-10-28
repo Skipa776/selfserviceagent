@@ -6,11 +6,11 @@ import { validateAnalystProposal } from '../src/analyst/proposal';
 const snapshot: AnalystEvidenceSnapshot = {
   snapshotId: 'snap-1',
   generatedAt: '2026-09-11T12:05:00.000Z',
-  topicKey: 'classroom_av|location|WLH||equipment_unavailable',
+  topicKey: 'classroom_av|location|LHW||equipment_unavailable',
   service: 'classroom_av',
   scope: 'location',
   location: 'Lecture Hall West',
-  building: 'WLH',
+  building: 'LHW',
   room: '',
   symptom: 'equipment_unavailable',
   firstReportAt: '2026-09-11T12:00:00.000Z',
@@ -65,7 +65,7 @@ describe('analyst proposal validation', () => {
     'This is a confirmed outage.',
     'A major outage affects South Residence Hall.',
     'The campus network is unavailable.',
-    'ITS is investigating and will restore service by 3 PM.',
+    'IT staff are investigating and will restore service by 3 PM.',
     'Engineers are working on a fix.',
     'Support has been assigned.',
     'The vendor confirmed a hardware failure.',
@@ -81,7 +81,7 @@ describe('analyst proposal validation', () => {
     }, snapshot).ok).toBe(false);
     expect(validateAnalystProposal({
       ...valid,
-      splitRecommendation: { shouldSplit: true, evidenceIds: ['E1'], rationale: 'ITS is investigating.' },
+      splitRecommendation: { shouldSplit: true, evidenceIds: ['E1'], rationale: 'IT staff are investigating.' },
     }, snapshot).ok).toBe(false);
   });
 

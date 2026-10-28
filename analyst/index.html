@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Incident Analyst</title>
   <style>
-    :root { color-scheme: light; --navy: #182b49; --blue: #00629b; --gold: #ffcd00; --paper: #f5f2ea; --ink: #17212b; --muted: #607080; }
+    :root { color-scheme: light; --brand: #1e293b; --accent: #0f766e; --highlight: #2dd4bf; --paper: #f8fafc; --ink: #17212b; --muted: #607080; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.45 ui-sans-serif, system-ui, sans-serif; }
-    header { padding: 24px clamp(20px, 5vw, 72px); color: white; background: var(--navy); border-bottom: 6px solid var(--gold); }
-    header p { margin: 4px 0 0; color: #c8d8e8; }
+    header { padding: 24px clamp(20px, 5vw, 72px); color: white; background: var(--brand); border-bottom: 6px solid var(--highlight); }
+    header p { margin: 4px 0 0; color: #cbd5e1; }
     main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; }
     .warning { padding: 12px 16px; background: #fff3cd; border: 1px solid #e7bd37; font-weight: 700; }
     .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 18px; }
-    .card { grid-column: span 12; background: white; border: 1px solid #d8dee5; border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px rgb(24 43 73 / 7%); }
+    .card { grid-column: span 12; background: white; border: 1px solid #d8dee5; border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px rgb(15 23 42 / 7%); }
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .metric { padding: 14px; background: #eef4f8; border-left: 4px solid var(--blue); }
+    .metric { padding: 14px; background: #f1f5f9; border-left: 4px solid var(--accent); }
     .metric strong { display: block; font-size: 24px; }
-    button { border: 0; border-radius: 7px; padding: 10px 14px; color: white; background: var(--blue); font-weight: 700; cursor: pointer; }
-    button.secondary { color: var(--navy); background: #e8edf2; }
+    button { border: 0; border-radius: 7px; padding: 10px 14px; color: white; background: var(--accent); font-weight: 700; cursor: pointer; }
+    button.secondary { color: var(--brand); background: #e8edf2; }
     button:disabled { opacity: .45; cursor: not-allowed; }
     select { min-width: 100%; padding: 10px; }
     pre { overflow: auto; padding: 14px; background: #101820; color: #dcecff; border-radius: 8px; white-space: pre-wrap; }

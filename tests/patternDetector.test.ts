@@ -101,8 +101,8 @@ describe('alert de-duplication', () => {
 describe('scope grouping', () => {
   it('keeps classroom AV rooms in separate groups', () => {
     const d = new PatternDetector(() => new Date(CORPUS_NOW));
-    for (let i = 0; i < CLUSTER_THRESHOLD; i++) d.consume(event({ service: 'classroom_av', building: 'CENTR', room: '214', reporterHash: `r${i}` }));
-    expect(d.consume(event({ service: 'classroom_av', building: 'CENTR', room: '101', reporterHash: 'different-room' }))).toBeNull();
+    for (let i = 0; i < CLUSTER_THRESHOLD; i++) d.consume(event({ service: 'classroom_av', building: 'LECT', room: '214', reporterHash: `r${i}` }));
+    expect(d.consume(event({ service: 'classroom_av', building: 'LECT', room: '101', reporterHash: 'different-room' }))).toBeNull();
   });
 
   it('service_wide events do not inflate any single location count', () => {

@@ -31,7 +31,7 @@ export const PROJECTOR_JSON = JSON.stringify({
   service: 'classroom_av',
   scope: 'location',
   location: 'Lecture Hall',
-  building: 'CENTR',
+  building: 'LECT',
   room: '',
   symptom: 'equipment_unavailable',
   observedAt: '',
@@ -83,7 +83,7 @@ export const TRUNCATED = '{"service": "wifi", "scope": "loc';
 /**
  * The model volunteers a field it was never asked for, and paraphrases the
  * reporter while doing it. If this string reaches a ticket body, the service has
- * put model-authored prose in front of an ITS agent as though the reporter wrote
+ * put model-authored prose in front of an IT agent as though the reporter wrote
  * it. The parser permits exactly one repair attempt.
  */
 export const MODEL_SUPPLIED_VERBATIM_TEXT = 'User reports intermittent wireless connectivity in North Residence Hall.';

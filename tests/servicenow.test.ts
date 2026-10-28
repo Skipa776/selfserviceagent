@@ -348,8 +348,8 @@ describe('the field mapping', () => {
   });
 
   it('encodes rooms in u_location and decodes legacy location-only values', () => {
-    expect(encodeLocation('CENTR', '214', 'Lecture Hall')).toBe('Lecture Hall|room=214');
-    expect(decodeLocation('Lecture Hall|room=214')).toEqual({ location: 'Lecture Hall', building: 'CENTR', room: '214' });
+    expect(encodeLocation('LECT', '214', 'Lecture Hall')).toBe('Lecture Hall|room=214');
+    expect(decodeLocation('Lecture Hall|room=214')).toEqual({ location: 'Lecture Hall', building: 'LECT', room: '214' });
     expect(decodeLocation('North Residence Hall')).toEqual({ location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL', room: '' });
   });
 
@@ -457,7 +457,7 @@ describe('toPeerTicket — discard, never synthesize (match_candidate.md)', () =
 
   it('reads encoded AV rooms and preserves legacy records', () => {
     expect(toPeerTicket(snowRow({ [SNOW_COLUMNS.location]: 'Lecture Hall|room=214' }), CONFIG.instanceUrl, 'incident')).toMatchObject({
-      locations: ['Lecture Hall'], building: 'CENTR', room: '214',
+      locations: ['Lecture Hall'], building: 'LECT', room: '214',
     });
     expect(toPeerTicket(snowRow(), CONFIG.instanceUrl, 'incident')).toMatchObject({ locations: ['North Residence Hall'], building: 'NORTH RESIDENCE HALL', room: '' });
   });

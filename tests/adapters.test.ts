@@ -23,7 +23,7 @@ import { configureThrottle, resetThrottle } from '../src/throttleLimits';
 import { CORPUS_NOW } from './corpus';
 import { TEST_GATE, TEST_THROTTLE } from './harness';
 
-const muirPeer: PeerTicket = {
+const northHallPeer: PeerTicket = {
   kind: 'peer_ticket',
   id: 'REQ300',
   service: 'wifi',
@@ -35,10 +35,10 @@ const muirPeer: PeerTicket = {
   openedAt: CORPUS_NOW,
   matchScore: 0.11, // deliberately wrong — the adapter must recompute it
   reporterHash: 'rh_a',
-  url: 'https://its.example.edu/ticket/REQ300',
+  url: 'https://it.example.edu/ticket/REQ300',
 };
 
-const warrenDeclared: DeclaredIncident = {
+const southHallDeclared: DeclaredIncident = {
   kind: 'declared_incident',
   id: 'INC1003',
   service: 'wifi',
@@ -56,7 +56,7 @@ const warrenDeclared: DeclaredIncident = {
   summary: 'Wi-Fi disruption affecting South Residence Hall',
 };
 
-const muirQuery = { service: 'wifi', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL', room: '', scope: 'location', symptom: 'intermittent' };
+const northHallQuery = { service: 'wifi', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL', room: '', scope: 'location', symptom: 'intermittent' };
 
 beforeEach(() => {
   resetGate();
@@ -68,53 +68,53 @@ beforeEach(() => {
 describe('IncidentSource', () => {
   it('is deterministic — the same query against the same seed set scores identically', async () => {
     const s = new InMemoryIncidentSource();
-    s.seed([muirPeer, warrenDeclared]);
-    const a = await s.search(muirQuery);
-    const b = await s.search(muirQuery);
+    s.seed([northHallPeer, southHallDeclared]);
+    const a = await s.search(northHallQuery);
+    const b = await s.search(northHallQuery);
     expect(a).toEqual(b);
     // Boundary tests around cluster_gate.md are meaningless otherwise.
   });
 
   it('computes matchScore itself rather than trusting the source record', async () => {
     const s = new InMemoryIncidentSource();
-    s.seed([muirPeer]);
-    const [found] = await s.search(muirQuery);
-    expect(found.matchScore).not.toBe(muirPeer.matchScore);
+    s.seed([northHallPeer]);
+    const [found] = await s.search(northHallQuery);
+    expect(found.matchScore).not.toBe(northHallPeer.matchScore);
     expect(found.matchScore).toBe(1);
   });
 
   it('disqualifies a location disagreement outright (report_corpus.md F6)', async () => {
     const s = new InMemoryIncidentSource();
-    s.seed([warrenDeclared]);
-    const [found] = await s.search(muirQuery);
+    s.seed([southHallDeclared]);
+    const [found] = await s.search(northHallQuery);
     // A South Residence Hall incident does not cover North Residence Hall however well the rest lines up.
     expect(found.matchScore).toBe(0);
   });
 
   it('disqualifies a scope disagreement even when service and symptom match', async () => {
     const s = new InMemoryIncidentSource();
-    s.seed([{ ...muirPeer, scope: 'individual', locations: [] }]);
-    const [found] = await s.search(muirQuery);
+    s.seed([{ ...northHallPeer, scope: 'individual', locations: [] }]);
+    const [found] = await s.search(northHallQuery);
     expect(found.matchScore).toBe(0);
   });
 
   it('preserves the same-scope symptom-mismatch score', async () => {
     const s = new InMemoryIncidentSource();
-    s.seed([{ ...muirPeer, symptom: 'slow' }]);
-    const [found] = await s.search(muirQuery);
+    s.seed([{ ...northHallPeer, symptom: 'slow' }]);
+    const [found] = await s.search(northHallQuery);
     expect(found.matchScore).toBe(0.7);
   });
 
   it('filters by service before scoring anything', async () => {
     const s = new InMemoryIncidentSource();
-    s.seed([{ ...muirPeer, service: 'vpn' }]);
-    expect(await s.search(muirQuery)).toHaveLength(0);
+    s.seed([{ ...northHallPeer, service: 'vpn' }]);
+    expect(await s.search(northHallQuery)).toHaveLength(0);
   });
 
   it('returns both kinds in one call, sorted by score', async () => {
     const s = new InMemoryIncidentSource();
-    s.seed([warrenDeclared, muirPeer]);
-    const found = await s.search(muirQuery);
+    s.seed([southHallDeclared, northHallPeer]);
+    const found = await s.search(northHallQuery);
     expect(found.map((c) => c.kind)).toEqual(['peer_ticket', 'declared_incident']);
   });
 });
@@ -123,12 +123,12 @@ describe('failure injection counts down', () => {
   it('failTimes = 1 fails once then recovers; Infinity stays down', async () => {
     const s = new InMemoryIncidentSource();
     s.failTimes = 1;
-    await expect(s.search(muirQuery)).rejects.toThrow();
-    await expect(s.search(muirQuery)).resolves.toEqual([]);
+    await expect(s.search(northHallQuery)).rejects.toThrow();
+    await expect(s.search(northHallQuery)).resolves.toEqual([]);
 
     s.failTimes = Number.POSITIVE_INFINITY;
-    await expect(s.search(muirQuery)).rejects.toThrow();
-    await expect(s.search(muirQuery)).rejects.toThrow();
+    await expect(s.search(northHallQuery)).rejects.toThrow();
+    await expect(s.search(northHallQuery)).rejects.toThrow();
   });
 });
 

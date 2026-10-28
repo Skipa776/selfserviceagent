@@ -95,12 +95,12 @@ export type Decision = {
 };
 
 // ── TicketPayload — the one shape passed to createTicket() (ticket_payload.md) ─
-// Optimized for the ITS agent who reads it next: everything except `description`
+// Optimized for the IT agent who reads it next: everything except `description`
 // is a bounded catalog value; `description` quotes the reporter exactly once and
 // is composed by code, never authored by a model.
 export interface TicketPayload {
   readonly ticketClass: TicketClass;
-  readonly category: string; // ITS category string (catalog)
+  readonly category: string; // IT category string (catalog)
   readonly service: string; // catalog vocabulary
   readonly scope: TicketScope;
   readonly location: string; // catalog vocabulary; '' when not location-scoped

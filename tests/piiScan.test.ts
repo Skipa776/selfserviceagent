@@ -1,5 +1,5 @@
 // safety/boundaries.md + report_corpus.md: the corpus is synthetic. No real
-// report, name, PID, email, phone, or SSN is ever pasted in — at any stage. This
+// report, name, student ID, email, phone, or SSN is ever pasted in — at any stage. This
 // test mechanically enforces the machine-detectable half of that rule over every
 // free-text field in the registry. (A human still owns "is this a real person's
 // name", which no regex catches — but nothing detectable slips through.)

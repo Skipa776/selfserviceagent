@@ -2,7 +2,7 @@
 //
 // Reported-symptom volume is this service's attack surface: one person with an
 // assistant window can produce reports faster than any human reporter, and each
-// is a potential ticket in ITS's queue and a potential vote toward a NOC alert.
+// is a potential ticket in IT's queue and a potential vote toward a NOC alert.
 //
 // The limits themselves are UNSET and injected here. Nothing in src/ defaults
 // them, and the last test in this file is what keeps that true.
@@ -18,7 +18,7 @@ import { harness, IDENTITY_REF, mutableClock, TEST_GATE } from './harness';
 
 const LIMITS = { windowMinutes: 60, maxReportsPerIdentity: 3, maxDistinctServicesPerWindow: 4 } as const;
 
-const MUIR_WIFI: ProblemReport = {
+const NORTH_HALL_WIFI: ProblemReport = {
   service: 'wifi',
   scope: 'location',
   location: 'North Residence Hall',
@@ -30,7 +30,7 @@ const MUIR_WIFI: ProblemReport = {
 };
 
 /** Distinct text per call, so the idempotency key never absorbs the report. */
-const distinct = (n: number): ProblemReport => ({ ...MUIR_WIFI, verbatim: `${MUIR_WIFI.verbatim} (${n})` });
+const distinct = (n: number): ProblemReport => ({ ...NORTH_HALL_WIFI, verbatim: `${NORTH_HALL_WIFI.verbatim} (${n})` });
 
 beforeEach(() => {
   resetGate();
@@ -42,7 +42,7 @@ beforeEach(() => {
 describe('the limit itself', () => {
   it('passes under the limit, passes the report that reaches it, blocks the next', async () => {
     const { clock } = mutableClock();
-    const shared = harness(MUIR_WIFI, clock);
+    const shared = harness(NORTH_HALL_WIFI, clock);
     const outcomes: string[] = [];
 
     for (let i = 0; i < LIMITS.maxReportsPerIdentity + 1; i++) {
@@ -66,12 +66,12 @@ describe('the limit itself', () => {
   });
 
   it('a throttled report performs no search, files nothing, and publishes no event', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     const { hash } = await h.deps.identity.resolve(IDENTITY_REF);
-    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await h.limiter.record(hash, MUIR_WIFI);
+    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await h.limiter.record(hash, NORTH_HALL_WIFI);
 
     const res = await handleReport(
-      { text: MUIR_WIFI.verbatim, identityRef: IDENTITY_REF, canFollowUp: true },
+      { text: NORTH_HALL_WIFI.verbatim, identityRef: IDENTITY_REF, canFollowUp: true },
       h.deps,
     );
 
@@ -87,12 +87,12 @@ describe('the limit itself', () => {
   });
 
   it('the reply carries a human path and a retry hint, never a fake success', async () => {
-    const h = harness(MUIR_WIFI);
+    const h = harness(NORTH_HALL_WIFI);
     const { hash } = await h.deps.identity.resolve(IDENTITY_REF);
-    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await h.limiter.record(hash, MUIR_WIFI);
+    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await h.limiter.record(hash, NORTH_HALL_WIFI);
 
     const res = await handleReport(
-      { text: MUIR_WIFI.verbatim, identityRef: IDENTITY_REF, canFollowUp: true },
+      { text: NORTH_HALL_WIFI.verbatim, identityRef: IDENTITY_REF, canFollowUp: true },
       h.deps,
     );
     expect(res.reply).toContain('Service Desk');
@@ -103,8 +103,8 @@ describe('the limit itself', () => {
 
 describe('what does and does not consume budget', () => {
   it("an idempotent repeat returns the prior result and does NOT spend budget", async () => {
-    const h = harness(MUIR_WIFI);
-    const req = { text: MUIR_WIFI.verbatim, identityRef: IDENTITY_REF, canFollowUp: true };
+    const h = harness(NORTH_HALL_WIFI);
+    const req = { text: NORTH_HALL_WIFI.verbatim, identityRef: IDENTITY_REF, canFollowUp: true };
 
     const first = await handleReport(req, h.deps);
     // Five more identical submissions — a flaky network retrying, not an abuser.
@@ -123,7 +123,7 @@ describe('what does and does not consume budget', () => {
 
   it('an override resubmission DOES consume budget', async () => {
     const { clock } = mutableClock();
-    const shared = harness(MUIR_WIFI, clock);
+    const shared = harness(NORTH_HALL_WIFI, clock);
     const { hash } = await shared.deps.identity.resolve(IDENTITY_REF);
 
     // Overrides bypass both the cluster gate and the idempotency key. If they also
@@ -131,7 +131,7 @@ describe('what does and does not consume budget', () => {
     for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) {
       await handleReport(
         {
-          text: MUIR_WIFI.verbatim,
+          text: NORTH_HALL_WIFI.verbatim,
           identityRef: IDENTITY_REF,
           canFollowUp: true,
           overrideMatchId: 'REQ300',
@@ -149,7 +149,7 @@ describe('the window', () => {
     const { clock, advanceMinutes } = mutableClock();
     const limiter = new InMemoryRateLimiter(clock);
 
-    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await limiter.record('rh_x', MUIR_WIFI);
+    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await limiter.record('rh_x', NORTH_HALL_WIFI);
     expect((await limiter.check('rh_x')).allowed).toBe(false);
 
     advanceMinutes(LIMITS.windowMinutes + 1);
@@ -159,7 +159,7 @@ describe('the window', () => {
   it('reports a retryAfter that lands inside the window', async () => {
     const { clock } = mutableClock();
     const limiter = new InMemoryRateLimiter(clock);
-    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await limiter.record('rh_y', MUIR_WIFI);
+    for (let i = 0; i < LIMITS.maxReportsPerIdentity; i++) await limiter.record('rh_y', NORTH_HALL_WIFI);
 
     const { allowed, retryAfterSeconds } = await limiter.check('rh_y');
     expect(allowed).toBe(false);
@@ -177,7 +177,7 @@ describe('variety is not an evasion', () => {
     configureThrottle({ windowMinutes: 60, maxReportsPerIdentity: 100, maxDistinctServicesPerWindow: 3 });
 
     for (const service of ['wifi', 'vpn', 'web_portal'] as const) {
-      await limiter.record('rh_v', { ...MUIR_WIFI, service });
+      await limiter.record('rh_v', { ...NORTH_HALL_WIFI, service });
     }
     expect((await limiter.check('rh_v')).allowed).toBe(false);
   });

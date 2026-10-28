@@ -384,7 +384,7 @@ async function runLifecycle(
   writeParsed(req, report, source, repairAttempted, write);
 
   // 3. THROTTLE — before the search, so a throttled identity generates no read
-  //    load against ITS systems either.
+  //    load against IT systems either.
   const budget = await deps.limiter.check(identity.hash);
   if (!budget.allowed) {
     write({ action: 'throttled', reporterHash: identity.hash, service: report.service, errorKind: 'throttled' });
@@ -534,7 +534,7 @@ async function runLifecycle(
     response = {
       outcome: 'MATCHED_DECLARED',
       // Quoted verbatim from the record. This is the ONLY outcome permitted to
-      // say a service is affected, because ITS said it and we cite them with a
+      // say a service is affected, because IT said it and we cite them with a
       // timestamp.
       reply: compose({
         outcome: 'MATCHED_DECLARED',
@@ -565,7 +565,7 @@ async function runLifecycle(
     const ticketClass = decision.outcome === 'FILE_INCIDENT' ? 'INC' : 'REQ';
     const payload: TicketPayload = {
       ticketClass,
-      // The ITS category tree is not configured, so
+      // The IT category tree is not configured, so
       // category reuses the service without inventing a new vocabulary. Replace
       // it adapter-side when the real tree is available.
       category: effective.service,
