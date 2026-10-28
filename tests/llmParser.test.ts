@@ -42,7 +42,7 @@ describe('the JSON schema', () => {
   it('takes its enums from the catalog, not a copy of it', () => {
     // The check that makes the derivation real: add a service to
     // vocab/catalog.ts and this passes unchanged. Hand-copy the enums and it
-    // fails the moment ITS delivers the real catalog.
+    // fails the moment IT delivers the real catalog.
     const schema = schemaFromCatalog() as {
       properties?: Record<string, { enum?: readonly string[] }>;
     };
@@ -205,7 +205,7 @@ describe('validateAgainstSchema', () => {
       { ...base, building: 'unknown' },
       { ...base, room: 'unknown' },
       { ...base, room: '   ' },
-      { ...base, location: 'North Residence Hall', building: 'CENTR' },
+      { ...base, location: 'North Residence Hall', building: 'LECT' },
       { ...base, location: 'North Residence Hall', building: '', room: '101' },
       { ...base, scope: 'individual', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL' },
       { ...base, scope: 'service_wide', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL' },
@@ -237,7 +237,7 @@ describe('validateAgainstSchema', () => {
       service: 'classroom_av',
       scope: 'location',
       location: 'Lecture Hall',
-      building: 'CENTR',
+      building: 'LECT',
       room: '',
       symptom: 'equipment_unavailable',
       observedAt: '',
@@ -250,8 +250,8 @@ describe('safe canonicalization before strict validation', () => {
     const client = fakeClient(JSON.stringify({
       service: 'wired_network',
       scope: 'location',
-      location: 'price center west',
-      building: 'price',
+      location: 'stuc west',
+      building: 'stuc',
       room: '',
       symptom: 'no_connection',
       observedAt: '',
@@ -260,7 +260,7 @@ describe('safe canonicalization before strict validation', () => {
 
     expect(result.source).toBe('llm');
     expect(result.repairAttempted).toBe(false);
-    expect(result.report).toMatchObject({ location: 'Student Center', building: 'PRICE', room: '' });
+    expect(result.report).toMatchObject({ location: 'Student Center', building: 'STUC', room: '' });
   });
 });
 
@@ -362,7 +362,7 @@ describe('degradation — quality, never availability', () => {
 describe('normalization of model output', () => {
   it("verbatim is the reporter's text, never the model's", () => {
     // The forbidden pattern in one assertion: a model paraphrase must not become
-    // the quoted body of a ticket an ITS agent reads as the reporter's words.
+    // the quoted body of a ticket an IT agent reads as the reporter's words.
     const client = fakeClient(MODEL_SUPPLIED_VERBATIM, CLEAN_JSON);
     return createLlmParser({ client, now })
       .parse(TEXT)

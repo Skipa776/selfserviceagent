@@ -15,7 +15,7 @@ const response = JSON.stringify({
 
 const event = (correlationId: string, reporterHash: string): ReportEvent => ({
   ts: '2026-09-11T12:00:00.000Z', correlationId, service: 'classroom_av', scope: 'location',
-  location: 'Lecture Hall West', building: 'WLH', room: '', symptom: 'equipment_unavailable', observedAt: '',
+  location: 'Lecture Hall West', building: 'LHW', room: '', symptom: 'equipment_unavailable', observedAt: '',
   reporterHash, outcome: 'FILE_INCIDENT', ticketNumber: `INC-${correlationId}`, viaOverride: false,
 });
 
@@ -55,11 +55,11 @@ describe('local shared tracking ticket', () => {
     if (!approved.ok) throw new Error('approval failed');
 
     expect(workspace.matchSharedTicket({
-      service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'WLH', room: '',
+      service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'LHW', room: '',
       symptom: 'equipment_unavailable', observedAt: '', verbatim: 'wonky words',
     })?.ticketNumber).toBe(approved.sharedTicket.ticketNumber);
     expect(workspace.matchSharedTicket({
-      service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'CENTR', room: '',
+      service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '',
       symptom: 'equipment_unavailable', observedAt: '', verbatim: 'different place',
     })).toBeNull();
   });

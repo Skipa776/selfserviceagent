@@ -165,8 +165,8 @@ const server = createServer(async (req, res) => {
   <style>
     body { margin: 0; padding: 32px 20px; color: #1c2a3a; background: #f4f6f8; font: 16px/1.5 Arial, sans-serif; }
     main { max-width: 640px; margin: 10vh auto 0; padding: 28px; background: #fff; border: 1px solid #e2e7ec; border-radius: 14px; }
-    h1 { margin-top: 0; color: #182b49; font-size: 24px; }
-    strong { color: #00629b; }
+    h1 { margin-top: 0; color: #1e293b; font-size: 24px; }
+    strong { color: #0f766e; }
   </style>
 </head>
 <body>

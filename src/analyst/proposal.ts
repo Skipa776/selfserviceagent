@@ -20,7 +20,7 @@ const FIELDS = [
 const PROHIBITED_CLAIMS = [
   /\boutage\b/i,
   /\b(?:service|network|wifi|wi-fi|vpn|portal|canvas) (?:is|are|appears?|seems?) (?:currently )?(?:down|unavailable|degraded)\b/i,
-  /\b(?:ITS|support|engineers?|technicians?|vendor) (?:has|have|is|are|was|were)?\s*(?:been\s+)?(?:confirmed|investigating|assigned|working|diagnosed)/i,
+  /\b(?:IT (?:staff|team)|support|engineers?|technicians?|vendor) (?:has|have|is|are|was|were)?\s*(?:been\s+)?(?:confirmed|investigating|assigned|working|diagnosed)/i,
   /\b(?:caused by|confirmed (?:hardware|software) failure|root cause (?:is|was))\b/i,
   /\b(?:restore|restored|restoration|resolved|resolution)\b/i,
   /\bETA\b/i,

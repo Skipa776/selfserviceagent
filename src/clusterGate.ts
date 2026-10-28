@@ -59,7 +59,7 @@ const TOPIC_THRESHOLDS: readonly TopicThreshold[] = [
   // next one (same as the base default, stated explicitly so the demo can point at it).
   { service: 'wifi', location: 'library', threshold: 5 },
   // Canvas / the LMS portal: campus-wide, tolerate more existing tickets before
-  // suppressing the next one because the first wave of reports is how ITS learns
+  // suppressing the next one because the first wave of reports is how IT learns
   // the scale.
   { service: 'web_portal', threshold: 10 },
 ];

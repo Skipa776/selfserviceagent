@@ -6,8 +6,8 @@ import { createAnalystModel, buildAnalystPrompt } from '../src/analyst/model';
 
 const snapshot: AnalystEvidenceSnapshot = {
   snapshotId: 'snap-1', generatedAt: '2026-09-11T12:05:00.000Z',
-  topicKey: 'classroom_av|location|WLH||equipment_unavailable',
-  service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'WLH', room: '',
+  topicKey: 'classroom_av|location|LHW||equipment_unavailable',
+  service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'LHW', room: '',
   symptom: 'equipment_unavailable', firstReportAt: '2026-09-11T12:00:00.000Z', lastReportAt: '2026-09-11T12:04:00.000Z',
   filedDistinct: 3, overflowDistinct: 2, overrideDistinct: 0, totalDistinct: 5,
   filedTicketNumbers: ['INC001'],

@@ -34,7 +34,7 @@ describe('runtime demo seed records', () => {
     {
       text: 'the projector in Lecture Hall will not turn on',
       fields: { service: 'classroom_av', scope: 'location', locations: ['Lecture Hall'], symptom: 'equipment_unavailable' },
-      expectedBuilding: 'CENTR',
+      expectedBuilding: 'LECT',
     },
   ] as const)('canonicalizes $fields.locations and scores against its parsed report', ({ text, fields, expectedBuilding }) => {
     const report = parseReport(text);

@@ -9,7 +9,7 @@ const event = (overrides: Partial<ReportEvent> = {}): ReportEvent => ({
   service: 'classroom_av',
   scope: 'location',
   location: 'Lecture Hall West',
-  building: 'WLH',
+  building: 'LHW',
   room: '',
   symptom: 'equipment_unavailable',
   observedAt: '',
@@ -22,7 +22,7 @@ const event = (overrides: Partial<ReportEvent> = {}): ReportEvent => ({
 
 describe('analyst evidence snapshots', () => {
   it('groups events by the deterministic operational topic', () => {
-    expect(topicKeyFor(event())).toBe('classroom_av|location|WLH||equipment_unavailable');
+    expect(topicKeyFor(event())).toBe('classroom_av|location|LHW||equipment_unavailable');
   });
 
   it('counts distinct filed, overflow, and override reporters separately', () => {

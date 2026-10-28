@@ -4,8 +4,8 @@ import { parseReport } from '../src/parser/reportParser';
 
 describe('campus location boundary', () => {
   it('canonicalizes official aliases and codes', () => {
-    expect(canonicalBuilding('AP&M')).toBe('APM');
-    expect(canonicalBuilding('Main Library')).toBe('GEISEL');
+    expect(canonicalBuilding('S&E')).toBe('SEB');
+    expect(canonicalBuilding('Main Library')).toBe('LIB');
     expect(canonicalLocation('North Residence Hall')).toBe('North Residence Hall');
   });
 
@@ -22,8 +22,8 @@ describe('campus location boundary', () => {
   });
 
   it('matches aliases on boundaries', () => {
-    expect(matchBuilding('projector in the Lecture Hall')?.building.code).toBe('CENTR');
-    expect(matchBuilding('the centric network')).toBeNull();
+    expect(matchBuilding('projector in the Lecture Hall')?.building.code).toBe('LECT');
+    expect(matchBuilding('the lecturer network')).toBeNull();
   });
 
   it('extracts and canonicalizes room tokens', () => {
@@ -38,19 +38,19 @@ describe('campus location boundary', () => {
   });
 
   it('accepts a building-context code and explicit full-name room', () => {
-    expect(extractRoom('CENTR 214', 'CENTR 214'.indexOf('CENTR') + 5)).toBe('214');
-    expect(parseReport('projector in Lecture Hall room 214 will not turn on')).toMatchObject({ building: 'CENTR', room: '214' });
+    expect(extractRoom('LECT 214', 'LECT 214'.indexOf('LECT') + 4)).toBe('214');
+    expect(parseReport('projector in Lecture Hall room 214 will not turn on')).toMatchObject({ building: 'LECT', room: '214' });
   });
 
   it('does not classify ordinary prose aliases as buildings', () => {
-    for (const text of ['the coalition voted today', 'catalyst for change', 'a mosaic pattern', 'Podemos discuss it', 'Jeannie called']) {
+    for (const text of ['a beacon of hope', 'summit at noon', 'harbor a grudge', 'the meridian line', 'Lantern festival tonight']) {
       expect(parseReport(text).building).toBe('');
     }
   });
 
   it('does not create generated locations from Lecture Hall text', () => {
     expect(parseReport('projector in Lecture Hall will not turn on')).toMatchObject({
-      location: 'Lecture Hall', building: 'CENTR', room: '',
+      location: 'Lecture Hall', building: 'LECT', room: '',
     });
   });
 });

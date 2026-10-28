@@ -86,10 +86,10 @@ export function buildPrompt(text: string): ChatMessage[] {
         'from tense. Representative canonical examples: ' +
         JSON.stringify([
           { service: 'wifi', scope: 'location', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL', room: '', symptom: 'intermittent', observedAt: '' },
-          { service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'CENTR', room: '214', symptom: 'equipment_unavailable', observedAt: '' },
+          { service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '214', symptom: 'equipment_unavailable', observedAt: '' },
           { service: 'web_portal', scope: 'unknown', location: '', building: '', room: '', symptom: 'page_error', observedAt: '' },
-          { service: 'unknown', scope: 'location', location: 'Main Library', building: 'GEISEL', room: '', symptom: 'slow', observedAt: '' },
-          { service: 'wired_network', scope: 'location', location: 'Student Center', building: 'PRICE', room: '', symptom: 'no_connection', observedAt: '' },
+          { service: 'unknown', scope: 'location', location: 'Main Library', building: 'LIB', room: '', symptom: 'slow', observedAt: '' },
+          { service: 'wired_network', scope: 'location', location: 'Student Center', building: 'STUC', room: '', symptom: 'no_connection', observedAt: '' },
           { service: 'vpn', scope: 'individual', location: '', building: '', room: '', symptom: 'auth_failure', observedAt: '' },
         ]) + '.',
     },

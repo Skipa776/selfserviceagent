@@ -32,7 +32,7 @@ const rule = (title: string): void => {
 
 type PeerShape = Pick<PeerTicket, 'service' | 'scope' | 'locations' | 'symptom'>;
 
-const WIFI_MUIR: PeerShape = {
+const WIFI_NORTH_HALL: PeerShape = {
   service: 'wifi',
   scope: 'location',
   locations: ['North Residence Hall'],
@@ -44,7 +44,7 @@ const CANVAS_WIDE: PeerShape = {
   locations: [],
   symptom: 'no_connection',
 };
-const PROJECTOR_CENTER_HALL: PeerShape = {
+const PROJECTOR_LECTURE_HALL: PeerShape = {
   service: 'classroom_av',
   scope: 'location',
   locations: ['Lecture Hall'],
@@ -56,7 +56,7 @@ async function report(
   text: string,
   opts?: { overrideMatchId?: string; peerShape?: PeerShape },
 ): Promise<string> {
-  const { overrideMatchId, peerShape = WIFI_MUIR } = opts ?? {};
+  const { overrideMatchId, peerShape = WIFI_NORTH_HALL } = opts ?? {};
   const { status, body } = await postReport(
     { text, identityRef: who, canFollowUp: true, ...(overrideMatchId ? { overrideMatchId } : {}) },
     deps,
@@ -110,7 +110,7 @@ async function main(): Promise<void> {
 
   rule(`1. The count rule: the first ${CLUSTER_THRESHOLD} wifi reports each get a ticket.`);
   line('  Each reporter becomes visible to the next search once their ticket is filed.');
-  line(`  Until ${CLUSTER_THRESHOLD} matching tickets already exist, reports continue filing — that volume is how ITS learns something`);
+  line(`  Until ${CLUSTER_THRESHOLD} matching tickets already exist, reports continue filing — that volume is how IT learns something`);
   line('  is happening.');
 
   for (let i = 1; i <= CLUSTER_THRESHOLD; i++) {
@@ -162,9 +162,9 @@ async function main(): Promise<void> {
   rule(`5. Classroom projector pilot: ${projectorCeiling} filings, then the next report is deflected.`);
   const projectorText = 'The projector in Lecture Hall will not turn on';
   for (let i = 1; i <= projectorCeiling; i++) {
-    await report(`instructor-${i}`, projectorText, { peerShape: PROJECTOR_CENTER_HALL });
+    await report(`instructor-${i}`, projectorText, { peerShape: PROJECTOR_LECTURE_HALL });
   }
-  await report(`instructor-${projectorCeiling + 1}`, projectorText, { peerShape: PROJECTOR_CENTER_HALL });
+  await report(`instructor-${projectorCeiling + 1}`, projectorText, { peerShape: PROJECTOR_LECTURE_HALL });
 
   rule('6. A declared incident deflects on the FIRST match — the count is never read.');
   const declared: DeclaredIncident = {
@@ -185,12 +185,12 @@ async function main(): Promise<void> {
     summary: 'Campus VPN authentication failures',
   };
   incidents.add(declared);
-  line('  ITS has declared an incident. One authoritative incident outranks any');
+  line('  IT has declared an incident. One authoritative incident outranks any');
   line('  volume of peer reports — and this is the ONLY reply permitted to say a');
-  line('  service is affected, because we are quoting ITS with a timestamp.');
+  line('  service is affected, because we are quoting IT with a timestamp.');
   await report('student-7', 'the VPN keeps asking me to sign in over and over, nobody can get on');
 
-  rule('7. The ticket an ITS agent actually opens.');
+  rule('7. The ticket an IT agent actually opens.');
   line('  Everything except the description is a bounded catalog value. The');
   line('  description quotes the reporter exactly once and is composed by code —');
   line('  never authored by a model.');

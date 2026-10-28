@@ -13,7 +13,7 @@
 // It adds no capability: the merged result is the same MatchCandidate[] the
 // interface already promises, sorted the same way. Nothing above the adapter
 // layer knows there are two sources, which is the property that lets stage 3
-// collapse them back into one when ITS names the real feed.
+// collapse them back into one when IT names the real feed.
 
 import type { IncidentSource } from '../contracts/adapters';
 import type { MatchCandidate } from '../contracts/types';

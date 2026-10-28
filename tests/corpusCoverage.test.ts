@@ -29,8 +29,8 @@ describe('expanded synthetic corpus invariants', () => {
     const roomless = EVAL_ROWS.find((row) => row.id === 'av-center-roomless-01')!;
     const roomSpecific = EVAL_ROWS.find((row) => row.id === 'av-center-room-01')!;
     expect(expectedGroupingKey(roomless)).not.toBe(expectedGroupingKey(roomSpecific));
-    expect(groupingKey({ service: 'classroom_av', scope: 'location', building: 'CENTR', room: '' }))
-      .not.toBe(groupingKey({ service: 'classroom_av', scope: 'location', building: 'CENTR', room: '214' }));
+    expect(groupingKey({ service: 'classroom_av', scope: 'location', building: 'LECT', room: '' }))
+      .not.toBe(groupingKey({ service: 'classroom_av', scope: 'location', building: 'LECT', room: '214' }));
   });
 
   it('grades identical recorded runs as repeatable', () => {

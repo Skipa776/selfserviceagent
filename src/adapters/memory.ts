@@ -122,7 +122,7 @@ export class InMemoryTicketSink extends Injectable implements TicketSink {
     // (error_rescue_map.md) — the throw above happens first.
     const ticketNumber = `${payload.ticketClass}00${String(this.counter).padStart(5, '0')}`;
     this.filed.push(payload);
-    return { ticketNumber, url: `https://its.example.edu/ticket/${ticketNumber}` };
+    return { ticketNumber, url: `https://it.example.edu/ticket/${ticketNumber}` };
   }
 }
 

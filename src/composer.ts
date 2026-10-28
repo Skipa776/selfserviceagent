@@ -11,18 +11,18 @@
 // has no `status`, no `summary`, no incident at all — so the cluster template
 // cannot claim a service is down even if someone edited it carelessly, because
 // there is nothing in scope to claim it with. Compare MATCHED_DECLARED, which
-// does carry those fields, because ITS said them and we are quoting with a
+// does carry those fields, because IT said them and we are quoting with a
 // timestamp.
 
 import type { ApiOutcome } from './contracts/types';
 
 /**
- * PLACEHOLDER — the real ITS Service Desk contact details are not in this bundle
+ * PLACEHOLDER — the real IT Service Desk contact details are not in this bundle
  * until the production service desk mapping is approved. Every UNAVAILABLE and THROTTLED reply must end in a
  * human path: someone whose wifi is down is being told by their university's
  * assistant that it cannot help right now, and that reply must not be a dead end.
  */
-export const HUMAN_PATH = 'the ITS Service Desk at https://support.example.edu';
+export const HUMAN_PATH = 'the IT Service Desk at https://support.example.edu';
 
 export type ComposeInput =
   | {
@@ -77,7 +77,7 @@ function unavailableDetail(reason: Extract<ComposeInput, { outcome: 'UNAVAILABLE
     case 'identity_unavailable':
       return 'I could not verify who is reporting this, so I have not filed anything.';
     case 'incident_search_failed':
-      // The load-bearing one: we refuse to file blind rather than flood ITS during
+      // The load-bearing one: we refuse to file blind rather than flood IT during
       // exactly the incident that broke the search.
       return 'I could not check whether this is already known, so I have not filed anything — I do not want to add a duplicate to a problem I cannot see.';
   }
@@ -99,7 +99,7 @@ export function compose(input: ComposeInput): string {
       // statusUpdatedAt ALWAYS accompanies status — a status without its
       // timestamp reads as current, and it may be hours stale. No ETA, ever.
       return (
-        `ITS has an open incident that looks like it covers this. They describe it as: ` +
+        `IT has an open incident that looks like it covers this. They describe it as: ` +
         `"${summary}". The status they have published is "${status}", last updated ${statusUpdatedAt}. ` +
         `Details: ${url}. I have not created a new ticket. ${OVERRIDE_AFFORDANCE}`
       );
@@ -121,13 +121,13 @@ export function compose(input: ComposeInput): string {
 
     case 'FILED_INCIDENT':
       return (
-        `I have filed this as an incident: ${input.ticketNumber}. ITS handles incidents that affect a ` +
+        `I have filed this as an incident: ${input.ticketNumber}. IT handles incidents that affect a ` +
         `shared service. Any updates will appear on the ticket: ${input.url}`
       );
 
     case 'FILED_REQUEST':
       return (
-        `I have filed this as a request: ${input.ticketNumber}. ITS handles requests that affect one ` +
+        `I have filed this as a request: ${input.ticketNumber}. IT handles requests that affect one ` +
         `person's access to a service. Any updates will appear on the ticket: ${input.url}`
       );
 

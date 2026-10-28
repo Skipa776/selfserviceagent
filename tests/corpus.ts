@@ -2,7 +2,7 @@
 // eval and every flow test draw from. Tests import these rows; they never
 // paraphrase a report inline (a reworded example is a registry edit).
 //
-// Everything here is SYNTHETIC. No real report, name, PID, email, or ticket text
+// Everything here is SYNTHETIC. No real report, name, student ID, email, or ticket text
 // (safety/boundaries.md). tests/piiScan.test.ts mechanically enforces that.
 //
 // Two distinct uses, deliberately not mixed (report_corpus.md "Responsibility"):
@@ -82,7 +82,7 @@ export const EVAL_ROWS: readonly EvalRow[] = [
     service: 'unknown',
     scope: 'location',
     location: 'Main Library',
-    building: 'GEISEL', room: '',
+    building: 'LIB', room: '',
     symptom: 'slow',
     note: 'service ambiguous by design — users do not distinguish wifi from wired. Do not "fix" this row by picking a side; resolving it is a follow-up.',
   },
@@ -121,7 +121,7 @@ export const EVAL_ROWS: readonly EvalRow[] = [
     service: 'classroom_av',
     scope: 'location',
     location: 'Lecture Hall',
-    building: 'CENTR', room: '',
+    building: 'LECT', room: '',
     symptom: 'equipment_unavailable',
   },
   {
@@ -135,24 +135,24 @@ export const EVAL_ROWS: readonly EvalRow[] = [
     service: 'wifi', scope: 'location', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL', room: '', symptom: 'intermittent',
   },
   {
-    id: 'wired-rwac-01', groupId: 'wired-rwac-location', role: 'student',
-    input: 'the ethernet at RWAC room 201 is crawling',
-    service: 'wired_network', scope: 'location', location: 'Ridge Walk Academic Building', building: 'RWAC', room: '201', symptom: 'slow',
+    id: 'wired-hab-01', groupId: 'wired-hab-location', role: 'student',
+    input: 'the ethernet at HAB room 201 is crawling',
+    service: 'wired_network', scope: 'location', location: 'Hillside Academic Building', building: 'HAB', room: '201', symptom: 'slow',
   },
   {
-    id: 'wired-rwac-02', groupId: 'wired-rwac-location', role: 'faculty',
-    input: 'Wired network in the Ridge Walk Academic Building is very sluggish',
-    service: 'wired_network', scope: 'location', location: 'Ridge Walk Academic Building', building: 'RWAC', room: '', symptom: 'slow',
+    id: 'wired-hab-02', groupId: 'wired-hab-location', role: 'faculty',
+    input: 'Wired network in the Hillside Academic Building is very sluggish',
+    service: 'wired_network', scope: 'location', location: 'Hillside Academic Building', building: 'HAB', room: '', symptom: 'slow',
   },
   {
-    id: 'wired-rwac-03', groupId: 'wired-rwac-location', role: 'staff',
-    input: 'I am seeing a slow LAN connection in RWAC',
-    service: 'wired_network', scope: 'location', location: 'Ridge Walk Academic Building', building: 'RWAC', room: '', symptom: 'slow',
+    id: 'wired-hab-03', groupId: 'wired-hab-location', role: 'staff',
+    input: 'I am seeing a slow LAN connection in HAB',
+    service: 'wired_network', scope: 'location', location: 'Hillside Academic Building', building: 'HAB', room: '', symptom: 'slow',
   },
   {
     id: 'wired-price-01', groupId: 'wired-price-location', role: 'student',
     input: 'the network jack in Student Center will not connect',
-    service: 'wired_network', scope: 'location', location: 'Student Center', building: 'PRICE', room: '', symptom: 'no_connection',
+    service: 'wired_network', scope: 'location', location: 'Student Center', building: 'STUC', room: '', symptom: 'no_connection',
   },
   {
     id: 'vpn-personal-01', groupId: 'vpn-individual-auth', role: 'student',
@@ -183,33 +183,33 @@ export const EVAL_ROWS: readonly EvalRow[] = [
   {
     id: 'portal-main-library-ambiguous-02', groupId: 'internet-main-library-service-unknown', role: 'faculty',
     input: 'Internet access around Main Library is painfully slow',
-    service: 'unknown', scope: 'location', location: 'Main Library', building: 'GEISEL', room: '', symptom: 'slow',
+    service: 'unknown', scope: 'location', location: 'Main Library', building: 'LIB', room: '', symptom: 'slow',
     note: 'Generic internet must not be guessed as wifi or wired.',
   },
   {
     id: 'av-center-room-01', groupId: 'av-center-room-214', role: 'student',
     input: 'The display in room 214, Lecture Hall is blank',
-    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'CENTR', room: '214', symptom: 'equipment_unavailable',
+    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '214', symptom: 'equipment_unavailable',
   },
   {
     id: 'av-center-room-02', groupId: 'av-center-room-214', role: 'faculty',
     input: 'Lecture Hall 214 projector will not power on',
-    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'CENTR', room: '214', symptom: 'equipment_unavailable',
+    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '214', symptom: 'equipment_unavailable',
   },
   {
     id: 'av-center-room-03', groupId: 'av-center-room-214', role: 'staff',
-    input: 'In CENTR room 214, the classroom display has no image',
-    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'CENTR', room: '214', symptom: 'equipment_unavailable',
+    input: 'In LECT room 214, the classroom display has no image',
+    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '214', symptom: 'equipment_unavailable',
   },
   {
     id: 'av-center-building-02', groupId: 'av-center-building-level', role: 'student',
     input: 'Projectors across Lecture Hall are not turning on',
-    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'CENTR', room: '', symptom: 'equipment_unavailable',
+    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '', symptom: 'equipment_unavailable',
   },
   {
     id: 'av-center-building-03', groupId: 'av-center-building-level', role: 'staff',
     input: 'Faculty reports that the AV equipment in Lecture Hall is unavailable',
-    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'CENTR', room: '', symptom: 'equipment_unavailable',
+    service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '', symptom: 'equipment_unavailable',
   },
 ];
 
@@ -252,7 +252,7 @@ function peer(o: {
     openedAt: o.openedAt ?? IN_WINDOW,
     matchScore: o.matchScore ?? MATCH,
     reporterHash: o.reporterHash,
-    url: `https://its.example.edu/ticket/${o.id}`,
+    url: `https://it.example.edu/ticket/${o.id}`,
   };
 }
 
@@ -302,7 +302,7 @@ const report = (p: Partial<ProblemReport> & { verbatim: string }): ProblemReport
 });
 
 /** The canonical North Residence Hall wifi report reused by the count-boundary and window flows. */
-const MUIR_WIFI = report({ verbatim: 'the wifi in North Residence Hall keeps dropping' });
+const NORTH_HALL_WIFI = report({ verbatim: 'the wifi in North Residence Hall keeps dropping' });
 
 // Distinct-reporter peer sets — the heart of the count rule (F2/F3/F4).
 // The threshold is an EXISTING-peer ceiling: if search finds 5 matching wifi
@@ -337,7 +337,7 @@ const PROJECTOR = report({
   service: 'classroom_av',
   scope: 'location',
   location: 'Lecture Hall',
-  building: 'CENTR',
+  building: 'LECT',
   room: '',
   symptom: 'equipment_unavailable',
   verbatim: EVAL_ROWS[8].input,
@@ -349,7 +349,7 @@ const THREE_DISTINCT_PROJECTOR: readonly PeerTicket[] = Array.from({ length: 3 }
     service: 'classroom_av',
     scope: 'location',
     locations: ['Lecture Hall'],
-    building: 'CENTR',
+    building: 'LECT',
     room: '',
     symptom: 'equipment_unavailable',
   }),
@@ -381,7 +381,7 @@ export type FlowScenario = {
 export const FLOWS: readonly FlowScenario[] = [
   {
     id: 'F1',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: {
       candidates: [declared({ id: 'INC1001', summary: 'Wi-Fi disruption affecting North Residence Hall' })],
       canFollowUp: true,
@@ -392,7 +392,7 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F2',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: { candidates: FIVE_DISTINCT, canFollowUp: true },
     expected: 'MATCHED_CLUSTER',
     filesTicket: false,
@@ -400,7 +400,7 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F3',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: { candidates: FOUR_DISTINCT, canFollowUp: true },
     expected: 'FILED_INCIDENT',
     filesTicket: true,
@@ -408,7 +408,7 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F4',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: { candidates: FIVE_FROM_ONE, canFollowUp: true },
     expected: 'FILED_INCIDENT',
     filesTicket: true,
@@ -416,7 +416,7 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F5',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: {
       candidates: [
         declared({
@@ -434,7 +434,7 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F6',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: {
       candidates: [
         declared({
@@ -507,7 +507,7 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F11',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: { candidates: FIVE_DISTINCT, canFollowUp: true, overrideMatchId: 'REQ300' },
     expected: 'FILED_INCIDENT',
     filesTicket: true,
@@ -515,7 +515,7 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F12',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: { candidates: [], canFollowUp: true, throttled: true },
     expected: 'THROTTLED',
     filesTicket: false,
@@ -523,11 +523,11 @@ export const FLOWS: readonly FlowScenario[] = [
   },
   {
     id: 'F13',
-    report: MUIR_WIFI,
+    report: NORTH_HALL_WIFI,
     world: { candidates: [], canFollowUp: true, searchFails: true },
     expected: 'UNAVAILABLE',
     filesTicket: false,
-    note: 'Incident search is down → UNAVAILABLE. A failed search NEVER falls through to filing (that would flood ITS during the very incident that broke search).',
+    note: 'Incident search is down → UNAVAILABLE. A failed search NEVER falls through to filing (that would flood IT during the very incident that broke search).',
   },
   {
     id: 'F14',

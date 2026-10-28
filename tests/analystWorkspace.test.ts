@@ -9,7 +9,7 @@ import type { ChatClient } from '../src/parser/chatClient';
 
 const event = (overrides: Partial<ReportEvent> = {}): ReportEvent => ({
   ts: '2026-09-11T12:00:00.000Z', correlationId: 'corr-1', service: 'classroom_av', scope: 'location',
-  location: 'Lecture Hall West', building: 'WLH', room: '', symptom: 'equipment_unavailable', observedAt: '',
+  location: 'Lecture Hall West', building: 'LHW', room: '', symptom: 'equipment_unavailable', observedAt: '',
   reporterHash: 'reporter-a', outcome: 'FILE_INCIDENT', ticketNumber: 'INC001', viaOverride: false,
   ...overrides,
 });
