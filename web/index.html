@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Campus Services — the university</title>
+<style>
+  /* ── brand tokens (official) ─────────────────────────────────────── */
+  :root {
+    --navy: #182b49;        /* Navy */
+    --navy-deep: #0a2359;
+    --blue: #00629b;        /* Pacific / link blue */
+    --blue-soft: #006a96;
+    --gold: #ffcd00;        /* Gold */
+    --gold-deep: #ffb71e;
+    --ink: #1c2a3a;
+    --muted: #5b6b7c;
+    --line: #e2e7ec;
+    --line-soft: #eef2f5;
+    --surface: #ffffff;
+    --page: #f4f6f8;
+    --rail: #f7f9fb;
+    --radius: 14px;
+    --shadow-sm: 0 1px 2px rgba(24,43,73,.06), 0 1px 3px rgba(24,43,73,.05);
+    --shadow-md: 0 6px 18px rgba(24,43,73,.10), 0 2px 6px rgba(24,43,73,.06);
+    --shadow-lg: 0 24px 60px rgba(10,35,89,.22), 0 8px 24px rgba(10,35,89,.14);
+    --font: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--page);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  ::selection { background: var(--gold); color: var(--navy); }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Themed scrollbar */
+  * { scrollbar-width: thin; scrollbar-color: #c3cdd7 transparent; }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-thumb { background: #c3cdd7; border-radius: 8px; border: 2px solid var(--page); }
+
+  :focus-visible { outline: 3px solid var(--gold-deep); outline-offset: 2px; border-radius: 4px; }
+
+  /* ── Top brand header ─────────────────────────────────────────────────── */
+  header.brand {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 40;
+  }
+  .brand-inner {
+    max-width: 1360px; margin: 0 auto;
+    display: flex; align-items: center; gap: 18px;
+    padding: 12px 26px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--navy); font-weight: 700; letter-spacing: -.01em;
+    white-space: nowrap;
+  }
+  .logo .trident {
+    width: 26px; height: 26px; flex: none; color: var(--navy);
+  }
+  .logo .uc { font-size: 19px; }
+  .logo .uc b { font-weight: 800; }
+  .app-switch {
+    display: flex; align-items: center; gap: 8px;
+    margin-left: 8px; padding: 7px 14px;
+    color: var(--navy); font-weight: 600; font-size: 14px;
+    border: 1px solid var(--line); border-radius: 999px;
+    background: #fbfdff; cursor: pointer;
+  }
+  .app-switch svg { width: 14px; height: 14px; opacity: .6; }
+  .header-spacer { flex: 1; }
+  .header-tools { display: flex; align-items: center; gap: 6px; }
+  .icon-btn {
+    width: 38px; height: 38px; display: grid; place-items: center;
+    border-radius: 999px; color: var(--navy); cursor: pointer;
+    border: 1px solid transparent; background: transparent;
+  }
+  .icon-btn:hover { background: var(--line-soft); }
+  .icon-btn svg { width: 19px; height: 19px; }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 999px;
+    background: linear-gradient(135deg, var(--navy), var(--blue));
+    color: #fff; font-weight: 700; font-size: 14px;
+    display: grid; place-items: center; cursor: pointer;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.25);
+  }
+
+  /* ── Page shell ───────────────────────────────────────────────────────── */
+  .shell {
+    max-width: 1360px; margin: 0 auto;
+    display: grid; grid-template-columns: 288px 1fr;
+    gap: 22px; padding: 22px 26px 64px;
+    align-items: start;
+  }
+
+  /* ── Profile rail ─────────────────────────────────────────────────────── */
+  aside.rail {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-sm);
+    overflow: hidden; position: sticky; top: 84px;
+  }
+  .rail .who {
+    padding: 20px 20px 18px;
+    background:
+      radial-gradient(140% 120% at 100% 0%, rgba(0,98,155,.10), transparent 60%),
+      linear-gradient(180deg, #fbfdff, #ffffff);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .rail .who .name { font-weight: 700; color: var(--navy); font-size: 17px; letter-spacing: -.01em; }
+  .rail .who .pid { color: var(--muted); font-size: 13px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .rail dl { margin: 0; padding: 16px 20px 6px; }
+  .rail dt { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-top: 12px; }
+  .rail dt:first-child { margin-top: 0; }
+  .rail dd { margin: 3px 0 0; font-size: 14px; color: var(--ink); }
+  .rail nav { padding: 8px; border-top: 1px solid var(--line-soft); margin-top: 12px; }
+  .rail nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 9px; color: var(--ink); font-size: 14px;
+  }
+  .rail nav a:hover { background: var(--line-soft); text-decoration: none; }
+  .rail nav a svg { width: 16px; height: 16px; color: var(--blue); flex: none; }
+
+  /* ── Main column ──────────────────────────────────────────────────────── */
+  main { min-width: 0; display: grid; gap: 22px; }
+
+  /* The CTA banner — the one authored, eye-grabbing moment on the page. */
+  .cta {
+    position: relative; overflow: hidden;
+    border-radius: 18px;
+    background:
+      radial-gradient(120% 160% at 88% -20%, rgba(255,205,0,.30), transparent 52%),
+      linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 46%, #123a6b 100%);
+    color: #fff;
+    box-shadow: var(--shadow-md);
+    isolation: isolate;
+  }
+  .cta::after {
+    /* faint trident watermark, geometry not a picture */
+    content: ""; position: absolute; right: -40px; bottom: -60px; z-index: -1;
+    width: 320px; height: 320px; opacity: .10;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.2'><path d='M12 2v20M6 6c0 3 2 5 6 5s6-2 6-5M4 6v3M20 6v3M12 22c-3 0-5-1.5-5-4M12 22c3 0 5-1.5 5-4'/></svg>") center/contain no-repeat;
+  }
+  .cta-inner {
+    display: flex; align-items: center; gap: 28px;
+    padding: 30px 32px;
+    flex-wrap: wrap;
+  }
+  .cta-copy { flex: 1 1 340px; min-width: 0; }
+  .cta-copy h1 {
+    margin: 0; font-size: clamp(23px, 3.1vw, 32px); line-height: 1.08;
+    letter-spacing: -.03em; font-weight: 800; text-wrap: balance;
+  }
+  .cta-copy p { margin: 10px 0 0; color: #d7e3f2; font-size: 15px; max-width: 56ch; }
+  .cta-actions { flex: none; }
+  .btn-report {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 16px 26px; border: none; cursor: pointer;
+    font: inherit; font-weight: 800; font-size: 16px; letter-spacing: -.01em;
+    color: var(--navy); border-radius: 14px;
+    background: linear-gradient(180deg, #ffe066, var(--gold) 55%, var(--gold-deep));
+    box-shadow: 0 10px 24px rgba(255,183,30,.42), inset 0 1px 0 rgba(255,255,255,.6);
+    transition: transform .18s cubic-bezier(.22,1,.36,1), box-shadow .18s ease;
+  }
+  .btn-report:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(255,183,30,.52), inset 0 1px 0 rgba(255,255,255,.6); }
+  .btn-report:active { transform: translateY(0); }
+  .btn-report svg { width: 20px; height: 20px; }
+  .btn-report .pulse {
+    width: 9px; height: 9px; border-radius: 999px; background: #14a05a; flex: none;
+    box-shadow: 0 0 0 0 rgba(20,160,90,.6); animation: pulse 2.4s infinite;
+  }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(20,160,90,.55)} 70%{box-shadow:0 0 0 10px rgba(20,160,90,0)} 100%{box-shadow:0 0 0 0 rgba(20,160,90,0)} }
+
+  /* App-link columns (decorative, from the mock) */
+  .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .col {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .col h2 {
+    margin: 0; padding: 15px 18px; font-size: 14px; color: var(--navy);
+    font-weight: 700; letter-spacing: -.01em;
+    border-bottom: 2px solid var(--gold);
+    background: linear-gradient(180deg, #fbfdff, #fff);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .col h2 .caret { color: var(--muted); }
+  .col ul { list-style: none; margin: 0; padding: 6px; }
+  .col li a {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px; border-radius: 9px; color: var(--ink); font-size: 14px;
+  }
+  .col li a:hover { background: var(--line-soft); text-decoration: none; }
+  .col li a .ico {
+    width: 26px; height: 26px; border-radius: 7px; flex: none;
+    display: grid; place-items: center; color: var(--blue);
+    background: rgba(0,98,155,.09);
+  }
+  .col li a .ico svg { width: 15px; height: 15px; }
+  .col li a .chev { margin-left: auto; color: #c2ccd6; }
+  .col li a .chev svg { width: 15px; height: 15px; }
+
+  /* Right courses card sits inside the 3rd position on wide screens? keep it in cols row as 3rd col replacement on smaller */
+  @media (max-width: 1080px) {
+    .shell { grid-template-columns: 1fr; }
+    aside.rail { position: static; }
+    .cols { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 680px) {
+    .cols { grid-template-columns: 1fr; }
+    .brand-inner { padding: 10px 16px; }
+    .shell { padding: 16px; }
+    .cta-inner { padding: 24px; }
+    .app-switch { display: none; }
+  }
+
+  /* ── Report panel (slide-over) ────────────────────────────────────────── */
+  .scrim {
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(10,25,50,.5); backdrop-filter: blur(3px);
+    opacity: 0; visibility: hidden; transition: opacity .28s ease, visibility .28s;
+  }
+  .scrim.open { opacity: 1; visibility: visible; }
+  .panel {
+    position: fixed; top: 0; right: 0; z-index: 100;
+    width: min(480px, 100vw); height: 100dvh;
+    background: var(--surface);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(102%);
+    transition: transform .34s cubic-bezier(.22,1,.36,1);
+    display: flex; flex-direction: column;
+  }
+  .panel.open { transform: translateX(0); }
+  .panel-head {
+    padding: 22px 24px 18px;
+    background:
+      radial-gradient(130% 120% at 100% 0%, rgba(255,205,0,.16), transparent 55%),
+      linear-gradient(180deg, var(--navy-deep), var(--navy));
+    color: #fff;
+  }
+  .panel-head .eyebrow { display:none; }
+  .panel-head h2 { margin: 0; font-size: 20px; letter-spacing: -.02em; font-weight: 800; }
+  .panel-head p { margin: 8px 0 0; color: #cfdcec; font-size: 13.5px; max-width: 42ch; }
+  .panel-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 34px; height: 34px; border-radius: 999px; cursor: pointer;
+    border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff;
+    display: grid; place-items: center;
+  }
+  .panel-close:hover { background: rgba(255,255,255,.18); }
+  .panel-close svg { width: 17px; height: 17px; }
+
+  .panel-body { padding: 22px 24px; overflow-y: auto; flex: 1; }
+  .field-label { font-weight: 700; color: var(--navy); font-size: 14px; }
+  .field-hint { color: var(--muted); font-size: 13px; margin: 3px 0 10px; }
+  textarea#report {
+    width: 100%; min-height: 148px; resize: vertical;
+    padding: 14px 15px; font: inherit; font-size: 15px; color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: 12px; background: #fbfdff;
+    transition: border-color .16s ease, box-shadow .16s ease;
+  }
+  textarea#report::placeholder { color: #9aa8b6; }
+  textarea#report:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px rgba(0,98,155,.14); }
+
+  .examples { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+  .chip {
+    font: inherit; font-size: 12.5px; cursor: pointer;
+    padding: 7px 12px; border-radius: 999px; color: var(--navy);
+    background: #eef4f9; border: 1px solid var(--line);
+  }
+  .chip:hover { background: #e2edf5; }
+  .presentation-note {
+    margin: 0 0 16px; padding: 10px 12px;
+    border-left: 3px solid var(--gold-deep); border-radius: 8px;
+    background: #fff8dd; color: var(--navy); font-size: 12.5px; line-height: 1.45;
+  }
+
+  .submit {
+    margin-top: 18px; width: 100%;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 15px 20px; border: none; cursor: pointer;
+    font: inherit; font-weight: 800; font-size: 15.5px; color: var(--navy);
+    border-radius: 13px;
+    background: linear-gradient(180deg, #ffe066, var(--gold) 55%, var(--gold-deep));
+    box-shadow: 0 8px 20px rgba(255,183,30,.40), inset 0 1px 0 rgba(255,255,255,.6);
+    transition: transform .16s ease, box-shadow .16s ease, opacity .16s;
+  }
+  .submit:hover:not(:disabled) { transform: translateY(-1px); }
+  .submit:disabled { opacity: .6; cursor: progress; }
+  .submit .spinner {
+    width: 17px; height: 17px; border-radius: 999px; flex: none;
+    border: 2.5px solid rgba(24,43,73,.25); border-top-color: var(--navy);
+    animation: spin .7s linear infinite; display: none;
+  }
+  .submit.loading .spinner { display: block; }
+  .submit.loading .label { opacity: .8; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .override-submit {
+    margin-top: 12px; width: 100%; padding: 11px 14px;
+    border: 1px solid var(--blue); border-radius: 10px;
+    background: #fff; color: var(--blue); cursor: pointer;
+    font: inherit; font-weight: 700;
+  }
+  .override-submit:hover:not(:disabled) { background: #eef7fc; }
+  .override-submit:disabled { opacity: .6; cursor: progress; }
+
+  /* Result card */
+  .result { margin-top: 20px; display: none; animation: rise .4s cubic-bezier(.22,1,.36,1); }
+  .result.show { display: block; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .result-card {
+    border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .result-top {
+    display: flex; align-items: center; gap: 12px;
+    padding: 15px 18px; font-weight: 700; font-size: 14.5px;
+  }
+  .result-top .dot { width: 10px; height: 10px; border-radius: 999px; flex: none; }
+  .result[data-tone="filed"] .result-top { background: #edf7f0; color: #12683a; }
+  .result[data-tone="filed"] .dot { background: #1b9e57; }
+  .result[data-tone="matched"] .result-top { background: #fff6e0; color: #8a5a00; }
+  .result[data-tone="matched"] .dot { background: var(--gold-deep); }
+  .result[data-tone="detail"] .result-top { background: #eaf2fb; color: var(--blue); }
+  .result[data-tone="detail"] .dot { background: var(--blue); }
+  .result[data-tone="error"] .result-top { background: #fdeeee; color: #9a2020; }
+  .result[data-tone="error"] .dot { background: #cf3838; }
+  .result-body { padding: 16px 18px; font-size: 14px; color: var(--ink); line-height: 1.55; }
+  .ticket-reference {
+    margin-top: 14px; padding: 14px;
+    background: #fff8dd; border: 1px solid var(--gold-deep); border-radius: 10px;
+  }
+  .ticket-reference-message { margin: 0 0 9px; color: var(--navy); font-weight: 800; }
+  .ticket-reference-link {
+    display: inline-flex; align-items: center; padding: 8px 12px;
+    color: #fff; background: var(--blue); border-radius: 8px; font-weight: 700;
+  }
+  .ticket-reference-link:hover { background: var(--navy); text-decoration: none; }
+  .ticket-num {
+    display: inline-block; margin-top: 12px; padding: 8px 14px;
+    font-weight: 800; font-size: 15px; color: var(--navy); letter-spacing: .02em;
+    background: #fff8dd; border: 1px dashed var(--gold-deep); border-radius: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-meta { margin-top: 12px; font-size: 12.5px; color: var(--muted); }
+  .result-meta code { background: var(--line-soft); padding: 1px 6px; border-radius: 5px; color: var(--navy); }
+
+  .disclaimer {
+    margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line-soft);
+    font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<header class="brand">
+  <div class="brand-inner">
+    <div class="logo">
+      <svg class="trident" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3v18"/><path d="M6 7c0 3 2.4 5 6 5s6-2 6-5"/><path d="M5 7V4.5M19 7V4.5M12 21c-3.2 0-5.2-1.6-5.2-4M12 21c3.2 0 5.2-1.6 5.2-4"/>
+      </svg>
+      <span class="uc">UC <b>San Diego</b></span>
+    </div>
+    <button class="app-switch" type="button">
+      Campus Services
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="header-spacer"></div>
+    <div class="header-tools">
+      <button class="icon-btn" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></button>
+      <button class="icon-btn" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></button>
+      <div class="avatar" title="Synthetic Demo User">DU</div>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <!-- Profile rail -->
+  <aside class="rail">
+    <div class="who">
+      <div class="name">Synthetic Demo User</div>
+      <div class="pid">DEMO-NOT-A-PID</div>
+    </div>
+    <dl>
+      <dt>University E-Mail</dt><dd>demo.user@example.invalid</dd>
+      <dt>Correspondence Address</dt><dd>Synthetic address - not a real person</dd>
+      <dt>College</dt><dd>North Residence Hall</dd>
+    </dl>
+    <nav>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg> Schedule of Classes</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> My Appointment Times</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> My Personal Details</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> My Privacy Details</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg> My Bank Accounts</a>
+      <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg> Enrollment Authorization</a>
+    </nav>
+  </aside>
+
+  <!-- Main column -->
+  <main>
+    <!-- The eye-grabbing ticketing CTA -->
+    <section class="cta">
+      <div class="cta-inner">
+        <div class="cta-copy">
+          <h1>Something on campus not working?</h1>
+          <p>Wi-Fi dropping, a portal that won't load, or classroom AV that will not turn on — tell us in your own words. We'll check matching incident and peer-report evidence and open a ticket when the report is not already covered.</p>
+        </div>
+        <div class="cta-actions">
+          <button class="btn-report" id="openPanel" type="button">
+            <span class="pulse" aria-hidden="true"></span>
+            Report a Problem
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- App link columns from the mock (decorative) -->
+    <div class="cols">
+      <div class="col">
+        <h2>TSS Apps — Main Campus <span class="caret">›</span></h2>
+        <ul>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></span> Schedule of Classes <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span> My Appointment Times <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span> My Personal Details <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span> My Privacy Details <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></span> My Bank Accounts <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+        </ul>
+      </div>
+
+      <div class="col">
+        <h2>Extended Studies (DES) <span class="caret">›</span></h2>
+        <ul>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg></span> Course Catalog <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span> Disability Services <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10v5l6 3 6-3v-5"/></svg></span> Extended Studies Canvas <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M6 6h9a3 3 0 0 1 0 6H6"/></svg></span> Financial Assistance <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16M6 16l6-10 6 10"/></svg></span> Legal Name Change <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+        </ul>
+      </div>
+
+      <div class="col">
+        <h2>More Links — Main Campus <span class="caret">›</span></h2>
+        <ul>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg></span> Academic History <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10v5l6 3 6-3v-5"/></svg></span> Canvas <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span> Degree Audit <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M6 6h9a3 3 0 0 1 0 6H6"/></svg></span> Financial Aid <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+          <li><a href="#"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M8 9h8"/></svg></span> Order Transcripts <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 6 6 6-6 6"/></svg></span></a></li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── Report panel ──────────────────────────────────────────────────────── -->
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" aria-hidden="true">
+  <div class="panel-head">
+    <button class="panel-close" id="closePanel" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <h2 id="panelTitle">Report a Problem</h2>
+    <p>Describe what's happening in plain language. No IT jargon needed.</p>
+  </div>
+
+  <div class="panel-body">
+    <p class="presentation-note" id="presentationNote" hidden>Presentation mode simulates a new reporter after each accepted submission. Production uses the authenticated campus user's identity.</p>
+    <p id="serviceDesk" hidden><a class="ticket-reference-link" id="serviceDeskQueueLink" target="_blank" rel="noopener">Open ServiceNow agent queue</a></p>
+    <label class="field-label" for="report">What's going wrong?</label>
+    <div class="field-hint">The more specific you are — where you are, what you were doing — the better we can help.</div>
+    <textarea id="report" placeholder="e.g. The Wi-Fi in North Residence Hall keeps dropping every few minutes on my laptop this afternoon."></textarea>
+
+    <div class="examples" aria-label="Examples">
+      <button class="chip" type="button" data-example="The projector in Lecture Hall will not turn on">The projector in Lecture Hall will not turn on</button>
+      <button class="chip" type="button">The wifi in North Residence Hall keeps dropping</button>
+      <button class="chip" type="button">The housing portal won't load</button>
+      <button class="chip" type="button">VPN keeps asking me to sign in over and over</button>
+      <button class="chip" type="button">Internet in Main Library is super slow</button>
+    </div>
+
+    <button class="submit" id="submit" type="button">
+      <span class="spinner" aria-hidden="true"></span>
+      <span class="label">Submit report</span>
+    </button>
+
+    <div class="result" id="result" role="status" aria-live="polite">
+      <div class="result-card">
+        <div class="result-top"><span class="dot"></span><span id="resultTitle"></span></div>
+        <div class="result-body">
+          <div id="resultReply"></div>
+          <div id="resultReference"></div>
+          <div id="resultTicket"></div>
+          <button class="override-submit" id="overrideSubmit" type="button" hidden>This is not my issue - file separately</button>
+          <div class="result-meta" id="resultMeta"></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="disclaimer">
+      This tool checks its configured incident and peer-report sources and files a clean ticket when the report is not already covered. It never treats report volume as ITS status or claims a service is up or down on its own authority. If something goes wrong, contact the ITS Service Desk directly.
+    </p>
+  </div>
+</aside>
+
+<script>
+  const $ = (s) => document.querySelector(s);
+  const scrim = $('#scrim'), panel = $('#panel');
+  const textarea = $('#report'), submit = $('#submit');
+  const result = $('#result');
+  const overrideSubmit = $('#overrideSubmit');
+  let presentationMode = false;
+  let lastSubmittedText = '';
+  let lastSubmittedIdentityRef = '';
+  let lastOverrideMatchId = '';
+
+  // A stable identity per browser session so retries/idempotency behave.
+  const newIdentityRef = () => 'web-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random());
+  let identityRef = newIdentityRef();
+
+  function openPanel() {
+    scrim.classList.add('open'); panel.classList.add('open');
+    panel.setAttribute('aria-hidden', 'false');
+    setTimeout(() => textarea.focus(), 320);
+  }
+  function closePanel() {
+    scrim.classList.remove('open'); panel.classList.remove('open');
+    panel.setAttribute('aria-hidden', 'true');
+  }
+
+  $('#openPanel').addEventListener('click', openPanel);
+  $('#closePanel').addEventListener('click', closePanel);
+  scrim.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePanel(); });
+
+  document.querySelectorAll('.chip').forEach((c) =>
+    c.addEventListener('click', () => { textarea.value = c.dataset.example || c.textContent; textarea.focus(); })
+  );
+
+  fetch('/app/config').then((response) => response.ok ? response.json() : null).then((config) => {
+    presentationMode = config?.presentationMode === true;
+    $('#presentationNote').hidden = !presentationMode;
+    if (typeof config?.serviceDeskQueueUrl !== 'string' || config.serviceDeskQueueUrl === '') return;
+    $('#serviceDeskQueueLink').href = config.serviceDeskQueueUrl;
+    $('#serviceDesk').hidden = false;
+  }).catch(() => {});
+
+  // Map the seven contract outcomes to a tone + human title.
+  const TONE = {
+    FILED_INCIDENT: ['filed', 'Ticket filed'],
+    FILED_REQUEST:  ['filed', 'Ticket filed'],
+    MATCHED_DECLARED: ['matched', 'Already a known incident'],
+    MATCHED_CLUSTER:  ['matched', 'Others reported something similar'],
+    NEEDS_DETAIL: ['detail', 'One quick detail'],
+    THROTTLED:   ['error', 'Too many reports'],
+    UNAVAILABLE: ['error', "We couldn't check right now"],
+  };
+
+  async function send(overrideMatchId = '') {
+    if (submit.disabled) return;
+    const text = overrideMatchId === '' ? textarea.value.trim() : lastSubmittedText;
+    if (text === '') { textarea.focus(); return; }
+
+    lastSubmittedText = text;
+    const requestIdentityRef = overrideMatchId === '' ? identityRef : lastSubmittedIdentityRef;
+    if (overrideMatchId === '') lastSubmittedIdentityRef = requestIdentityRef;
+    submit.classList.add('loading'); submit.disabled = true;
+    overrideSubmit.hidden = true;
+    overrideSubmit.disabled = true;
+    result.classList.remove('show');
+
+    let body, httpOk = true;
+    try {
+      const res = await fetch('/report', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          identityRef: requestIdentityRef,
+          canFollowUp: false,
+          ...(overrideMatchId === '' ? {} : { overrideMatchId }),
+        }),
+      });
+      body = await res.json();
+      httpOk = res.ok;
+    } catch {
+      body = { outcome: 'UNAVAILABLE', reply: 'Could not reach the service. Please try again.' };
+    }
+
+    submit.classList.remove('loading'); submit.disabled = false;
+    overrideSubmit.disabled = false;
+
+    const [tone, title] = TONE[body.outcome] || ['error', 'Something went wrong'];
+    result.dataset.tone = tone;
+    $('#resultTitle').textContent = title;
+    $('#resultReply').textContent = body.reply || '';
+
+    const referenceEl = $('#resultReference'); referenceEl.replaceChildren();
+    const firstClusterTicket = body.cluster?.tickets?.[0];
+    const firstClusterTicketId = firstClusterTicket?.ticketNumber || body.cluster?.ticketIds?.[0];
+    if (body.outcome === 'MATCHED_CLUSTER' && typeof firstClusterTicketId === 'string') {
+      const reference = document.createElement('div');
+      reference.className = 'ticket-reference';
+
+      const message = document.createElement('p');
+      message.className = 'ticket-reference-message';
+      message.textContent = 'No new ticket was created.';
+
+      const link = document.createElement('a');
+      link.className = 'ticket-reference-link';
+      link.href = typeof firstClusterTicket?.url === 'string' && firstClusterTicket.url !== ''
+        ? firstClusterTicket.url
+        : '/ticket/' + encodeURIComponent(firstClusterTicketId);
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'Track existing ticket ' + firstClusterTicketId;
+
+      reference.append(message, link);
+      referenceEl.appendChild(reference);
+    }
+
+    const ticketEl = $('#resultTicket'); ticketEl.innerHTML = '';
+    if (body.ticket && body.ticket.ticketNumber && body.ticket.url) {
+      const link = document.createElement('a');
+      link.className = 'ticket-reference-link';
+      link.href = body.ticket.url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.textContent = 'Open ' + body.ticket.ticketNumber + ' in ServiceNow';
+      ticketEl.appendChild(link);
+    }
+
+    const isMatch = body.outcome === 'MATCHED_CLUSTER' || body.outcome === 'MATCHED_DECLARED';
+    lastOverrideMatchId = isMatch && typeof body.override?.matchId === 'string'
+      ? body.override.matchId
+      : '';
+    overrideSubmit.hidden = lastOverrideMatchId === '';
+
+    const meta = $('#resultMeta');
+    const bits = ['outcome: ' + body.outcome];
+    if (body.incident) bits.push('incident ' + body.incident.id + ' — ' + body.incident.status);
+    if (body.cluster) bits.push(body.cluster.reportCount + ' reporters');
+    if (body.missingFields) bits.push('needs: ' + body.missingFields.join(', '));
+    meta.innerHTML = bits.map((b) => '<code>' + b.replace(/[&<>]/g, (c)=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</code>').join(' ');
+
+    result.classList.add('show');
+
+    const accepted = ['FILED_INCIDENT', 'FILED_REQUEST', 'MATCHED_DECLARED', 'MATCHED_CLUSTER'].includes(body.outcome);
+    if (presentationMode && overrideMatchId === '' && accepted) identityRef = newIdentityRef();
+
+  }
+
+  submit.addEventListener('click', () => { void send(); });
+  overrideSubmit.addEventListener('click', () => {
+    if (lastOverrideMatchId !== '') void send(lastOverrideMatchId);
+  });
+  textarea.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') send();
+  });
+</script>
+</body>
+</html>

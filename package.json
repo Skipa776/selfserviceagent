@@ -1,0 +1,36 @@
+{
+  "name": "campus-issue-reporter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "demo": "tsx demo/run.ts",
+    "demo:live": "tsx --env-file-if-exists=.env demo/interactive.ts",
+    "demo:analyst": "tsx --env-file-if-exists=.env analyst/server.ts",
+    "demo:analyst:e2e": "tsx analyst/e2e.ts",
+    "web": "tsx --env-file-if-exists=.env web/server.ts",
+    "web:presentation": "WEB_PRESENTATION=1 tsx --env-file-if-exists=.env web/server.ts",
+    "web:e2e": "tsx --env-file-if-exists=.env web/e2e.ts",
+    "eval:llm": "tsx --env-file-if-exists=.env scripts/evalLlm.ts",
+    "eval:models": "tsx --env-file-if-exists=.env scripts/compareParserModels.ts",
+    "snow:check": "tsx --env-file-if-exists=.env scripts/snowCheck.ts",
+    "snow:inspect-analyst": "tsx --env-file-if-exists=.env scripts/snowInspectAnalyst.ts",
+    "snow:peers": "tsx --env-file-if-exists=.env scripts/snowPeersCheck.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.1.2",
+    "eslint": "^10.8.0",
+    "tsx": "^4.23.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.65.0",
+    "vitest": "^4.1.10"
+  }
+}

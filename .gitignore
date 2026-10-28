@@ -1,0 +1,35 @@
+node_modules/
+dist/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+coverage/
+.analyst-demo.sqlite*
+analyst-model-benchmark.json
+.devswarm-temp/
+.playwright-mcp/
+*.png
+ui-reference/
+
+# Local project history and planning material is intentionally not part of the
+# application-only repository.
+AGENTS.md
+AGENT_INSTRUCTIONS.md
+CLAUDE.md
+ARCHITECTURE.md
+PROJECT_REQUIREMENTS.md
+OFFLINE_DUPLICATE_TICKET_PLAN.md
+PRESENTATION_READINESS.md
+DEMO_SERVICENOW_WORKFLOW.md
+ANALYST_DEMO.md
+MODEL_BENCHMARK_METHOD.md
+PDI_ANALYST_INSPECTION.md
+APP_TECHNICAL_REFERENCE.txt
+ITS_PROJECT_DOCUMENTATION.txt
+stack_config.toml
+context/
+docs/
+Campus Building Codes.txt

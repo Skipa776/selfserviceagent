@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Incident Analyst</title>
+  <style>
+    :root { color-scheme: light; --navy: #182b49; --blue: #00629b; --gold: #ffcd00; --paper: #f5f2ea; --ink: #17212b; --muted: #607080; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.45 ui-sans-serif, system-ui, sans-serif; }
+    header { padding: 24px clamp(20px, 5vw, 72px); color: white; background: var(--navy); border-bottom: 6px solid var(--gold); }
+    header p { margin: 4px 0 0; color: #c8d8e8; }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 20px 60px; }
+    .warning { padding: 12px 16px; background: #fff3cd; border: 1px solid #e7bd37; font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 18px; }
+    .card { grid-column: span 12; background: white; border: 1px solid #d8dee5; border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px rgb(24 43 73 / 7%); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .metric { padding: 14px; background: #eef4f8; border-left: 4px solid var(--blue); }
+    .metric strong { display: block; font-size: 24px; }
+    button { border: 0; border-radius: 7px; padding: 10px 14px; color: white; background: var(--blue); font-weight: 700; cursor: pointer; }
+    button.secondary { color: var(--navy); background: #e8edf2; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    select { min-width: 100%; padding: 10px; }
+    pre { overflow: auto; padding: 14px; background: #101820; color: #dcecff; border-radius: 8px; white-space: pre-wrap; }
+    .muted { color: var(--muted); }
+    @media (min-width: 800px) { .cluster { grid-column: span 5; } .proposal { grid-column: span 7; } }
+  </style>
+</head>
+<body>
+  <header><h1>AI Incident Analyst</h1><p>Evidence synthesis for a human-approved, shared tracking record</p></header>
+  <main>
+    <div class="warning">EXPERIMENTAL · PDI ONLY · HUMAN APPROVAL REQUIRED · SERVICENOW CREATION DISABLED</div>
+    <div class="grid">
+      <section class="card cluster">
+        <h2>Cluster timeline</h2>
+        <select id="clusters" aria-label="Evidence cluster"></select>
+        <div class="metrics">
+          <div class="metric"><strong id="filed">0</strong>Filed</div>
+          <div class="metric"><strong id="overflow">0</strong>Overflow</div>
+          <div class="metric"><strong id="overrides">0</strong>Overrides</div>
+          <div class="metric"><strong id="total">0</strong>Distinct</div>
+        </div>
+        <p id="topic" class="muted">No evidence yet. Submit reports through the reporter page.</p>
+        <button id="generate">Generate AI recommendation</button>
+      </section>
+      <section class="card proposal">
+        <h2>AI recommendation</h2>
+        <div id="proposal" class="muted">Select a cluster and generate a bounded shadow proposal.</div>
+        <p><button id="approve" disabled>Approve exact payload in shadow mode</button></p>
+        <p id="approval" class="muted"></p>
+        <div id="shared"></div>
+      </section>
+      <section class="card">
+        <h2>Parser model comparison</h2>
+        <p class="muted">Same frozen synthetic corpus. Counts show observed failures, not an abstract score. Lower is better; results are descriptive until eligibility gates are approved.</p>
+        <div id="benchmark" class="muted">No benchmark artifact found. Run <code>npm run eval:models</code>.</div>
+        <div id="samples"></div>
+      </section>
+    </div>
+  </main>
+  <script>
+    let csrf = sessionStorage.getItem('analystCsrf') || ''; let snapshots = []; let selected = '';
+    const byId = id => document.getElementById(id);
+    async function load() {
+      const response = await fetch('/operator/state');
+      if (!response.ok) { location.href = '/operator/login'; return; }
+      const state = await response.json(); csrf = state.csrfToken; sessionStorage.setItem('analystCsrf', csrf); snapshots = state.snapshots;
+      renderBenchmark(state.benchmark);
+      byId('shared').textContent = state.sharedTickets?.length ? `Shared tracking record: ${state.sharedTickets[0].ticketNumber} · ${state.sharedTickets[0].shortDescription}` : '';
+      byId('clusters').replaceChildren(...snapshots.map(s => {
+        const option = document.createElement('option'); option.value = s.snapshotId;
+        option.textContent = `${s.location || s.service} · ${s.symptom}`; return option;
+      }));
+      selected = byId('clusters').value || ''; render();
+    }
+    function renderBenchmark(benchmark) {
+      const target = byId('benchmark'); target.replaceChildren();
+      if (!benchmark || !Array.isArray(benchmark.results)) { target.textContent = 'No benchmark artifact found. Run npm run eval:models.'; return; }
+      const attempts = result => result.totalAttempts || (result.rows * result.runs);
+      const countFromRate = (count, rate, total) => Number.isFinite(count) ? count : Math.round(rate * total);
+      const table = document.createElement('table'); table.style.width = '100%'; table.style.borderCollapse = 'collapse';
+      const header = document.createElement('tr'); ['Model', 'Field failures', 'Report failures', 'Repairs', 'Fallbacks', 'Provider errors', 'Critical failures', 'Counted input', 'Provider input', 'Output', 'Total', 'p50', 'p95'].forEach(label => { const th = document.createElement('th'); th.textContent = label; th.style.textAlign = 'left'; th.style.padding = '8px'; header.append(th); }); table.append(header);
+      benchmark.results.forEach(result => {
+        const totalAttempts = attempts(result); const totalFields = result.totalFields || totalAttempts * 6;
+        const fieldFailures = countFromRate(result.fieldFailures, 1 - result.fieldAccuracy, totalFields);
+        const reportFailures = countFromRate(result.reportFailures, 1 - result.exactAccuracy, totalAttempts);
+        const repairs = countFromRate(result.repairAttempts, result.repairRate, totalAttempts);
+        const fallbacks = countFromRate(result.fallbackAttempts, result.fallbackRate, totalAttempts);
+        const providerErrors = countFromRate(result.providerErrors, result.providerErrorRate, totalAttempts);
+        const row = document.createElement('tr'); [result.modelId, `${fieldFailures} / ${totalFields}`, `${reportFailures} / ${totalAttempts}`, `${repairs} / ${totalAttempts}`, `${fallbacks} / ${totalAttempts}`, `${providerErrors} / ${totalAttempts}`, result.criticalFailures, result.countedPromptTokens, result.promptTokens, result.completionTokens, result.totalTokens, `${Math.round(result.p50LatencyMs)} ms`, `${Math.round(result.p95LatencyMs)} ms`].forEach(value => { const td = document.createElement('td'); td.textContent = value; td.style.padding = '8px'; td.style.borderTop = '1px solid #d8dee5'; row.append(td); }); table.append(row);
+      }); target.append(table);
+      const definitions = document.createElement('p'); definitions.className = 'muted'; definitions.textContent = 'Field failures compare service, scope, location, building, room, and symptom. Report failures have at least one wrong field. Repairs are second LLM calls after invalid output. Fallbacks use the keyword parser. Critical failures change the matching key. p50 is typical latency; p95 shows slow-tail latency.'; target.append(definitions);
+      const sampleTitle = document.createElement('h3'); sampleTitle.textContent = 'Failures and reliability events'; target.append(sampleTitle);
+      const samples = document.createElement('div');
+      benchmark.results.forEach(result => {
+        const noteworthy = (result.samples || []).filter(sample => !sample.exact || sample.repairAttempted || sample.source === 'keyword');
+        const details = document.createElement('details'); const summary = document.createElement('summary'); summary.textContent = `${result.modelId} · ${noteworthy.length} noteworthy reports`; details.append(summary);
+        const pre = document.createElement('pre'); pre.textContent = noteworthy.length ? JSON.stringify(noteworthy, null, 2) : 'No field failures, repairs, or fallbacks in this run.'; details.append(pre); samples.append(details);
+      }); target.append(samples);
+    }
+    function render() {
+      const s = snapshots.find(item => item.snapshotId === selected);
+      if (!s) return;
+      byId('filed').textContent = s.filedDistinct; byId('overflow').textContent = s.overflowDistinct;
+      byId('overrides').textContent = s.overrideDistinct; byId('total').textContent = s.totalDistinct;
+      byId('topic').textContent = `${s.service} · ${s.location || s.scope} · ${s.firstReportAt} to ${s.lastReportAt}`;
+      byId('proposal').replaceChildren();
+      if (s.proposal) {
+        const heading = document.createElement('h3'); heading.textContent = s.proposal.shortDescription;
+        const description = document.createElement('p'); description.textContent = s.proposal.description;
+        const recommendation = document.createElement('p'); recommendation.textContent = `Impact: ${s.proposal.recommendedImpact} · Urgency: ${s.proposal.recommendedUrgency} · Evidence: ${s.proposal.evidenceStrength}`;
+        const rationale = document.createElement('p'); rationale.textContent = `Rationale: ${s.proposal.rationale}`;
+        const split = document.createElement('p'); split.textContent = `Split recommendation: ${s.proposal.splitRecommendation.shouldSplit ? 'yes' : 'no'} · ${s.proposal.splitRecommendation.rationale}`;
+        const citations = document.createElement('pre'); citations.textContent = JSON.stringify(s.proposal.citations, null, 2);
+        byId('proposal').append(heading, description, recommendation, rationale, split, citations);
+      } else {
+        byId('proposal').textContent = 'No proposal generated.';
+      }
+      byId('approve').disabled = !s.proposal;
+    }
+    byId('clusters').addEventListener('change', event => { selected = event.target.value; render(); });
+    byId('generate').addEventListener('click', async () => { await fetch(`/operator/proposals/${encodeURIComponent(selected)}`, { method: 'POST', headers: { 'x-csrf-token': csrf } }); await load(); });
+    byId('approve').addEventListener('click', async () => { const s = snapshots.find(item => item.snapshotId === selected); const response = await fetch(`/operator/approvals/${encodeURIComponent(selected)}`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-csrf-token': csrf }, body: JSON.stringify({ proposalDigest: s.proposalDigest }) }); byId('approval').textContent = response.ok ? 'Approved in shadow mode. No ServiceNow record was created.' : 'Approval failed because the proposal changed or became stale.'; });
+    load();
+  </script>
+</body>
+</html>
