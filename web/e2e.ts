@@ -68,8 +68,11 @@ async function waitForServer(timeoutMs = 15_000): Promise<void> {
   throw new Error('server did not start in time');
 }
 
+// Run node itself with tsx's loader rather than `npx tsx`: npx and the tsx CLI
+// each add a wrapper process, and killing the wrapper orphans the real server,
+// which keeps holding PORT for the next phase and the next run.
 function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, Readable> {
-  return spawn('npx', ['tsx', '--env-file-if-exists=.env', 'web/server.ts'], {
+  return spawn(process.execPath, ['--import', 'tsx', '--env-file-if-exists=.env', 'web/server.ts'], {
     env: {
       ...process.env,
       WEB_HOST: '',
@@ -87,7 +90,7 @@ function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, R
 }
 
 async function stopServer(server: ChildProcessByStdio<null, Readable, Readable>): Promise<void> {
-  if (server.exitCode !== null) return;
+  if (server.exitCode !== null || server.signalCode !== null) return;
   const exited = new Promise<void>((resolve) => server.once('exit', () => resolve()));
   server.kill();
   await exited;

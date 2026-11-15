@@ -26,8 +26,11 @@ async function waitForServer(): Promise<void> {
   throw new Error('analyst server did not start');
 }
 
+// Run node itself with tsx's loader rather than `npx tsx`: npx and the tsx CLI
+// each add a wrapper process, and killing the wrapper orphans the real server,
+// which keeps holding PORT (with its one-use token spent) for the next run.
 function runServer(): ChildProcessByStdio<null, Readable, Readable> {
-  return spawn('npx', ['tsx', '--env-file-if-exists=.env', 'analyst/server.ts'], {
+  return spawn(process.execPath, ['--import', 'tsx', '--env-file-if-exists=.env', 'analyst/server.ts'], {
     env: {
       ...process.env,
       ANALYST_PORT: String(PORT),
@@ -43,6 +46,13 @@ function runServer(): ChildProcessByStdio<null, Readable, Readable> {
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+}
+
+async function stopServer(server: ChildProcessByStdio<null, Readable, Readable>): Promise<void> {
+  if (server.exitCode !== null || server.signalCode !== null) return;
+  const exited = new Promise<void>((resolve) => server.once('exit', () => resolve()));
+  server.kill();
+  await exited;
 }
 
 async function main(): Promise<void> {
@@ -89,7 +99,7 @@ async function main(): Promise<void> {
     });
     check('cross-origin mutation is rejected', forbidden.status === 403);
   } finally {
-    server.kill();
+    await stopServer(server);
   }
   process.stdout.write(`\n  ${passed} passed, ${failed} failed\n\n`);
   process.exit(failed === 0 ? 0 : 1);
