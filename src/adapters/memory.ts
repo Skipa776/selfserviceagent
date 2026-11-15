@@ -173,10 +173,11 @@ export class InMemoryMatchFeedbackSink extends Injectable implements MatchFeedba
  * identityRef instead — still synthetic, still salted, still no identity stored.
  * The salt is per-deployment, not per-request: a per-request salt makes every
  * reporter look distinct and silently breaks the entire trigger rule
- * (pattern_alert.md).
+ * (pattern_alert.md). It comes from the environment (composition.ts
+ * `identitySalt`); no salt is written in source.
  */
 export class InMemoryIdentityContext extends Injectable implements IdentityContext {
-  constructor(private readonly salt = 'stage1-demo-salt') {
+  constructor(private readonly salt: string) {
     super();
   }
 

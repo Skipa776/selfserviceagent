@@ -8,9 +8,10 @@
 // there is nothing in scope here to be tempted by: no summary to quote, no
 // timestamp to re-derive, no network to reach for.
 //
-// It is also BYTE-IDENTICAL across all three stages (decision.md, "# Stages"). If a
-// future stage change edits this file, the seam was drawn in the wrong place — the
-// probabilistic parser is what changes between stages, never the decision.
+// It does not change when the PARSER changes: the probabilistic parser is what
+// changes between stages, never the decision. It did change once on purpose, for
+// flood control (Milestone 1): the `openParent` rule below, a product decision
+// recorded in docs/DECISIONS.md #1, not a parser concern leaking in.
 
 import type { Decision, ProblemReport } from './contracts/types';
 import { gateTuning } from './clusterGate';
@@ -24,6 +25,9 @@ import { gateTuning } from './clusterGate';
  * never sees a timestamp (that's why it can be pure).
  */
 export type Evidence = {
+  /** True when the flood ledger already holds an open parent incident for this
+   *  report's correlation key (orchestrator looks it up; floodLedger.ts). */
+  readonly openParent: boolean;
   /** The single authoritative declared incident that matched, or null. No count:
    *  one declared incident outranks any volume of peers. */
   readonly declared: {
@@ -75,6 +79,12 @@ export function decide(report: ProblemReport, evidence: Evidence, override: bool
     };
   }
   
+  // Flood control: the parent incident already exists, so this report becomes a
+  // local child on the ledger. Child reports are never created in ServiceNow.
+  if (evidence.openParent) {
+    return { outcome: 'MATCHED_CLUSTER', reason: 'linked_to_parent' };
+  }
+
   if (
     evidence.peers !== null &&
     evidence.peers.matchScore >= matchScoreThreshold &&

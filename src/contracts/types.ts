@@ -94,6 +94,15 @@ export type Decision = {
   readonly reason: string;
 };
 
+// ── PriorityDecision — what the policy table returned, and why ───────────────
+// Produced only by priorityPolicy.ts (a deterministic table), never by a model.
+// The rule id travels with the number so every priority can be traced back.
+export type PriorityDecision = {
+  readonly priority: number; // ServiceNow scale: 1 Critical … 5 Planning
+  readonly ruleId: string; // the policy rule that produced it
+  readonly frustrationRaised: boolean; // true when frustration added its one level
+};
+
 // ── TicketPayload — the one shape passed to createTicket() (ticket_payload.md) ─
 // Optimized for the IT agent who reads it next: everything except `description`
 // is a bounded catalog value; `description` quotes the reporter exactly once and
@@ -108,6 +117,8 @@ export interface TicketPayload {
   readonly room: string;
   readonly symptom: string; // catalog vocabulary
   readonly observedAt: string; // ISO-8601 as reported; '' if unstated
+  /** INC only: set once, at create, by the policy table. null on REQ. */
+  readonly priority: PriorityDecision | null;
 
   readonly description: string; // verbatim quoted once + parsed fields; NEVER model prose
 

@@ -7,7 +7,7 @@
 // caller. That claim is the single strongest talking point in the project, and
 // this file is where it is either true or a slogan.
 
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 
 import {
   InMemoryIdentityContext,
@@ -29,10 +29,12 @@ import {
 } from './adapters/servicenow';
 import { AuditLog, type AuditLine } from './audit';
 import { configureGate, type GateTuning } from './clusterGate';
+import { InMemoryFloodLedger } from './floodLedger';
 import { createLlmParser, createMessageFromEnv, type CreateMessage } from './parser/llmParser';
 import { parseReport } from './parser/reportParser';
 import { PatternDetector } from './patternDetector';
 import { InMemoryIdempotencyStore, type OrchestratorDeps } from './orchestrator';
+import { policyFromEnv } from './priorityPolicy';
 import { configureThrottle, type ThrottleLimits } from './throttleLimits';
 
 // ── The injected placeholders ─────────────────────────────────────────────────
@@ -65,8 +67,26 @@ export const DEMO_THROTTLE: ThrottleLimits = {
   maxDistinctServicesPerWindow: 5,
 };
 
+/**
+ * The reporter-hash salt, from REPORTER_HASH_SALT. Never written in source.
+ *
+ * Unset, an in-memory run gets a random per-process salt: all its state dies
+ * with the process anyway, so nothing can compare hashes across restarts. Live
+ * ServiceNow is different — it stores `u_reporter_hash` and reads it back to
+ * count distinct reporters — so there a missing salt stops startup.
+ */
+export function identitySalt(env: NodeJS.ProcessEnv, snowConfigured: boolean): string {
+  const salt = env.REPORTER_HASH_SALT?.trim();
+  if (salt) return salt;
+  if (snowConfigured) {
+    throw new Error('REPORTER_HASH_SALT is required when ServiceNow is configured (see .env.example).');
+  }
+  return randomBytes(16).toString('hex');
+}
+
 export type System = {
   readonly deps: OrchestratorDeps;
+  readonly ledger: InMemoryFloodLedger;
   readonly incidents: InMemoryIncidentSource;
   readonly tickets: InMemoryTicketSink;
   readonly stream: InMemoryReportStream;
@@ -113,6 +133,7 @@ function build(
   const feedback = new InMemoryMatchFeedbackSink();
   const audit = new AuditLog(options?.auditSink);
   const detector = new PatternDetector(clock);
+  const ledger = new InMemoryFloodLedger();
 
   // Present, deliberately NOT passed to the orchestrator: StatusReader is stage 3
   // (mock_adapters.md). Constructed here so the unwired seam is visible rather
@@ -138,9 +159,11 @@ function build(
     tickets: snow == null ? tickets : new ServiceNowTicketSink(snow.config, snow.fetchImpl),
     stream,
     feedback,
-    identity: new InMemoryIdentityContext(),
+    identity: new InMemoryIdentityContext(identitySalt(process.env, snow != null)),
     limiter: new InMemoryRateLimiter(clock),
     idempotency: new InMemoryIdempotencyStore(),
+    ledger,
+    policy: policyFromEnv(),
     audit,
     clock,
     newCorrelationId: () => randomUUID(),
@@ -150,6 +173,7 @@ function build(
   let drained = 0;
   return {
     deps,
+    ledger,
     incidents,
     tickets,
     stream,

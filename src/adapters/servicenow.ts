@@ -28,6 +28,19 @@ export const SNOW_COLUMNS = {
   auditCorrelationId: 'correlation_id',
 } as const;
 
+/**
+ * Priority is written as impact + urgency, which the instance turns into a
+ * priority through its lookup table. shortcut: this assumes ServiceNow's default
+ * lookup; an instance with a customised table needs this mapping replaced.
+ */
+export const IMPACT_URGENCY_FOR_PRIORITY: Readonly<Record<number, { impact: string; urgency: string }>> = {
+  1: { impact: '1', urgency: '1' },
+  2: { impact: '1', urgency: '2' },
+  3: { impact: '2', urgency: '2' },
+  4: { impact: '2', urgency: '3' },
+  5: { impact: '3', urgency: '3' },
+};
+
 /** Identifies tickets created by this service for measurement and peer search. */
 export const REPORTED_VIA = 'campus-issue-reporter';
 
@@ -219,7 +232,8 @@ export function toSnowRecord(payload: TicketPayload): Record<string, string> {
     `cluster size: ${payload.clusterSize}\n` +
     `top match score: ${payload.topMatchScore}\n` +
     `filed via override: ${isFiledViaOverride}\n` +
-    overriddenMatch;
+    overriddenMatch +
+    (payload.priority === null ? '' : `priority: ${payload.priority.priority} by policy rule ${payload.priority.ruleId}\n`);
 
   return {
     [SNOW_COLUMNS.service]: payload.service,
@@ -231,6 +245,7 @@ export function toSnowRecord(payload: TicketPayload): Record<string, string> {
     [SNOW_COLUMNS.auditCorrelationId]: payload.auditCorrelationId,
     short_description: short,
     description: payload.description + dedupFooter,
+    ...(payload.priority === null ? {} : IMPACT_URGENCY_FOR_PRIORITY[payload.priority.priority]),
   };
 }
 

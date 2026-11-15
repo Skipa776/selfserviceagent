@@ -12,6 +12,8 @@ import {
   type Clock,
 } from '../src/adapters/memory';
 import { AuditLog } from '../src/audit';
+import { InMemoryFloodLedger } from '../src/floodLedger';
+import { EXAMPLE_POLICY_PATH, loadPolicy } from '../src/priorityPolicy';
 import type { ProblemReport } from '../src/contracts/types';
 import { InMemoryIdempotencyStore, type OrchestratorDeps } from '../src/orchestrator';
 import { CORPUS_NOW } from './corpus';
@@ -31,6 +33,9 @@ export const TEST_THROTTLE = {
 } as const;
 
 export const IDENTITY_REF = 'synthetic-session-1';
+
+/** Fixed so hashes are stable across runs; production reads REPORTER_HASH_SALT. */
+export const TEST_SALT = 'test-salt';
 
 /** A clock the test can wind forward — window rollover without waiting. */
 export function mutableClock(start = CORPUS_NOW): { clock: Clock; advanceMinutes: (m: number) => void } {
@@ -59,7 +64,7 @@ export function harness(report: ProblemReport, clock: Clock = () => new Date(COR
   const tickets = new InMemoryTicketSink();
   const stream = new InMemoryReportStream();
   const feedback = new InMemoryMatchFeedbackSink();
-  const identity = new InMemoryIdentityContext();
+  const identity = new InMemoryIdentityContext(TEST_SALT);
   const limiter = new InMemoryRateLimiter(clock);
   const audit = new AuditLog();
 
@@ -75,6 +80,8 @@ export function harness(report: ProblemReport, clock: Clock = () => new Date(COR
     identity,
     limiter,
     idempotency: new InMemoryIdempotencyStore(),
+    ledger: new InMemoryFloodLedger(),
+    policy: loadPolicy(EXAMPLE_POLICY_PATH),
     audit,
     clock,
     newCorrelationId: () => `corr-${++n}`,

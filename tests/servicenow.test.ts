@@ -37,6 +37,7 @@ const VERBATIM = 'the wifi in North Residence Hall keeps dropping and I cannot g
 
 const PAYLOAD: TicketPayload = {
   ticketClass: 'INC',
+  priority: null,
   category: 'wifi',
   service: 'wifi',
   scope: 'location',

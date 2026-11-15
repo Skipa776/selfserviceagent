@@ -57,10 +57,12 @@ describe('the limit itself', () => {
       outcomes.push(res.outcome);
     }
 
+    // All three pass the throttle. Flood control links the second and third to
+    // the first one's parent incident instead of filing them.
     expect(outcomes.slice(0, LIMITS.maxReportsPerIdentity)).toEqual([
       'FILED_INCIDENT',
-      'FILED_INCIDENT',
-      'FILED_INCIDENT',
+      'MATCHED_CLUSTER',
+      'MATCHED_CLUSTER',
     ]);
     expect(outcomes[LIMITS.maxReportsPerIdentity]).toBe('THROTTLED');
   });

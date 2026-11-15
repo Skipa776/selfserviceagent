@@ -16,7 +16,7 @@ import { createHash } from 'node:crypto';
 import type { Clock } from './adapters/memory';
 import { AmbiguousCreateError } from './adapters/memory';
 import { AuditLog, type AuditLine } from './audit';
-import { CLUSTER_THRESHOLD, gateTuning, thresholdFor, type GateTuning } from './clusterGate';
+import { CLUSTER_THRESHOLD, floodKey, gateTuning, thresholdFor, type GateTuning } from './clusterGate';
 import { compose } from './composer';
 import type {
   IdentityContext,
@@ -35,6 +35,9 @@ import type {
   TicketPayload,
 } from './contracts/types';
 import { decide, type Evidence } from './decide';
+import type { FloodParent, InMemoryFloodLedger } from './floodLedger';
+import { isFrustrated } from './frustration';
+import { priorityFor, raiseFor, type PriorityPolicy } from './priorityPolicy';
 import { throttleLimits } from './throttleLimits';
 import type { TicketScope } from './vocab/catalog';
 
@@ -107,6 +110,10 @@ export type OrchestratorDeps = {
   readonly identity: IdentityContext;
   readonly limiter: ReportRateLimiter;
   readonly idempotency: IdempotencyStore;
+  /** Flood control: open parent incidents and their local child reports. */
+  readonly ledger: InMemoryFloodLedger;
+  /** Priority table for parent incidents (priorityPolicy.ts). */
+  readonly policy: PriorityPolicy;
   readonly audit: AuditLog;
   readonly clock: Clock;
   readonly newCorrelationId: () => string;
@@ -218,6 +225,7 @@ function reduceCandidates(
   candidates: readonly MatchCandidate[],
   now: Date,
   tuning: GateTuning,
+  openParent: boolean,
 ): Reduced {
   const byScore = [...candidates].sort((a, b) => b.matchScore - a.matchScore);
 
@@ -244,6 +252,7 @@ function reduceCandidates(
   );
 
   const evidence: Evidence = {
+    openParent,
     declared:
       topDeclared === null
         ? null
@@ -308,6 +317,21 @@ type LifecycleContext = {
   readonly identity: { hash: string; snowUserId: string | null; affiliation: string };
 };
 
+type Write = (line: Omit<AuditLine, 'ts' | 'correlationId' | 'stage'>) => void;
+type UnavailableReason =
+  | 'identity_unavailable'
+  | 'incident_search_failed'
+  | 'ticket_create_failed'
+  | 'ticket_create_ambiguous';
+
+function unavailable(reason: UnavailableReason): ReportResponse {
+  return { outcome: 'UNAVAILABLE', reply: compose({ outcome: 'UNAVAILABLE', reason }) };
+}
+
+function writerFor(deps: OrchestratorDeps, context: LifecycleContext): Write {
+  return (line) => deps.audit.write({ ts: context.ts, correlationId: context.correlationId, stage: deps.stage, ...line });
+}
+
 export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): Promise<ReportResponse> {
   const correlationId = deps.newCorrelationId();
   // ONE clock read for the whole request. Every timestamp and every window
@@ -317,12 +341,7 @@ export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): 
   const ts = now.toISOString();
   const tuning = gateTuning();
 
-  const write = (line: Omit<AuditLine, 'ts' | 'correlationId' | 'stage'>): void =>
-    deps.audit.write({ ts, correlationId, stage: deps.stage, ...line });
-
-  const unavailable = (
-    reason: 'identity_unavailable' | 'incident_search_failed' | 'ticket_create_failed' | 'ticket_create_ambiguous',
-  ): ReportResponse => ({ outcome: 'UNAVAILABLE', reply: compose({ outcome: 'UNAVAILABLE', reason }) });
+  const write: Write = (line) => deps.audit.write({ ts, correlationId, stage: deps.stage, ...line });
 
   // 1. PARSE — never throws; unknown values normalize (report_parser.md).
   const { report, source, repairAttempted } = await deps.parser.parse(req.text);
@@ -350,7 +369,7 @@ function writeParsed(
   report: ProblemReport,
   source: ParseResult['source'],
   repairAttempted: boolean | undefined,
-  write: (line: Omit<AuditLine, 'ts' | 'correlationId' | 'stage'>) => void,
+  write: Write,
 ): void {
   write({
     action: 'parsed',
@@ -374,12 +393,8 @@ async function runLifecycle(
   deps: OrchestratorDeps,
   context: LifecycleContext,
 ): Promise<ReportResponse> {
-  const { correlationId, now, ts, tuning, report, source, repairAttempted, identity } = context;
-  const write = (line: Omit<AuditLine, 'ts' | 'correlationId' | 'stage'>): void =>
-    deps.audit.write({ ts, correlationId, stage: deps.stage, ...line });
-  const unavailable = (
-    reason: 'identity_unavailable' | 'incident_search_failed' | 'ticket_create_failed' | 'ticket_create_ambiguous',
-  ): ReportResponse => ({ outcome: 'UNAVAILABLE', reply: compose({ outcome: 'UNAVAILABLE', reason }) });
+  const { now, report, source, repairAttempted, identity } = context;
+  const write = writerFor(deps, context);
 
   writeParsed(req, report, source, repairAttempted, write);
 
@@ -426,6 +441,37 @@ async function runLifecycle(
     // a slightly under-specified request. REQ is the safe direction: it inflates
     // no incident count and deflects nobody.
     effective = { ...report, scope: report.scope === 'unknown' ? 'individual' : report.scope };
+  }
+
+  // 5b. FLOOD KEY — reports that could share a parent incident run one at a time
+  //     from here to the end, so a concurrent burst cannot create two parents.
+  //     Overrides never join or open a parent: the reporter said "not my issue".
+  const parentKey = isOverride ? null : floodKey(effective);
+  if (parentKey === null) return searchDecideAct(req, deps, context, effective, null);
+  return deps.ledger.serialize(parentKey, () => searchDecideAct(req, deps, context, effective, parentKey));
+}
+
+/** Steps 6–11. Runs inside the flood-key queue when `parentKey` is set. */
+async function searchDecideAct(
+  req: ReportRequest,
+  deps: OrchestratorDeps,
+  context: LifecycleContext,
+  effective: ProblemReport,
+  parentKey: string | null,
+): Promise<ReportResponse> {
+  const { correlationId, now, ts, tuning, report, identity } = context;
+  const write = writerFor(deps, context);
+  const overrideMatchId = req.overrideMatchId ?? '';
+  const isOverride = overrideMatchId !== '';
+  const frustrated = isFrustrated(effective.verbatim);
+
+  // 5c. FLOOD LEDGER — is a parent incident for this problem already open?
+  const parent = parentKey === null ? null : deps.ledger.open(parentKey, now, tuning.matchTimeWindowMinutes);
+  if (parent !== null && parent.ticketNumber === null) {
+    // The parent's create timed out with an unknown outcome. Filing again could
+    // double-file, so every report for this key waits out the window instead.
+    write({ action: 'error', errorKind: 'ticket_create_ambiguous' });
+    return unavailable('ticket_create_ambiguous');
   }
 
   // 6. SEARCH — retry once, then UNAVAILABLE. Never fall through to filing.
@@ -475,16 +521,19 @@ async function runLifecycle(
   });
 
   // 7. REDUCE — the clock becomes booleans and counts here, and only here.
-  const reduced = reduceCandidates(effective, candidates, now, tuning);
+  const reduced = reduceCandidates(effective, candidates, now, tuning, parent !== null);
 
   // 8. DECIDE — the only call site in the system.
   const decision = decide(effective, reduced.evidence, isOverride);
+  const linkedParent = decision.reason === 'linked_to_parent' ? parent : null;
   const matchedId =
     decision.outcome === 'MATCHED_DECLARED'
       ? (reduced.topDeclared?.id ?? '')
-      : decision.outcome === 'MATCHED_CLUSTER'
-        ? (reduced.qualifyingPeers[0]?.id ?? '')
-        : '';
+      : linkedParent !== null
+        ? (linkedParent.ticketNumber ?? '')
+        : decision.outcome === 'MATCHED_CLUSTER'
+          ? (reduced.qualifyingPeers[0]?.id ?? '')
+          : '';
 
   write({
     action: 'decided',
@@ -496,6 +545,7 @@ async function runLifecycle(
     clusterThreshold: reduced.clusterThreshold,
     matchedId,
     reporterHash: identity.hash,
+    frustrated,
   });
 
   // 9. ACT
@@ -548,6 +598,8 @@ async function runLifecycle(
       incident: { id: inc.id, status: inc.status, statusUpdatedAt: inc.statusUpdatedAt, url: inc.url },
       override: { matchId: inc.id },
     };
+  } else if (linkedParent !== null) {
+    response = linkToParent(deps, linkedParent, identity.hash, frustrated, write);
   } else if (decision.outcome === 'MATCHED_CLUSTER') {
     const ticketIds = reduced.qualifyingPeers.map((p) => p.id);
     const tickets = reduced.qualifyingPeers.map((p) => ({ ticketNumber: p.id, url: p.url }));
@@ -563,6 +615,23 @@ async function runLifecycle(
     };
   } else {
     const ticketClass = decision.outcome === 'FILE_INCIDENT' ? 'INC' : 'REQ';
+    // Set once, here, from the policy table. A new incident has one reporter.
+    const priority = ticketClass === 'INC' ? priorityFor(deps.policy, effective.service, 1, frustrated) : null;
+    // A new INC for a flood key becomes the parent that later reports link to.
+    const startParent = (ticketNumber: string | null, url: string): void => {
+      if (parentKey === null || priority === null) return;
+      deps.ledger.start({
+        key: parentKey,
+        service: effective.service,
+        openedAt: now.getTime(),
+        ticketNumber,
+        url,
+        priority,
+        reporters: new Set([identity.hash]),
+        frustrated: new Set(frustrated ? [identity.hash] : []),
+        recommendation: null,
+      });
+    };
     const payload: TicketPayload = {
       ticketClass,
       // The IT category tree is not configured, so
@@ -576,6 +645,7 @@ async function runLifecycle(
       room: effective.room,
       symptom: effective.symptom,
       observedAt: effective.observedAt,
+      priority,
       description: buildDescription(
         effective,
         `reporter ${identity.hash}`,
@@ -604,6 +674,7 @@ async function runLifecycle(
       if (first instanceof AmbiguousCreateError) {
         // Do NOT retry blind: the first attempt's result was never seen, so a
         // second create could double-file in a way the key cannot catch.
+        startParent(null, '');
         write({ action: 'error', errorKind: 'ticket_create_ambiguous' });
         return unavailable('ticket_create_ambiguous');
       }
@@ -617,10 +688,13 @@ async function runLifecycle(
     }
 
     ticketNumber = created.ticketNumber;
+    startParent(ticketNumber, created.url);
     write({
       action: 'filed',
       ticketClass,
       ticketNumber,
+      priority: priority?.priority,
+      policyRuleId: priority?.ruleId,
       service: effective.service,
       scope: effective.scope,
       location: effective.location,
@@ -666,8 +740,46 @@ async function runLifecycle(
 
   // 11. The result is replayable for the retention window — a retried request
   //     gets this same answer back instead of filing a second ticket.
-  if (!isOverride) deps.idempotency.set(key, response, now);
+  if (!isOverride) deps.idempotency.set(idempotencyKey(identity.hash, report), response, now);
   return response;
+}
+
+/**
+ * A child report: recorded on the parent in the flood ledger, never created in
+ * ServiceNow. If the larger reporter count now calls for a more urgent priority,
+ * that becomes the parent's one pending recommendation for a human to apply.
+ */
+function linkToParent(
+  deps: OrchestratorDeps,
+  parent: FloodParent,
+  reporterHash: string,
+  frustrated: boolean,
+  write: Write,
+): ReportResponse {
+  const ticketNumber = parent.ticketNumber ?? '';
+  deps.ledger.link(parent, reporterHash, frustrated);
+  write({ action: 'linked', matchedId: ticketNumber, clusterSize: parent.reporters.size, reporterHash });
+
+  const raise = raiseFor(deps.policy, parent);
+  if (raise !== null) {
+    parent.recommendation = raise;
+    write({
+      action: 'recommended',
+      matchedId: ticketNumber,
+      clusterSize: raise.distinctReporters,
+      priority: raise.priority,
+      policyRuleId: raise.ruleId,
+    });
+  }
+
+  // Everyone on the parent except the caller (who is in the set now).
+  const others = parent.reporters.size - 1;
+  return {
+    outcome: 'MATCHED_CLUSTER',
+    reply: compose({ outcome: 'MATCHED_CLUSTER', reportCount: others, ticketIds: [ticketNumber] }),
+    cluster: { reportCount: others, ticketIds: [ticketNumber], tickets: [{ ticketNumber, url: parent.url }] },
+    override: { matchId: ticketNumber },
+  };
 }
 
 /** Re-exported so a caller can assert the gate constant without a second literal. */

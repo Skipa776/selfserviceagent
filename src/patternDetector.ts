@@ -16,19 +16,8 @@
 // always 'candidate' — the type has no other value, so a human at NOC decides.
 
 import type { Clock } from './adapters/memory';
-import { gateTuning, thresholdFor } from './clusterGate';
+import { gateTuning, groupKey, thresholdFor } from './clusterGate';
 import type { PatternAlert, ReportEvent } from './contracts/types';
-
-/**
- * Group key. `service_wide` events group under a LOCATION-LESS key for that
- * service and do not contribute to any single location's count — letting them do
- * both would let one campus-wide report inflate every building simultaneously.
- */
-function groupKey(e: ReportEvent): string {
-  if (e.scope === 'service_wide') return `${e.service}|`;
-  if (e.service === 'classroom_av') return `${e.service}|${e.building ?? ''}|${e.room ?? ''}`;
-  return `${e.service}|${e.building ?? ''}`;
-}
 
 export class PatternDetector {
   private readonly seen = new Map<string, ReportEvent[]>();

@@ -89,6 +89,36 @@ export function thresholdFor(service: string, location: string): number {
   return CLUSTER_THRESHOLD;
 }
 
+// ── Correlation keys — which reports count as "the same problem" ──────────────
+// One definition, shared by the pattern detector (advisory alert) and the flood
+// ledger (parent incident). Symptom is deliberately not part of the key: the
+// scorer treats a symptom mismatch as weaker evidence, not a different problem.
+
+type KeyFields = { readonly service: string; readonly scope: string; readonly building: string; readonly room: string };
+
+/**
+ * Group key. `service_wide` reports group under a LOCATION-LESS key for that
+ * service and do not contribute to any single location's count — letting them do
+ * both would let one campus-wide report inflate every building simultaneously.
+ */
+export function groupKey(r: KeyFields): string {
+  if (r.scope === 'service_wide') return `${r.service}|`;
+  if (r.service === 'classroom_av') return `${r.service}|${r.building}|${r.room}`;
+  return `${r.service}|${r.building}`;
+}
+
+/**
+ * The flood-ledger key, or null when this report must not be linked to a
+ * parent: individual (REQ) reports, and location reports with no building —
+ * for those, `groupKey` would collapse into the service-wide key, which is
+ * harmless for an advisory alert but wrong for a rule that suppresses creates.
+ */
+export function floodKey(r: KeyFields): string | null {
+  if (r.scope === 'service_wide') return groupKey(r);
+  if (r.scope === 'location' && r.building !== '') return groupKey(r);
+  return null;
+}
+
 // MATCH_SCORE_THRESHOLD and MATCH_TIME_WINDOW_MINUTES are the two UNSET constants.
 // Source ships NO default: each resolves only from real data that does not exist
 // yet (a labelled match sample; the real "notice minus opened" lag). A default here

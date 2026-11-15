@@ -50,17 +50,17 @@ const peers = (
   clusterThreshold: number = CLUSTER_THRESHOLD,
 ): Evidence['peers'] => ({ matchScore, withinWindow, distinctReporters, clusterThreshold });
 
-const NO_EVIDENCE: Evidence = { declared: null, peers: null };
+const NO_EVIDENCE: Evidence = { openParent: false, declared: null, peers: null };
 
 describe('decide() — branch 1: override', () => {
   it('files instead of matching, even when a declared incident would deflect', () => {
-    const ev: Evidence = { declared: declared(0.99, true), peers: null };
+    const ev: Evidence = { openParent: false, declared: declared(0.99, true), peers: null };
     const d = decide(report('location'), ev, true);
     expect(d.outcome).toBe('FILE_INCIDENT'); // location → INC; NOT MATCHED_DECLARED
   });
 
   it('files instead of matching, even when a full peer cluster would deflect', () => {
-    const ev: Evidence = { declared: null, peers: peers(0.99, true, CLUSTER_THRESHOLD) };
+    const ev: Evidence = { openParent: false, declared: null, peers: peers(0.99, true, CLUSTER_THRESHOLD) };
     const d = decide(report('individual'), ev, true);
     expect(d.outcome).toBe('FILE_REQUEST'); // individual → REQ
   });
@@ -68,22 +68,22 @@ describe('decide() — branch 1: override', () => {
 
 describe('decide() — branch 2: declared incident', () => {
   it('deflects a matching declared incident within window', () => {
-    const d = decide(report('location'), { declared: declared(0.9, true), peers: null }, false);
+    const d = decide(report('location'), { openParent: false, declared: declared(0.9, true), peers: null }, false);
     expect(d.outcome).toBe('MATCHED_DECLARED');
   });
 
   it('score boundary is inclusive (score === threshold deflects)', () => {
-    const d = decide(report('location'), { declared: declared(THRESHOLD, true), peers: null }, false);
+    const d = decide(report('location'), { openParent: false, declared: declared(THRESHOLD, true), peers: null }, false);
     expect(d.outcome).toBe('MATCHED_DECLARED');
   });
 
   it('files when the declared score is below threshold', () => {
-    const d = decide(report('location'), { declared: declared(THRESHOLD - 0.01, true), peers: null }, false);
+    const d = decide(report('location'), { openParent: false, declared: declared(THRESHOLD - 0.01, true), peers: null }, false);
     expect(d.outcome).toBe('FILE_INCIDENT');
   });
 
   it('files when the declared match is outside the window', () => {
-    const d = decide(report('location'), { declared: declared(0.9, false), peers: null }, false);
+    const d = decide(report('location'), { openParent: false, declared: declared(0.9, false), peers: null }, false);
     expect(d.outcome).toBe('FILE_INCIDENT');
   });
 
@@ -91,6 +91,7 @@ describe('decide() — branch 2: declared incident', () => {
     // The count is never consulted in branch 2. Declared + a full cluster present →
     // still MATCHED_DECLARED, never MATCHED_CLUSTER.
     const ev: Evidence = {
+      openParent: false,
       declared: declared(0.9, true),
       peers: peers(0.99, true, CLUSTER_THRESHOLD + 3),
     };
@@ -101,13 +102,13 @@ describe('decide() — branch 2: declared incident', () => {
 
 describe('decide() — branch 3: existing peer cluster', () => {
   it('deflects when existing distinct reporters reach the ceiling', () => {
-    const ev: Evidence = { declared: null, peers: peers(0.9, true, CLUSTER_THRESHOLD) };
+    const ev: Evidence = { openParent: false, declared: null, peers: peers(0.9, true, CLUSTER_THRESHOLD) };
     const d = decide(report('location'), ev, false);
     expect(d.outcome).toBe('MATCHED_CLUSTER');
   });
 
   it('files with one fewer existing reporter than CLUSTER_THRESHOLD', () => {
-    const ev: Evidence = { declared: null, peers: peers(0.9, true, CLUSTER_THRESHOLD - 1) };
+    const ev: Evidence = { openParent: false, declared: null, peers: peers(0.9, true, CLUSTER_THRESHOLD - 1) };
     const d = decide(report('location'), ev, false);
     expect(d.outcome).toBe('FILE_INCIDENT');
   });
@@ -115,29 +116,42 @@ describe('decide() — branch 3: existing peer cluster', () => {
   it('honours a per-topic ceiling: 9 existing files, 10 existing deflects for Canvas', () => {
     // Canvas / web_portal uses 10 (clusterGate TOPIC_THRESHOLDS). decide() is
     // agnostic — it just reads the injected clusterThreshold.
-    const below = decide(report('service_wide'), { declared: null, peers: peers(0.9, true, 9, 10) }, false);
-    const at = decide(report('service_wide'), { declared: null, peers: peers(0.9, true, 10, 10) }, false);
+    const below = decide(report('service_wide'), { openParent: false, declared: null, peers: peers(0.9, true, 9, 10) }, false);
+    const at = decide(report('service_wide'), { openParent: false, declared: null, peers: peers(0.9, true, 10, 10) }, false);
     expect(below.outcome).toBe('FILE_INCIDENT');
     expect(at.outcome).toBe('MATCHED_CLUSTER');
   });
 
   it('honours the classroom AV boundary: 2 existing files, 3 existing deflects', () => {
-    const below = decide(report('location'), { declared: null, peers: peers(0.9, true, 2, 3) }, false);
-    const at = decide(report('location'), { declared: null, peers: peers(0.9, true, 3, 3) }, false);
+    const below = decide(report('location'), { openParent: false, declared: null, peers: peers(0.9, true, 2, 3) }, false);
+    const at = decide(report('location'), { openParent: false, declared: null, peers: peers(0.9, true, 3, 3) }, false);
     expect(below.outcome).toBe('FILE_INCIDENT');
     expect(at.outcome).toBe('MATCHED_CLUSTER');
   });
 
   it('files when the peer score is below threshold, however many reporters', () => {
-    const ev: Evidence = { declared: null, peers: peers(THRESHOLD - 0.01, true, CLUSTER_THRESHOLD + 5) };
+    const ev: Evidence = { openParent: false, declared: null, peers: peers(THRESHOLD - 0.01, true, CLUSTER_THRESHOLD + 5) };
     const d = decide(report('location'), ev, false);
     expect(d.outcome).toBe('FILE_INCIDENT');
   });
 
   it('files when the peer cluster is outside the window', () => {
-    const ev: Evidence = { declared: null, peers: peers(0.9, false, CLUSTER_THRESHOLD + 5) };
+    const ev: Evidence = { openParent: false, declared: null, peers: peers(0.9, false, CLUSTER_THRESHOLD + 5) };
     const d = decide(report('location'), ev, false);
     expect(d.outcome).toBe('FILE_INCIDENT');
+  });
+});
+
+describe('decide() — flood control: an open parent incident', () => {
+  it('links instead of filing, whatever the peer count', () => {
+    const d = decide(report('location'), { ...NO_EVIDENCE, openParent: true }, false);
+    expect(d).toEqual({ outcome: 'MATCHED_CLUSTER', reason: 'linked_to_parent' });
+  });
+
+  it('ranks below a declared incident and below an override', () => {
+    const ev: Evidence = { openParent: true, declared: declared(0.9, true), peers: null };
+    expect(decide(report('location'), ev, false).outcome).toBe('MATCHED_DECLARED');
+    expect(decide(report('location'), ev, true).outcome).toBe('FILE_INCIDENT');
   });
 });
 

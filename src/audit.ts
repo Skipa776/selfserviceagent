@@ -20,6 +20,8 @@ export type AuditLine = {
     | 'published'
     | 'overridden'
     | 'throttled'
+    | 'linked' // a child report added to an open parent incident (flood ledger)
+    | 'recommended' // the parent's pending priority raise was set or replaced
     | 'error';
 
   readonly service?: string;
@@ -42,6 +44,13 @@ export type AuditLine = {
 
   readonly ticketClass?: 'INC' | 'REQ';
   readonly ticketNumber?: string;
+
+  /** ServiceNow priority 1-5 set at create, or recommended later. */
+  readonly priority?: number;
+  /** The priority-policy rule that produced `priority`. */
+  readonly policyRuleId?: string;
+  /** Whether the report's own words read as frustrated (frustration.ts). */
+  readonly frustrated?: boolean;
 
   readonly overriddenMatchId?: string;
   /** The score that was wrong. THIS FIELD IS THE LABELLED TRAINING DATA. */

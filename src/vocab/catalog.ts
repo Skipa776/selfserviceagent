@@ -36,7 +36,8 @@ export type Symptom = (typeof SYMPTOMS)[number];
 // ── Ticket classes (canonical) ────────────────────────────────────────────────
 // INC = a shared service is degraded (scope location / service_wide).
 // REQ = one individual's problem with an otherwise-healthy service (scope individual).
-// There is no third class and no priority field this tool sets.
+// There is no third class. Priority is set only on INC creates, by the policy
+// table in priorityPolicy.ts, never by a model.
 export const TICKET_CLASSES = ['INC', 'REQ'] as const;
 export type TicketClass = (typeof TICKET_CLASSES)[number];
 

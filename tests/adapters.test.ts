@@ -160,7 +160,7 @@ describe('TicketSink', () => {
 
 describe('IdentityContext', () => {
   it('is deterministic per identityRef and never echoes the raw reference', async () => {
-    const id = new InMemoryIdentityContext();
+    const id = new InMemoryIdentityContext('test-salt');
     const a = await id.resolve('session-abc');
     const b = await id.resolve('session-abc');
     const c = await id.resolve('session-xyz');
@@ -171,7 +171,7 @@ describe('IdentityContext', () => {
   });
 
   it('returns snowUserId: null as a NORMAL case, not an error', async () => {
-    const { snowUserId, affiliation } = await new InMemoryIdentityContext().resolve('x');
+    const { snowUserId, affiliation } = await new InMemoryIdentityContext('test-salt').resolve('x');
     expect(snowUserId).toBeNull();
     expect(affiliation).not.toBe('');
   });
@@ -216,7 +216,7 @@ describe('the method list IS the governance control (safety/boundaries.md)', () 
     { adapter: new InMemoryTicketSink(), contract: ['createTicket'], setupOnly: [] },
     { adapter: new InMemoryReportStream(), contract: ['publish'], setupOnly: [] },
     { adapter: new InMemoryMatchFeedbackSink(), contract: ['recordOverride'], setupOnly: [] },
-    { adapter: new InMemoryIdentityContext(), contract: ['resolve'], setupOnly: [] },
+    { adapter: new InMemoryIdentityContext('test-salt'), contract: ['resolve'], setupOnly: [] },
     {
       adapter: new InMemoryRateLimiter(() => new Date(CORPUS_NOW)),
       contract: ['check', 'record'],

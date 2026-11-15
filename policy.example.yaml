@@ -1,0 +1,41 @@
+# SYNTHETIC EXAMPLE PRIORITY POLICY — not any institution's real priority matrix.
+#
+# The service loads this file only when PRIORITY_POLICY_PATH is unset. A real
+# policy lives outside the repository, is pointed to by PRIORITY_POLICY_PATH,
+# and is never committed.
+#
+# How it is read (src/priorityPolicy.ts):
+#   - priority uses the ServiceNow scale: 1 Critical, 2 High, 3 Moderate, 4 Low, 5 Planning.
+#   - each service has a tier; every catalog service, including `unknown`, needs one.
+#   - for a parent incident, the rule used is the one in the service's tier with the
+#     highest min_distinct_reporters that the distinct-reporter count has reached.
+#   - if a strict majority of those reporters sounded frustrated, the result is raised
+#     by one level. That one-level cap is fixed in code, not configurable here.
+#   - the priority is written once, when the parent incident is created (count = 1).
+#     Later raises are recommendations a human applies; nothing updates the ticket.
+#
+# Safety rule for whoever edits this: keep every min_distinct_reporters: 1 rule at
+# priority 3 or lower, so one frustrated report can never create a P1 on its own.
+
+name: synthetic-example-v1
+
+service_tiers:
+  web_portal: 1      # campus-wide systems: everyone notices at once
+  wifi: 2
+  wired_network: 2
+  vpn: 2
+  classroom_av: 3    # one room at a time
+  unknown: 3         # the reporter could not name the service
+
+rules:
+  - { id: t1-reporters-1,  tier: 1, min_distinct_reporters: 1,  priority: 3 }
+  - { id: t1-reporters-5,  tier: 1, min_distinct_reporters: 5,  priority: 2 }
+  - { id: t1-reporters-20, tier: 1, min_distinct_reporters: 20, priority: 1 }
+
+  - { id: t2-reporters-1,  tier: 2, min_distinct_reporters: 1,  priority: 4 }
+  - { id: t2-reporters-5,  tier: 2, min_distinct_reporters: 5,  priority: 3 }
+  - { id: t2-reporters-15, tier: 2, min_distinct_reporters: 15, priority: 2 }
+
+  - { id: t3-reporters-1,  tier: 3, min_distinct_reporters: 1,  priority: 4 }
+  - { id: t3-reporters-3,  tier: 3, min_distinct_reporters: 3,  priority: 3 }
+  - { id: t3-reporters-10, tier: 3, min_distinct_reporters: 10, priority: 2 }

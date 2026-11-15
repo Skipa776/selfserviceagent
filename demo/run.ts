@@ -3,10 +3,10 @@
 // Run it with `npm run demo`. No credentials, no network, no configuration: that
 // property IS stage 1, so if this ever needs an API key, something has drifted.
 //
-// The script is deliberately a narrative rather than a menu. It walks the count
-// boundary (the first five file, the sixth is deflected),
-// then the declared-incident deflect, then the override — which is the whole
-// product in three interactions.
+// The script is deliberately a narrative rather than a menu. It walks flood
+// control (the first report creates ONE parent incident, every later report
+// links to it locally), the priority recommendation, the override, and the
+// declared-incident deflect.
 
 import type { DeclaredIncident, PeerTicket } from '../src/contracts/types';
 import { buildStage1, DEMO_GATE, DEMO_THROTTLE } from '../src/composition';
@@ -37,12 +37,6 @@ const WIFI_NORTH_HALL: PeerShape = {
   scope: 'location',
   locations: ['North Residence Hall'],
   symptom: 'intermittent',
-};
-const CANVAS_WIDE: PeerShape = {
-  service: 'web_portal',
-  scope: 'service_wide',
-  locations: [],
-  symptom: 'no_connection',
 };
 const PROJECTOR_LECTURE_HALL: PeerShape = {
   service: 'classroom_av',
@@ -99,74 +93,55 @@ async function report(
   return body.override?.matchId ?? '';
 }
 
+/** What the flood ledger holds right now: one line per parent incident. */
+function printLedger(): void {
+  for (const parent of system.ledger.all()) {
+    line();
+    line(`  ▤ LEDGER ${parent.ticketNumber}: ${parent.reporters.size} distinct reporters, created at P${parent.priority.priority} (policy rule ${parent.priority.ruleId})`);
+    const rec = parent.recommendation;
+    line(
+      rec === null
+        ? '    no priority recommendation pending'
+        : `    pending recommendation: raise to P${rec.priority} (policy rule ${rec.ruleId}, at ${rec.distinctReporters} reporters) — a human applies it; nothing updates the ticket`,
+    );
+  }
+}
+
 async function main(): Promise<void> {
   rule('Stage 1 — deterministic demo. No credentials, no network.');
-  line(`  CLUSTER_THRESHOLD ......... ${CLUSTER_THRESHOLD}   (default ceiling; labelled placeholder)`);
-  line(`  per-topic ceilings ........ wifi@library=${thresholdFor('wifi', 'library')}, canvas/web_portal=${thresholdFor('web_portal', '')}, classroom_av=${thresholdFor('classroom_av', '')}  (labelled placeholders)`);
-  line('  request-path search counts existing tickets: at the ceiling, the next report is deflected.');
+  line(`  priority policy ........... ${deps.policy.name}   (SYNTHETIC example)`);
   line(`  matchScoreThreshold ....... ${DEMO_GATE.matchScoreThreshold}   (DEMO value — UNSET in source)`);
-  line(`  matchTimeWindowMinutes .... ${DEMO_GATE.matchTimeWindowMinutes}   (DEMO value — UNSET in source)`);
+  line(`  matchTimeWindowMinutes .... ${DEMO_GATE.matchTimeWindowMinutes}   (DEMO value — UNSET in source; also the link window)`);
   line(`  maxReportsPerIdentity ..... ${DEMO_THROTTLE.maxReportsPerIdentity}    (DEMO value — UNSET in source)`);
+  line(`  NOC advisory ceilings ..... default=${CLUSTER_THRESHOLD}, wifi@library=${thresholdFor('wifi', 'library')}, web_portal=${thresholdFor('web_portal', '')}, classroom_av=${thresholdFor('classroom_av', '')}  (labelled placeholders)`);
 
-  rule(`1. The count rule: the first ${CLUSTER_THRESHOLD} wifi reports each get a ticket.`);
-  line('  Each reporter becomes visible to the next search once their ticket is filed.');
-  line(`  Until ${CLUSTER_THRESHOLD} matching tickets already exist, reports continue filing — that volume is how IT learns something`);
-  line('  is happening.');
+  const wifiText = 'the wifi in North Residence Hall keeps dropping';
+  rule('1. Flood control: the first report creates ONE parent incident.');
+  line('  Its priority comes from the policy table — never from a model — and is');
+  line('  written once, at create.');
+  await report('student-1', wifiText);
+  line(`  → priority set: P${tickets.filed[0].priority?.priority} by policy rule ${tickets.filed[0].priority?.ruleId}`);
 
-  for (let i = 1; i <= CLUSTER_THRESHOLD; i++) {
-    await report(`student-${i}`, 'the wifi in North Residence Hall keeps dropping');
-  }
-
-  rule(`2. The ${CLUSTER_THRESHOLD + 1}th reporter is deflected — and offered recourse.`);
-  line(`  By now ${CLUSTER_THRESHOLD} distinct reporters are on the record, which MEETS the`);
-  line('  ceiling. Note the wording: it says other people reported something similar');
-  line('  and tickets are open. It does NOT say "known issue" or "wifi is down" — this');
-  line('  volume is not an outage, and this service is not a source of truth about');
-  line('  campus infrastructure.');
-
-  const clusterMatchId = await report(`student-${CLUSTER_THRESHOLD + 1}`, 'the wifi in North Residence Hall keeps dropping');
+  rule('2. Every later report links to the parent. Nothing else is created.');
+  line('  The link and the count live in this service\'s own ledger. The wording says');
+  line('  other people reported something similar. It does NOT say "known issue" or');
+  line('  "wifi is down" — volume is not an outage.');
+  let lastMatchId = '';
+  for (let i = 2; i <= 6; i++) lastMatchId = await report(`student-${i}`, wifiText);
+  printLedger();
 
   rule('3. The override — "this is not my issue".');
-  line('  The deflect was wrong for this person. They say so, and we file anyway.');
-  line('  Every override is a labelled matching error: the only data this system');
-  line('  generates about its own match quality, and the only path to setting the');
-  line('  thresholds that are currently UNSET.');
+  line('  The link was wrong for this person. They say so, and we file anyway. The');
+  line('  override does not join or replace the parent. Every override is a labelled');
+  line('  matching error: the only data this system generates about its own match quality.');
+  await report('student-6', wifiText, { overrideMatchId: lastMatchId });
 
-  await report(`student-${CLUSTER_THRESHOLD + 1}`, 'the wifi in North Residence Hall keeps dropping', {
-    overrideMatchId: clusterMatchId,
-  });
-
-  const canvasCeiling = thresholdFor('web_portal', '');
-  rule(`4. Per-topic ceilings: Canvas tolerates ${canvasCeiling} filings, not ${CLUSTER_THRESHOLD}.`);
-  line('  A campus-wide portal outage floods the queue faster than one building\'s');
-  line('  wifi, so its deflection ceiling is higher. The mechanism is identical — only');
-  line('  the number changes, and it changes ONLY where filing stops. The deflect reply');
-  line('  is the same honest wording; no existing ticket is touched; no outage is claimed.');
-  // The stage-1 keyword parser recognizes 'portal' + a breadth word ('across
-  // campus' / 'nobody can'); it does not yet know the brand name "Canvas". The
-  // scenario is the Canvas/LMS one — phrased so the deterministic parser resolves
-  // web_portal + service_wide without a model. (A 'canvas' synonym is a stage-2
-  // vocabulary addition, out of scope here.)
-  const canvasText = 'the campus portal keeps throwing errors, nobody can get on across campus';
-  for (let i = 1; i <= canvasCeiling; i++) {
-    await report(`prof-${i}`, canvasText, { peerShape: CANVAS_WIDE });
-  }
-  line();
-  line(`  ${canvasCeiling} distinct reporters have now filed. The next report is the 11th;`);
-  line(`  search sees the Canvas ceiling of ${canvasCeiling} already present and deflects it.`);
-  line('  A wifi cluster this size would have');
-  line(`  been deflected long ago, but Canvas is deliberately set higher.`);
-  await report(`prof-${canvasCeiling + 1}`, canvasText, { peerShape: CANVAS_WIDE });
-
-  const projectorCeiling = thresholdFor('classroom_av', 'Lecture Hall');
-  rule(`5. Classroom projector pilot: ${projectorCeiling} filings, then the next report is deflected.`);
+  rule('4. Same rule for a classroom projector: one INC, then links.');
   const projectorText = 'The projector in Lecture Hall will not turn on';
-  for (let i = 1; i <= projectorCeiling; i++) {
-    await report(`instructor-${i}`, projectorText, { peerShape: PROJECTOR_LECTURE_HALL });
-  }
-  await report(`instructor-${projectorCeiling + 1}`, projectorText, { peerShape: PROJECTOR_LECTURE_HALL });
+  for (let i = 1; i <= 4; i++) await report(`instructor-${i}`, projectorText, { peerShape: PROJECTOR_LECTURE_HALL });
+  printLedger();
 
-  rule('6. A declared incident deflects on the FIRST match — the count is never read.');
+  rule('5. A declared incident deflects on the FIRST match — the count is never read.');
   const declared: DeclaredIncident = {
     kind: 'declared_incident',
     id: 'INC1001',
@@ -190,7 +165,7 @@ async function main(): Promise<void> {
   line('  service is affected, because we are quoting IT with a timestamp.');
   await report('student-7', 'the VPN keeps asking me to sign in over and over, nobody can get on');
 
-  rule('7. The ticket an IT agent actually opens.');
+  rule('6. The ticket an IT agent actually opens.');
   line('  Everything except the description is a bounded catalog value. The');
   line('  description quotes the reporter exactly once and is composed by code —');
   line('  never authored by a model.');
@@ -203,8 +178,8 @@ async function main(): Promise<void> {
   line();
   line(sample.description.split('\n').map((l) => `    │ ${l}`).join('\n'));
 
-  rule('8. The audit log — the only instrument that can measure this feature.');
-  line('  A deflected report never becomes a ticket in ServiceNow, so the question');
+  rule('7. The audit log — the only instrument that can measure this feature.');
+  line('  A linked report never becomes a ticket in ServiceNow, so the question');
   line('  "what fraction of reports were duplicates?" is answerable from this log or');
   line('  from nowhere. Note reporterHash: no raw identity is ever written.');
   line();
@@ -213,13 +188,15 @@ async function main(): Promise<void> {
 
   rule('Summary');
   line(`  Tickets filed .............. ${tickets.filed.length}`);
+  line(`  Reports linked to a parent . ${system.audit.lines.filter((l) => l.action === 'linked').length}`);
+  line(`  Pending recommendations .... ${system.ledger.all().filter((p) => p.recommendation !== null).length}`);
   line(`  NOC advisories raised ...... ${detector.raised.length}`);
   line(`  Audit lines ................ ${system.audit.lines.length}`);
   line(`  Overrides recorded ......... ${system.audit.lines.filter((l) => l.action === 'overridden').length}`);
   line();
   line('  The LLM is not in this picture yet. At stage 2 exactly one module changes:');
-  line('  the parser. Everything you just watched — the gate, the count rule, the');
-  line('  wording, the audit trail — is byte-identical across all three stages.');
+  line('  the parser. Everything you just watched — create or link, the priority, the');
+  line('  wording, the audit trail — is decided by the same deterministic code.');
   line();
 }
 

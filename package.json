@@ -21,6 +21,7 @@
     "eval:llm": "tsx --env-file-if-exists=.env scripts/evalLlm.ts",
     "eval:models": "tsx --env-file-if-exists=.env scripts/compareParserModels.ts",
     "record:haiku": "tsx --env-file-if-exists=.env scripts/recordHaiku.ts",
+    "eval:flood": "tsx scripts/evalFlood.ts",
     "snow:check": "tsx --env-file-if-exists=.env scripts/snowCheck.ts",
     "snow:inspect-analyst": "tsx --env-file-if-exists=.env scripts/snowInspectAnalyst.ts",
     "snow:peers": "tsx --env-file-if-exists=.env scripts/snowPeersCheck.ts"
@@ -35,6 +36,7 @@
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.8.0"
+    "@anthropic-ai/sdk": "^1.8.0",
+    "yaml": "2.9.1"
   }
 }
