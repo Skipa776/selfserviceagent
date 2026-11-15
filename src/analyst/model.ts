@@ -1,7 +1,52 @@
 import type { ChatClient, ChatMessage } from '../parser/chatClient';
-import { extractFirstJsonObject } from '../parser/llmParser';
 import type { AnalystEvidenceSnapshot, AnalystProposal } from './contracts';
 import { validateAnalystProposal } from './proposal';
+
+/**
+ * Parses the first balanced JSON object from bare, fenced, or prose-wrapped
+ * output. Braces inside strings are ignored, and malformed JSON returns null.
+ */
+export function extractFirstJsonObject(raw: string): unknown {
+  const start = raw.indexOf('{');
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < raw.length; i++) {
+    const character = raw[i];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (character === '\\') {
+        escaped = true;
+      } else if (character === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (character === '"') {
+      inString = true;
+    } else if (character === '{') {
+      depth++;
+    } else if (character === '}') {
+      depth--;
+    }
+
+    if (depth === 0) {
+      try {
+        return JSON.parse(raw.slice(start, i + 1));
+      } catch {
+        return null;
+      }
+    }
+  }
+
+  return null;
+}
 
 export function buildAnalystPrompt(snapshot: AnalystEvidenceSnapshot): ChatMessage[] {
   const evidence = snapshot.evidence.map(({ id, outcome, ticketNumber, viaOverride, ts }) => ({

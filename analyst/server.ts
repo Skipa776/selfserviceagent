@@ -20,8 +20,9 @@ if (client === null) throw new Error('analyst demo requires configured LLM provi
 const snowConfig = snowConfigFromEnv();
 
 // Shadow means shadow: ordinary reports in this process use the in-memory sink,
-// even when ServiceNow credentials exist in the shell.
-const system = buildStage2({ client, snow: null });
+// even when ServiceNow credentials exist in the shell. The report parser reads
+// ANTHROPIC_API_KEY on its own; `client` is only the analyst proposal model.
+const system = buildStage2({ snow: null });
 const workspace = new AnalystWorkspace(
   process.env.ANALYST_DB_PATH?.trim() || '.analyst-demo.sqlite',
   client,

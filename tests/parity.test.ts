@@ -24,7 +24,7 @@ import { configureThrottle, resetThrottle } from '../src/throttleLimits';
 import { CORPUS_NOW, EVAL_ROWS, FLOWS, type FlowScenario } from './corpus';
 import { formatScore, gradeRow, score } from './grade';
 import { harness, IDENTITY_REF, TEST_GATE, TEST_THROTTLE } from './harness';
-import { fakeClient } from './llmFixtures';
+import { fakeCreateMessage, toolUseMessage } from './llmFixtures';
 import { canonicalBuilding } from '../src/vocab/locations';
 
 const NOW = new Date(CORPUS_NOW);
@@ -49,7 +49,7 @@ function oracleParser(fields: {
   symptom: string;
   observedAt?: string;
 }): Parser {
-  const response = JSON.stringify({
+  const response = toolUseMessage({
     service: fields.service,
     scope: fields.scope,
     location: fields.location,
@@ -61,7 +61,7 @@ function oracleParser(fields: {
   // Two identical responses: if repair runs on a record that already conforms,
   // the second call answers it rather than throwing, so
   // this suite reports a parity difference instead of a confusing client error.
-  return createLlmParser({ client: fakeClient(response, response), now });
+  return createLlmParser({ createMessage: fakeCreateMessage(response, response), now });
 }
 
 // ── Parser parity (test_matrix.md S=2) ────────────────────────────────────────

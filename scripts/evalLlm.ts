@@ -19,16 +19,14 @@
 
 import { EVAL_ROWS } from '../tests/corpus';
 import { formatScore, gradeRow, groupConsistency, groupingKey, repeatableRuns, score } from '../tests/grade';
-import { llmConfigFromEnv, llmChatClient } from '../src/parser/chatClient';
-import { createLlmParser } from '../src/parser/llmParser';
+import { createLlmParser, createMessageFromEnv, PARSER_MODEL } from '../src/parser/llmParser';
 import { parseReport } from '../src/parser/reportParser';
 
 async function main(): Promise<number> {
-  const config = llmConfigFromEnv();
-  if (config === null) {
+  const createMessage = createMessageFromEnv();
+  if (createMessage === null) {
     process.stderr.write(
-      '\n  No LLM provider credentials configured — nothing to measure.\n' +
-        '  Set LLM_API_URL, LLM_API_KEY and LLM_MODEL (see .env.example).\n\n' +
+      '\n  No ANTHROPIC_API_KEY configured — nothing to measure.\n\n' +
         '  This is not a failure. The service uses its keyword fallback when the key is absent.\n\n',
     );
     return 0;
@@ -36,13 +34,13 @@ async function main(): Promise<number> {
 
   const repeats = Number.parseInt(process.env.LLM_EVAL_RUNS ?? '5', 10);
   if (!Number.isInteger(repeats) || repeats < 1) throw new Error('LLM_EVAL_RUNS must be a positive integer');
-  process.stdout.write(`\n  model: ${config.model}   rows: ${EVAL_ROWS.length}   runs: ${repeats}\n`);
+  process.stdout.write(`\n  model: ${PARSER_MODEL}   rows: ${EVAL_ROWS.length}   runs: ${repeats}\n`);
 
   // The wall clock, on purpose: the future-observedAt guard should be measured
   // against real time when the model is real. Everywhere else in the project the
   // clock is injected and fixed; this script is the one place a real run is the
   // point.
-  const parser = createLlmParser({ client: llmChatClient(config), now: () => new Date() });
+  const parser = createLlmParser({ createMessage, now: () => new Date() });
 
   const keywordResults = EVAL_ROWS.map((row) => {
     const report = parseReport(row.input);
@@ -67,7 +65,7 @@ async function main(): Promise<number> {
   }
 
   process.stdout.write(formatScore('Stage-1 keyword parser (baseline)', keywordResults));
-  process.stdout.write(formatScore(`Stage-2 LLM parser — ${config.model} (MEASURED)`, llmResults));
+  process.stdout.write(formatScore(`Stage-2 LLM parser — ${PARSER_MODEL} (MEASURED)`, llmResults));
 
   const keyword = score(keywordResults);
   const llm = score(llmResults);
@@ -93,7 +91,7 @@ async function main(): Promise<number> {
       fellBack === EVAL_ROWS.length
         ? '  Every row fell back. The API may be unreachable or its responses may be unusable.\n' +
           '  No model result was measured; inspect connectivity and parser diagnostics.'
-        : `  Measured ${llm.correct}/${llm.total} fields with ${config.model}. Record the model,\n` +
+        : `  Measured ${llm.correct}/${llm.total} fields with ${PARSER_MODEL}. Record the model,\n` +
           '  date, prompt/corpus version, runs, repairs, and fallbacks before setting a\n' +
           '  regression floor. See README.md for model-evaluation guidance.',
       '',

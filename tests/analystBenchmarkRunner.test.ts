@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { benchmarkParserModels, corpusDigest } from '../src/analyst/benchmarkRunner';
-import { llmChatClient } from '../src/parser/chatClient';
-import type { ChatClient } from '../src/parser/chatClient';
 import type { EvalRow } from './corpus';
+import { fakeCreateMessage, toolUseMessage } from './llmFixtures';
 
 const row: EvalRow = {
   id: 'av-lhw', groupId: 'av-lhw', role: 'faculty', input: 'Projector in LHW is down',
@@ -11,32 +10,19 @@ const row: EvalRow = {
   symptom: 'equipment_unavailable',
 };
 
-const answer = JSON.stringify({
+const answer = (): ReturnType<typeof toolUseMessage> => toolUseMessage({
   service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'LHW', room: '',
   symptom: 'equipment_unavailable', observedAt: '',
 });
 
 describe('multi-model parser benchmark', () => {
-  it('omits temperature for models that reject the parameter', async () => {
-    let body: Record<string, unknown> = {};
-    const original = globalThis.fetch;
-    globalThis.fetch = async (_url, init) => {
-      body = JSON.parse(String(init?.body)) as Record<string, unknown>;
-      return new Response(JSON.stringify({ choices: [{ message: { content: answer } }] }), { status: 200 });
-    };
-    try {
-      const client = llmChatClient({ url: 'https://example.invalid', key: 'synthetic', model: 'gpt-5.6-luna', timeoutMs: 1000 });
-      await client.complete([{ role: 'user', content: 'test' }]);
-      expect(body).not.toHaveProperty('temperature');
-    } finally {
-      globalThis.fetch = original;
-    }
-  });
-
   it('evaluates each named model against the same corpus and records model identity', async () => {
-    const client: ChatClient = { complete: async () => answer };
     const results = await benchmarkParserModels({
-      models: [{ id: 'model-a', client }, { id: 'model-b', client }], rows: [row], runs: 2,
+      models: [
+        { id: 'model-a', createMessage: fakeCreateMessage(answer(), answer()) },
+        { id: 'model-b', createMessage: fakeCreateMessage(answer(), answer()) },
+      ],
+      rows: [row], runs: 2,
       now: () => new Date('2026-09-11T12:00:00.000Z'),
     });
     expect(results.map((result) => result.modelId)).toEqual(['model-a', 'model-b']);
@@ -47,31 +33,20 @@ describe('multi-model parser benchmark', () => {
       service: 'classroom_av', scope: 'location', location: 'Lecture Hall West', building: 'LHW', room: '',
       symptom: 'equipment_unavailable', observedAt: '', verbatim: row.input,
     }, source: 'llm', repairAttempted: false, exact: true, misses: [] }]);
-    expect(results[0]).toMatchObject({ promptTokens: 0, completionTokens: 0, totalTokens: 0, countedPromptTokens: 0 });
   });
 
-  it('aggregates token usage returned by the provider', async () => {
-    let calls = 0;
-    const client: ChatClient = {
-      complete: async () => { calls++; return answer; },
-      usage: () => ({ promptTokens: calls * 120, completionTokens: calls * 30, totalTokens: calls * 150 }),
-    };
-    const [result] = await benchmarkParserModels({ models: [{ id: 'metered', client }], rows: [row], runs: 1 });
-    expect(result).toMatchObject({ promptTokens: 120, completionTokens: 30, totalTokens: 150 });
-  });
-
-  it('records prompt tokens from the LLM provider token counting independently', async () => {
-    const client: ChatClient = { complete: async () => answer };
+  it('sums token usage from every response, repairs included', async () => {
+    // The hand-built responses each report 1200 input / 60 output tokens.
     const [result] = await benchmarkParserModels({
-      models: [{ id: 'counted', client, countPromptTokens: async () => ({ totalTokens: 321, tokenizerType: 'test' }) }],
-      rows: [row], runs: 1,
+      models: [{ id: 'metered', createMessage: fakeCreateMessage(answer()) }], rows: [row], runs: 1,
     });
-    expect(result).toMatchObject({ countedPromptTokens: 321, tokenizerType: 'test' });
+    expect(result).toMatchObject({ promptTokens: 1200, completionTokens: 60, totalTokens: 1260 });
   });
 
   it('counts fallback as a reliability failure without hiding the parsed result', async () => {
-    const client: ChatClient = { complete: async () => { throw new Error('offline'); } };
-    const [result] = await benchmarkParserModels({ models: [{ id: 'offline', client }], rows: [row], runs: 1 });
+    const [result] = await benchmarkParserModels({
+      models: [{ id: 'offline', createMessage: fakeCreateMessage(null) }], rows: [row], runs: 1,
+    });
     expect(result.fallbackRate).toBe(1);
     expect(result.providerErrorRate).toBe(1);
     expect(result).toMatchObject({ repairAttempts: 0, fallbackAttempts: 1, providerErrors: 1 });

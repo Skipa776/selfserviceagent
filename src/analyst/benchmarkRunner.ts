@@ -1,22 +1,18 @@
 import { createHash } from 'node:crypto';
 
-import type { ChatClient } from '../parser/chatClient';
-import { buildPrompt, createLlmParser, schemaFromCatalog } from '../parser/llmParser';
+import { createLlmParser, REPORT_TOOL, SYSTEM_PROMPT, type CreateMessage } from '../parser/llmParser';
 import type { EvalRow } from '../../tests/corpus';
 import { gradeRow, groupingKey } from '../../tests/grade';
 import type { ModelBenchmarkResult } from './benchmark';
 
 export const ANALYST_PARSER_PROMPT_VERSION = createHash('sha256')
-  .update(JSON.stringify({ prompt: buildPrompt('__benchmark_input__')[0], schema: schemaFromCatalog() }))
+  .update(JSON.stringify({ prompt: SYSTEM_PROMPT, tool: REPORT_TOOL }))
   .digest('hex');
 
+/** One model under test. `createMessage` must send the request to model `id`. */
 export type BenchmarkModel = {
   readonly id: string;
-  readonly client: ChatClient;
-  readonly countPromptTokens?: (messages: readonly import('../parser/chatClient').ChatMessage[]) => Promise<{
-    totalTokens: number;
-    tokenizerType: string;
-  }>;
+  readonly createMessage: CreateMessage;
 };
 
 export type TimedModelBenchmarkResult = ModelBenchmarkResult & {
@@ -54,36 +50,32 @@ export async function benchmarkParserModels(input: {
   const results: TimedModelBenchmarkResult[] = [];
 
   for (const model of input.models) {
-    const usageBefore = model.client.usage?.() ?? { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
     let providerErrors = 0;
-    const measuredClient: ChatClient = {
-      async complete(messages) {
-        try {
-          return await model.client.complete(messages);
-        } catch (error) {
-          providerErrors++;
-          throw error;
-        }
-      },
+    let promptTokens = 0;
+    let completionTokens = 0;
+    // Token counts come from each response's own `usage`, so they cover repairs too.
+    const measured: CreateMessage = async (params) => {
+      try {
+        const message = await model.createMessage(params);
+        promptTokens += message.usage.input_tokens;
+        completionTokens += message.usage.output_tokens;
+        return message;
+      } catch (error) {
+        providerErrors++;
+        throw error;
+      }
     };
-    const parser = createLlmParser({ client: measuredClient, now });
+    const parser = createLlmParser({ createMessage: measured, now });
     let correct = 0;
     let exact = 0;
     let repairs = 0;
     let fallbacks = 0;
     let criticalFailures = 0;
     const latencies: number[] = [];
-    let countedPromptTokens = 0;
-    let tokenizerType = 'provider-usage-only';
     const samples: TimedModelBenchmarkResult['samples'][number][] = [];
 
     for (let run = 0; run < input.runs; run++) {
       for (const row of input.rows) {
-        if (run === 0 && model.countPromptTokens !== undefined) {
-          const counted = await model.countPromptTokens(buildPrompt(row.input));
-          countedPromptTokens += counted.totalTokens;
-          tokenizerType = counted.tokenizerType;
-        }
         const startedAt = performance.now();
         const parsed = await parser.parse(row.input);
         latencies.push(performance.now() - startedAt);
@@ -119,7 +111,6 @@ export async function benchmarkParserModels(input: {
     }
 
     const attempts = input.rows.length * input.runs;
-    const usageAfter = model.client.usage?.() ?? usageBefore;
     results.push({
       modelId: model.id,
       promptVersion: ANALYST_PARSER_PROMPT_VERSION,
@@ -142,11 +133,9 @@ export async function benchmarkParserModels(input: {
       p50LatencyMs: percentile(latencies, 0.5),
       p95LatencyMs: percentile(latencies, 0.95),
       totalAttempts: attempts,
-      promptTokens: usageAfter.promptTokens - usageBefore.promptTokens,
-      completionTokens: usageAfter.completionTokens - usageBefore.completionTokens,
-      totalTokens: usageAfter.totalTokens - usageBefore.totalTokens,
-      countedPromptTokens,
-      tokenizerType,
+      promptTokens,
+      completionTokens,
+      totalTokens: promptTokens + completionTokens,
       samples,
     });
   }

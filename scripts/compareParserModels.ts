@@ -1,28 +1,31 @@
+// `npm run eval:models` — runs the shipping parser (same prompt, same forced
+// tool) against several Claude models on the synthetic corpus. Live network
+// call; never part of `npm test`.
+//
+//   ANALYST_MODELS="claude-haiku-5-5,claude-sonnet-5" LLM_EVAL_RUNS=3 npm run eval:models
+//
+// Only models that accept a forced tool_choice can run this request. Claude
+// Opus 5.5, Sonnet 5.5 and Fable 5.x reject it (HTTP 400), so they would show
+// up here as 100% provider errors, not as a parsing result.
+
 import { writeFile } from 'node:fs/promises';
 
 import { benchmarkParserModels, corpusDigest } from '../src/analyst/benchmarkRunner';
-import { countLlmTokens, llmChatClient, llmConfigFromEnv } from '../src/parser/chatClient';
+import { createMessageFromEnv, PARSER_MODEL, type CreateMessage } from '../src/parser/llmParser';
 import { EVAL_ROWS } from '../tests/corpus';
 
 async function main(): Promise<number> {
-  const configuredModels = process.env.ANALYST_MODELS?.split(',').map((model) => model.trim()).filter(Boolean) ?? [];
-  const base = llmConfigFromEnv({
-    ...process.env,
-    LLM_MODEL: process.env.LLM_MODEL?.trim() || configuredModels[0],
-  });
-  if (base === null) {
-    process.stderr.write('Set LLM_API_URL, LLM_API_KEY, and LLM_MODEL or ANALYST_MODELS.\n');
+  const createMessage = createMessageFromEnv();
+  if (createMessage === null) {
+    process.stderr.write('Set ANTHROPIC_API_KEY to compare parser models.\n');
     return 1;
   }
-  const modelIds = configuredModels.length === 0 ? [base.model] : configuredModels;
+  const modelIds = process.env.ANALYST_MODELS?.split(',').map((model) => model.trim()).filter(Boolean) ?? [PARSER_MODEL];
   const runs = Number.parseInt(process.env.LLM_EVAL_RUNS ?? '3', 10);
+  // Same request the parser builds, sent to a different model.
   const models = modelIds.map((id) => {
-    const config = { ...base, model: id };
-    return {
-      id,
-      client: llmChatClient(config),
-      countPromptTokens: (messages: Parameters<typeof countLlmTokens>[1]) => countLlmTokens(config, messages),
-    };
+    const toModel: CreateMessage = (params) => createMessage({ ...params, model: id });
+    return { id, createMessage: toModel };
   });
   const results = await benchmarkParserModels({ models, rows: EVAL_ROWS, runs });
   const artifact = {

@@ -1,0 +1,193 @@
+{
+  "recorded": false,
+  "note": "SYNTHETIC PLACEHOLDER: hand-built in the Messages API response shape, NOT real model output. Run `npm run record:haiku` with ANTHROPIC_API_KEY set to replace it with recorded Claude Haiku 5.5 responses.",
+  "model": "claude-haiku-5-5",
+  "modelInfo": null,
+  "recordedAt": "",
+  "sdkVersion": "1.8.0",
+  "exchanges": [
+    {
+      "input": "wifi in North Residence Hall keeps dropping",
+      "responses": [
+        {
+          "type": "message",
+          "role": "assistant",
+          "model": "claude-haiku-5-5",
+          "container": null,
+          "diagnostics": null,
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1200,
+            "output_tokens": 60,
+            "cache_creation": null,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "inference_geo": null,
+            "output_tokens_details": null,
+            "server_tool_use": null,
+            "service_tier": "standard",
+            "speed": "standard"
+          },
+          "id": "msg_SYNTHETIC_1",
+          "stop_reason": "tool_use",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_SYNTHETIC_1",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wifi",
+                "scope": "location",
+                "location": "North Residence Hall",
+                "building": "NORTH RESIDENCE HALL",
+                "room": "",
+                "symptom": "intermittent",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ]
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wifi",
+          "scope": "location",
+          "location": "North Residence Hall",
+          "building": "NORTH RESIDENCE HALL",
+          "room": "",
+          "symptom": "intermittent",
+          "observedAt": "",
+          "verbatim": "wifi in North Residence Hall keeps dropping"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "The projector in Lecture Hall will not turn on",
+      "responses": [
+        {
+          "type": "message",
+          "role": "assistant",
+          "model": "claude-haiku-5-5",
+          "container": null,
+          "diagnostics": null,
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1200,
+            "output_tokens": 60,
+            "cache_creation": null,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "inference_geo": null,
+            "output_tokens_details": null,
+            "server_tool_use": null,
+            "service_tier": "standard",
+            "speed": "standard"
+          },
+          "id": "msg_SYNTHETIC_2",
+          "stop_reason": "tool_use",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_SYNTHETIC_2",
+              "name": "record_report_fields",
+              "input": {
+                "service": "classroom_av",
+                "scope": "location",
+                "location": "Lecture Hall",
+                "building": "LECT",
+                "room": "",
+                "symptom": "equipment_unavailable",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ]
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "classroom_av",
+          "scope": "location",
+          "location": "Lecture Hall",
+          "building": "LECT",
+          "room": "",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "The projector in Lecture Hall will not turn on"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "VPN keeps asking me to sign in over and over",
+      "responses": [
+        {
+          "type": "message",
+          "role": "assistant",
+          "model": "claude-haiku-5-5",
+          "container": null,
+          "diagnostics": null,
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1200,
+            "output_tokens": 60,
+            "cache_creation": null,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "inference_geo": null,
+            "output_tokens_details": null,
+            "server_tool_use": null,
+            "service_tier": "standard",
+            "speed": "standard"
+          },
+          "id": "msg_SYNTHETIC_3",
+          "stop_reason": "tool_use",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_SYNTHETIC_3",
+              "name": "record_report_fields",
+              "input": {
+                "service": "vpn",
+                "scope": "individual",
+                "location": "",
+                "building": "",
+                "room": "",
+                "symptom": "auth_failure",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ]
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "vpn",
+          "scope": "individual",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "auth_failure",
+          "observedAt": "",
+          "verbatim": "VPN keeps asking me to sign in over and over"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    }
+  ]
+}

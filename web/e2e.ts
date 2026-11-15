@@ -78,9 +78,7 @@ function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, R
       SNOW_INSTANCE_URL: '',
       SNOW_USERNAME: '',
       SNOW_PASSWORD: '',
-      LLM_API_URL: '',
-      LLM_API_KEY: '',
-      LLM_MODEL: '',
+      ANTHROPIC_API_KEY: '',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

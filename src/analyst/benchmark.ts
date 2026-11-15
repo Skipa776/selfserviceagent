@@ -32,8 +32,6 @@ export type ModelBenchmarkResult = {
   readonly promptTokens: number;
   readonly completionTokens: number;
   readonly totalTokens: number;
-  readonly countedPromptTokens: number;
-  readonly tokenizerType: string;
 };
 
 export type BenchmarkGateReason =

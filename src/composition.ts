@@ -29,8 +29,7 @@ import {
 } from './adapters/servicenow';
 import { AuditLog, type AuditLine } from './audit';
 import { configureGate, type GateTuning } from './clusterGate';
-import { llmClientFromEnv, type ChatClient } from './parser/chatClient';
-import { createLlmParser } from './parser/llmParser';
+import { createLlmParser, createMessageFromEnv, type CreateMessage } from './parser/llmParser';
 import { parseReport } from './parser/reportParser';
 import { PatternDetector } from './patternDetector';
 import { InMemoryIdempotencyStore, type OrchestratorDeps } from './orchestrator';
@@ -181,11 +180,10 @@ export type SnowWiring = { config: SnowConfig; fetchImpl?: Fetch };
  * Stage 2 — AI-capable, contained. Identical to stage 1 in every respect except
  * the parser. Compare the two function bodies: that comparison IS the board demo.
  *
- * `client` is injected so tests can wire a recorded-response fake
- * so automated tests never touch a live API. Left undefined, it reads the
- * environment.
+ * `createMessage` is injected so tests can replay recorded Claude responses and
+ * never touch a live API. Left undefined, it reads ANTHROPIC_API_KEY.
  *
- * **A null client is not an error.** Unconfigured — no key, or the key pulled
+ * **A null createMessage is not an error.** Unconfigured — no key, or the key pulled
  * mid-run — wires the keyword parser and the service keeps answering at stage-1
  * quality. That is error_rescue_map.md `llm_unavailable` arriving before the
  * first request instead of during one, and it is the same degradation either way.
@@ -201,9 +199,9 @@ export type SnowWiring = { config: SnowConfig; fetchImpl?: Fetch };
  * that is what `npm run snow:check` is for.
  */
 export function buildStage2(
-  options?: BuildOptions & { client?: ChatClient | null; snow?: SnowWiring | null },
+  options?: BuildOptions & { createMessage?: CreateMessage | null; snow?: SnowWiring | null },
 ): System {
-  const client = options?.client === undefined ? llmClientFromEnv() : options.client;
+  const createMessage = options?.createMessage === undefined ? createMessageFromEnv() : options.createMessage;
 
   const config = snowConfigFromEnv();
   const snow =
@@ -211,7 +209,7 @@ export function buildStage2(
 
   return build(
     2,
-    (clock) => (client === null ? keywordParser : createLlmParser({ client, now: clock })),
+    (clock) => (createMessage === null ? keywordParser : createLlmParser({ createMessage, now: clock })),
     options,
     snow,
   );

@@ -4,8 +4,8 @@
 //
 //   npm run demo:live
 //
-// If LLM_API_URL / LLM_API_KEY / LLM_MODEL are set, the stage-2 LLM
-// parser is wired. Otherwise the keyword parser runs. Use Ctrl+C or "quit".
+// If ANTHROPIC_API_KEY is set, the stage-2 Claude Haiku 5.5 parser is wired.
+// Otherwise the keyword parser runs. Use Ctrl+C or "quit".
 
 import * as readline from 'node:readline';
 

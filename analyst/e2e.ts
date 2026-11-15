@@ -40,6 +40,7 @@ function runServer(): ChildProcessByStdio<null, Readable, Readable> {
       LLM_API_KEY: 'synthetic',
       LLM_MODEL: 'synthetic',
       LLM_TIMEOUT_MS: '20',
+      ANTHROPIC_API_KEY: '',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

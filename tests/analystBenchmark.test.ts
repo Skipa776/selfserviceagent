@@ -36,8 +36,6 @@ const result: ModelBenchmarkResult = {
   promptTokens: 100,
   completionTokens: 20,
   totalTokens: 120,
-  countedPromptTokens: 100,
-  tokenizerType: 'test-tokenizer',
 };
 
 describe('analyst model benchmark gate', () => {

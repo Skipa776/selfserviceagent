@@ -1,14 +1,31 @@
-// Stage-2 structured parser. Model output is untrusted until strict validation;
+// Stage-2 structured parser: Claude Haiku 5.5 through the Anthropic SDK, with a
+// forced tool call. Model output is untrusted until strict validation;
 // normalization remains a separate downstream safety boundary.
+//
+// Why a forced tool and not "reply with JSON": the API hands back the tool input
+// as an object that already matches the schema's types and enums (`strict:
+// true`), so there is no JSON to dig out of prose or code fences. What a schema
+// cannot express (location/building pairs, scope vs location) is still checked
+// by validateAgainstSchema() below, with one repair turn.
+
+import Anthropic from '@anthropic-ai/sdk';
 
 import type { ParseResult } from '../orchestrator';
 import { SCOPES, SERVICES, SYMPTOMS } from '../vocab/catalog';
-import type { ChatClient, ChatMessage } from './chatClient';
 import { normalize, parseReport } from './reportParser';
 import { canonicalBuilding, canonicalLocation, canonicalRoom } from '../vocab/locations';
 
+/** The parser model. Confirmed against the Models API by `npm run record:haiku`. */
+export const PARSER_MODEL = 'claude-haiku-5-5';
+
+/**
+ * The single SDK call the parser makes. Injected so tests replay recorded
+ * responses without a network or a mocked SDK.
+ */
+export type CreateMessage = (params: Anthropic.MessageCreateParamsNonStreaming) => Promise<Anthropic.Message>;
+
 export type LlmParserDeps = {
-  readonly client: ChatClient;
+  readonly createMessage: CreateMessage;
   /** Injected for deterministic future-timestamp normalization. */
   readonly now: () => Date;
 };
@@ -46,55 +63,92 @@ export function schemaFromCatalog(): Record<string, unknown> {
   };
 }
 
+/** The one tool the model may call. The schema is the catalog, not a copy of it. */
+export const REPORT_TOOL: Anthropic.Tool = {
+  name: 'record_report_fields',
+  description: 'Record the structured fields of one campus IT problem report.',
+  strict: true,
+  input_schema: schemaFromCatalog() as Anthropic.Tool.InputSchema,
+};
+
 /**
- * Keeps extraction policy and schema in the system message while isolating the
- * reporter's untrusted text in the user message. Ambiguous fields stay unknown.
+ * Extraction policy lives in the system prompt; the reporter's untrusted text is
+ * the only user message. Ambiguous fields stay unknown.
  */
-export function buildPrompt(text: string): ChatMessage[] {
-  return [
-    {
-      role: 'system',
-      content:
-        'You are extracting structured fields from a campus IT problem report. ' +
-        'Do not diagnose, advise, or decide anything. The schema is ' +
-        JSON.stringify(schemaFromCatalog(), null, 2) +
-        '. Return only the JSON object. For service, scope, and symptom, use the exact ' +
-        "catalog value or 'unknown'. emit 'unknown' as the field value for bounded " +
-        "fields. For location, building, room, and observedAt, " +
-        "use '' when the report does not establish the value; never use 'unknown' for " +
-        'those four fields. Keep location as the canonical display name, building as ' +
-        "the canonical building code, and room as a separate room token. Do not guess " +
-        'the nearest building. A roomless building-level classroom AV report is valid. ' +
-        'Scope is role-neutral: student, faculty, staff, and first-person wording alone ' +
-        'do not establish individual scope. Explicit personal-device or only-me wording ' +
-        'supports individual; named shared building or room impact supports location; ' +
-        'explicit campus-wide breadth supports service_wide; ambiguity stays unknown. ' +
-        'Use this compact taxonomy: page/load/error/blank web page or portal language -> ' +
-        'web_portal + page_error; sign-in loops or repeated prompts -> auth_failure; ' +
-        'will not connect, cannot connect, or no image/network -> no_connection unless ' +
-        'the subject is a projector/display, which is classroom_av + equipment_unavailable; ' +
-        'cutting out/on and off -> intermittent; slow/crawling -> slow. A network jack, ' +
-        'ethernet, LAN, or wired network -> wired_network. Explicit wifi, Wi-Fi, wireless, ' +
-        'or eduroam -> wifi. Generic internet or internet access without wifi/wireless or ' +
-        'wired evidence -> unknown service, never guess wifi. VPN maps to vpn. Scope: ' +
-        '"my laptop"/"only me"/"my login" plus a contrast such as someone else works -> ' +
-        'individual; for VPN, a personal login/sign-in loop or repeated prompt is individual ' +
-        'unless nobody/everyone is affected; a named building/room or "around/in" a place -> location; nobody, ' +
-        'everyone, anywhere, or campus-wide breadth -> service_wide; generic portal ' +
-        'failure and role words alone remain unknown. For observedAt, use ISO-8601 only ' +
-        "if the report states a time; otherwise use ''. Never use 'now' or infer a time " +
-        'from tense. Representative canonical examples: ' +
-        JSON.stringify([
-          { service: 'wifi', scope: 'location', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL', room: '', symptom: 'intermittent', observedAt: '' },
-          { service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '214', symptom: 'equipment_unavailable', observedAt: '' },
-          { service: 'web_portal', scope: 'unknown', location: '', building: '', room: '', symptom: 'page_error', observedAt: '' },
-          { service: 'unknown', scope: 'location', location: 'Main Library', building: 'LIB', room: '', symptom: 'slow', observedAt: '' },
-          { service: 'wired_network', scope: 'location', location: 'Student Center', building: 'STUC', room: '', symptom: 'no_connection', observedAt: '' },
-          { service: 'vpn', scope: 'individual', location: '', building: '', room: '', symptom: 'auth_failure', observedAt: '' },
-        ]) + '.',
-    },
-    { role: 'user', content: text },
-  ];
+export const SYSTEM_PROMPT =
+  'You are extracting structured fields from a campus IT problem report. ' +
+  `Do not diagnose, advise, or decide anything. Call ${REPORT_TOOL.name} exactly once. ` +
+  "For service, scope, and symptom, use the exact catalog value or 'unknown'. " +
+  "For location, building, room, and observedAt, use '' when the report does not establish " +
+  "the value; never use 'unknown' for those four fields. Keep location as the canonical " +
+  'display name, building as the canonical building code, and room as a separate room token. ' +
+  'Do not guess the nearest building. A roomless building-level classroom AV report is valid. ' +
+  'Scope is role-neutral: student, faculty, staff, and first-person wording alone do not ' +
+  'establish individual scope. Explicit personal-device or only-me wording supports individual; ' +
+  'named shared building or room impact supports location; explicit campus-wide breadth ' +
+  'supports service_wide; ambiguity stays unknown. Use this compact taxonomy: ' +
+  'page/load/error/blank web page or portal language -> web_portal + page_error; sign-in loops ' +
+  'or repeated prompts -> auth_failure; will not connect, cannot connect, or no image/network -> ' +
+  'no_connection unless the subject is a projector/display, which is classroom_av + ' +
+  'equipment_unavailable; cutting out/on and off -> intermittent; slow/crawling -> slow. A network ' +
+  'jack, ethernet, LAN, or wired network -> wired_network. Explicit wifi, Wi-Fi, wireless, or ' +
+  'eduroam -> wifi. Generic internet or internet access without wifi/wireless or wired evidence ' +
+  '-> unknown service, never guess wifi. VPN maps to vpn. Scope: "my laptop"/"only me"/"my login" ' +
+  'plus a contrast such as someone else works -> individual; for VPN, a personal login/sign-in ' +
+  'loop or repeated prompt is individual unless nobody/everyone is affected; a named ' +
+  'building/room or "around/in" a place -> location; nobody, everyone, anywhere, or campus-wide ' +
+  'breadth -> service_wide; generic portal failure and role words alone remain unknown. For ' +
+  "observedAt, use ISO-8601 only if the report states a time; otherwise use ''. Never use 'now' " +
+  'or infer a time from tense. Representative canonical examples: ' +
+  JSON.stringify([
+    { service: 'wifi', scope: 'location', location: 'North Residence Hall', building: 'NORTH RESIDENCE HALL', room: '', symptom: 'intermittent', observedAt: '' },
+    { service: 'classroom_av', scope: 'location', location: 'Lecture Hall', building: 'LECT', room: '214', symptom: 'equipment_unavailable', observedAt: '' },
+    { service: 'web_portal', scope: 'unknown', location: '', building: '', room: '', symptom: 'page_error', observedAt: '' },
+    { service: 'unknown', scope: 'location', location: 'Main Library', building: 'LIB', room: '', symptom: 'slow', observedAt: '' },
+    { service: 'wired_network', scope: 'location', location: 'Student Center', building: 'STUC', room: '', symptom: 'no_connection', observedAt: '' },
+    { service: 'vpn', scope: 'individual', location: '', building: '', room: '', symptom: 'auth_failure', observedAt: '' },
+  ]) +
+  '.';
+
+/**
+ * Every request is the same apart from the conversation. No temperature: Haiku
+ * 5.5 rejects non-default sampling values. No thinking setting: a forced tool
+ * call skips thinking on this model.
+ */
+export function buildRequest(messages: Anthropic.MessageParam[]): Anthropic.MessageCreateParamsNonStreaming {
+  return {
+    model: PARSER_MODEL,
+    max_tokens: 1024,
+    system: SYSTEM_PROMPT,
+    tools: [REPORT_TOOL],
+    tool_choice: { type: 'tool', name: REPORT_TOOL.name },
+    messages,
+  };
+}
+
+/**
+ * The live SDK call, or null when ANTHROPIC_API_KEY is unset — null wires the
+ * keyword parser, so a clean clone with no `.env` still runs.
+ */
+export function createMessageFromEnv(env: NodeJS.ProcessEnv = process.env): CreateMessage | null {
+  if (!env.ANTHROPIC_API_KEY?.trim()) return null;
+  // A hung parse must become a keyword parse quickly: the reporter is waiting.
+  // No SDK retries, for the same reason (the old fetch client had none either).
+  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, timeout: 10_000, maxRetries: 0 });
+  return (params) => client.messages.create(params);
+}
+
+/**
+ * The tool call from a response. A refusal or a max_tokens cut can leave a
+ * partial tool input, so anything but stop_reason 'tool_use' is a failure.
+ */
+function toolCall(message: Anthropic.Message): Anthropic.ToolUseBlock {
+  if (message.stop_reason !== 'tool_use') throw new Error(`llm stop_reason ${message.stop_reason}`);
+  const call = message.content.find(
+    (block): block is Anthropic.ToolUseBlock => block.type === 'tool_use' && block.name === REPORT_TOOL.name,
+  );
+  if (call === undefined) throw new Error('llm returned no tool call');
+  return call;
 }
 
 /**
@@ -113,69 +167,11 @@ function canonicalizeLocationFields(candidate: unknown): unknown {
   };
 }
 
-/** Adds the malformed output and its specific error for the single repair call. */
-export function repairPrompt(text: string, badOutput: string, error: string): ChatMessage[] {
-  const base = buildPrompt(text);
-  return [
-    ...base,
-    {
-      role: 'user',
-      content:
-        `Your previous response was:\n\n${badOutput}\n\n` +
-        `ERROR: ${error}\n\nPlease fix it and return only the JSON object.`,
-    },
-  ];
-}
-
-/**
- * Parses the first balanced JSON object from bare, fenced, or prose-wrapped
- * output. Braces inside strings are ignored, and malformed JSON returns null.
- */
-export function extractFirstJsonObject(raw: string): unknown {
-  const start = raw.indexOf('{');
-  if (start === -1) return null;
-
-  let depth = 0;
-  let inString = false;
-  let escaped = false;
-
-  for (let i = start; i < raw.length; i++) {
-    const character = raw[i];
-
-    if (inString) {
-      if (escaped) {
-        escaped = false;
-      } else if (character === '\\') {
-        escaped = true;
-      } else if (character === '"') {
-        inString = false;
-      }
-      continue;
-    }
-
-    if (character === '"') {
-      inString = true;
-    } else if (character === '{') {
-      depth++;
-    } else if (character === '}') {
-      depth--;
-    }
-
-    if (depth === 0) {
-      try {
-        return JSON.parse(raw.slice(start, i + 1));
-      } catch {
-        return null;
-      }
-    }
-  }
-
-  return null;
-}
-
 /**
  * Strictly checks the model fields before normalization and returns the first
  * actionable validation error for repair. Validation never coerces model output.
+ * It still runs under `strict: true`: the schema guarantee is the API's promise,
+ * and this is our own trust boundary.
  */
 export function validateAgainstSchema(candidate: unknown): string | null {
   if (typeof candidate !== 'object' || candidate === null || Array.isArray(candidate)) {
@@ -248,30 +244,38 @@ export function validateAgainstSchema(candidate: unknown): string | null {
 }
 
 /**
- * Extracts and validates once, then makes exactly one repair attempt. The
- * telemetry flag is set before that call so failures still record the attempt.
+ * Calls once, validates, then makes exactly one repair attempt: the error goes
+ * back as an `is_error` tool result. The telemetry flag is set before that call
+ * so failures still record the attempt.
  */
-async function parseWithModel(
-  text: string,
-  deps: LlmParserDeps,
-  telemetry: RepairTelemetry,
-): Promise<unknown> {
-  const raw = await deps.client.complete(buildPrompt(text));
-  const candidate = canonicalizeLocationFields(extractFirstJsonObject(raw));
-  const error = candidate === null
-    ? 'response contained no JSON object'
-    : validateAgainstSchema(candidate);
-
+async function parseWithModel(text: string, deps: LlmParserDeps, telemetry: RepairTelemetry): Promise<unknown> {
+  const conversation: Anthropic.MessageParam[] = [{ role: 'user', content: text }];
+  const first = await deps.createMessage(buildRequest(conversation));
+  const call = toolCall(first);
+  const candidate = canonicalizeLocationFields(call.input);
+  const error = validateAgainstSchema(candidate);
   if (error === null) return candidate;
 
   telemetry.repairAttempted = true;
-  const raw2 = await deps.client.complete(repairPrompt(text, raw, error));
-  const candidate2 = canonicalizeLocationFields(extractFirstJsonObject(raw2));
-  const error2 = candidate2 === null
-    ? 'response contained no JSON object'
-    : validateAgainstSchema(candidate2);
-
-  if (error2 === null) return candidate2;
+  const second = await deps.createMessage(
+    buildRequest([
+      ...conversation,
+      { role: 'assistant', content: first.content },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'tool_result',
+            tool_use_id: call.id,
+            is_error: true,
+            content: `ERROR: ${error}. Call ${REPORT_TOOL.name} again with corrected fields.`,
+          },
+        ],
+      },
+    ]),
+  );
+  const repaired = canonicalizeLocationFields(toolCall(second).input);
+  if (validateAgainstSchema(repaired) === null) return repaired;
 
   throw new Error('llm parser: repair failed');
 }
@@ -280,36 +284,25 @@ async function parseWithModel(
 type RepairTelemetry = { repairAttempted: boolean };
 
 /**
- * Fails closed to the deterministic keyword parser while preserving source and
- * repair telemetry for auditing.
- */
-function keywordFallback(text: string, repairAttempted: boolean): ParseResult {
-  return { report: parseReport(text), source: 'keyword', repairAttempted };
-}
-
-/**
  * Returns normalized model output or a deterministic fallback; model failures
- * degrade parsing quality rather than endpoint availability.
+ * (no key, network, refusal, invalid twice) degrade parsing quality, never
+ * endpoint availability.
  */
 export function createLlmParser(deps: LlmParserDeps): { parse(text: string): Promise<ParseResult> } {
   return {
     async parse(text: string): Promise<ParseResult> {
       const telemetry: RepairTelemetry = { repairAttempted: false };
       try {
-        const record = await parseWithModel(text, deps, telemetry);
-
-        const modelRecord =
-          typeof record === 'object' && record !== null ? (record as Record<string, unknown>) : {};
-
+        const record = (await parseWithModel(text, deps, telemetry)) as Record<string, unknown>;
         return {
           // Verbatim always comes from the original report, never model output.
-          report: normalize({ ...modelRecord, verbatim: text }, deps.now()),
+          report: normalize({ ...record, verbatim: text }, deps.now()),
           source: 'llm',
           repairAttempted: telemetry.repairAttempted,
         };
       } catch {
         // Provider errors may echo request text, so they do not cross into logs.
-        return keywordFallback(text, telemetry.repairAttempted);
+        return { report: parseReport(text), source: 'keyword', repairAttempted: telemetry.repairAttempted };
       }
     },
   };
