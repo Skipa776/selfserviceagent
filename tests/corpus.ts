@@ -25,7 +25,8 @@ import type { Service, ReportScope, TicketScope, Symptom } from '../src/vocab/ca
 export type EvalRow = {
   readonly id: string;
   readonly groupId: string;
-  readonly role: 'student' | 'faculty' | 'staff';
+  /** Who wrote it, for corpus balance only; no grader reads it. */
+  readonly role?: 'student' | 'faculty' | 'staff';
   readonly input: string;
   /** The expected service — or, for a genuinely ambiguous report, any of these. */
   readonly service: Service | readonly Service[];

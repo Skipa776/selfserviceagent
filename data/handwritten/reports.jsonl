@@ -1,0 +1,1 @@
+{"_placeholder": "PLACEHOLDER. Replace this whole file with about 150 hand-written reports, one JSON object per line, in the format described in data/handwritten/README.md. `npm run eval:llm -- data/handwritten/reports.jsonl` refuses to score this file while this line is present."}

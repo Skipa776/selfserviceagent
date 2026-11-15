@@ -1,6 +1,8 @@
-// The live eval — the ONLY thing in this repo that calls a real model.
+// The parser eval: keyword baseline always, Claude Haiku 5.5 when
+// ANTHROPIC_API_KEY is set (the live part; never in `npm test`).
 //
-//   npm run eval:llm
+//   npm run eval:llm                                       # synthetic corpus
+//   npm run eval:llm -- data/handwritten/reports.jsonl     # hand-written set
 //
 // Deliberately not a vitest test. Automated tests use recorded responses because
 // a suite that hits an API is slow,
@@ -18,23 +20,35 @@
 //   - one model, one prompt, one temperature-0 run. It is a reading, not a study.
 
 import { EVAL_ROWS } from '../tests/corpus';
+import { loadHandwrittenSet } from '../tests/handwrittenSet';
 import { formatScore, gradeRow, groupConsistency, groupingKey, repeatableRuns, score } from '../tests/grade';
 import { createLlmParser, createMessageFromEnv, PARSER_MODEL } from '../src/parser/llmParser';
 import { parseReport } from '../src/parser/reportParser';
 
 async function main(): Promise<number> {
+  const setPath = process.argv[2];
+  const rows = setPath === undefined ? EVAL_ROWS : loadHandwrittenSet(setPath);
+  if (rows === null) {
+    process.stderr.write(`\n  ${setPath} is still the placeholder. Write the reports first (data/handwritten/README.md).\n\n`);
+    return 0;
+  }
+
+  const keywordResults = rows.map((row) => {
+    const report = parseReport(row.input);
+    return { row, report, fields: gradeRow(row, report) };
+  });
+  process.stdout.write(`\n  set: ${setPath ?? 'tests/corpus.ts (SYNTHETIC)'}   rows: ${rows.length}\n`);
+  process.stdout.write(formatScore('Stage-1 keyword parser (baseline)', keywordResults));
+
   const createMessage = createMessageFromEnv();
   if (createMessage === null) {
-    process.stderr.write(
-      '\n  No ANTHROPIC_API_KEY configured — nothing to measure.\n\n' +
-        '  This is not a failure. The service uses its keyword fallback when the key is absent.\n\n',
-    );
+    process.stderr.write('\n  No ANTHROPIC_API_KEY configured — Haiku not measured. The keyword score above stands.\n\n');
     return 0;
   }
 
   const repeats = Number.parseInt(process.env.LLM_EVAL_RUNS ?? '5', 10);
   if (!Number.isInteger(repeats) || repeats < 1) throw new Error('LLM_EVAL_RUNS must be a positive integer');
-  process.stdout.write(`\n  model: ${PARSER_MODEL}   rows: ${EVAL_ROWS.length}   runs: ${repeats}\n`);
+  process.stdout.write(`\n  model: ${PARSER_MODEL}   runs: ${repeats}\n`);
 
   // The wall clock, on purpose: the future-observedAt guard should be measured
   // against real time when the model is real. Everywhere else in the project the
@@ -42,19 +56,14 @@ async function main(): Promise<number> {
   // point.
   const parser = createLlmParser({ createMessage, now: () => new Date() });
 
-  const keywordResults = EVAL_ROWS.map((row) => {
-    const report = parseReport(row.input);
-    return { row, report, fields: gradeRow(row, report) };
-  });
-
-  type LlmResult = { row: (typeof EVAL_ROWS)[number]; report: Awaited<ReturnType<typeof parser.parse>>['report']; fields: ReturnType<typeof gradeRow> };
+  type LlmResult = { row: (typeof rows)[number]; report: Awaited<ReturnType<typeof parser.parse>>['report']; fields: ReturnType<typeof gradeRow> };
   const llmResults: LlmResult[] = [];
   const runs: LlmResult[][] = [];
   let fellBack = 0;
   let repaired = 0;
   for (let run = 0; run < repeats; run++) {
     const current: LlmResult[] = [];
-    for (const row of EVAL_ROWS) {
+    for (const row of rows) {
       const { report, source, repairAttempted } = await parser.parse(row.input);
       if (source === 'keyword') fellBack++;
       if (repairAttempted === true) repaired++;
@@ -64,14 +73,13 @@ async function main(): Promise<number> {
     if (run === 0) llmResults.push(...current);
   }
 
-  process.stdout.write(formatScore('Stage-1 keyword parser (baseline)', keywordResults));
   process.stdout.write(formatScore(`Stage-2 LLM parser — ${PARSER_MODEL} (MEASURED)`, llmResults));
 
   const keyword = score(keywordResults);
   const llm = score(llmResults);
   const repeatable = repeatableRuns(runs);
   const groups = groupConsistency(llmResults);
-  const attempts = repeats * EVAL_ROWS.length;
+  const attempts = repeats * rows.length;
   const unsafe = llmResults.filter(({ row, report }) => {
     const expectedService = typeof row.service === 'string' ? row.service : 'unknown';
     return report.scope !== row.scope || report.building !== row.building || report.room !== row.room ||
@@ -88,7 +96,7 @@ async function main(): Promise<number> {
       `  repeatability  : ${repeatable ? 'stable' : 'UNSTABLE'} across ${repeats} runs`,
       `  unsafe errors  : ${unsafe.length} (scope/building/room/grouping)`,
       '',
-      fellBack === EVAL_ROWS.length
+      fellBack === rows.length
         ? '  Every row fell back. The API may be unreachable or its responses may be unusable.\n' +
           '  No model result was measured; inspect connectivity and parser diagnostics.'
         : `  Measured ${llm.correct}/${llm.total} fields with ${PARSER_MODEL}. Record the model,\n` +
