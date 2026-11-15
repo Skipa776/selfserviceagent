@@ -138,7 +138,7 @@ would change it. Source tags:
 - **Choice:** installed from the npm `node@24` package into `/opt/node24` in the cloud container, not the system Node. Nothing in the repo depends on it.
 
 ### S7. `docs/` was gitignored
-- **Choice:** removed the `docs/` line from `.gitignore` so these four documents can be committed. The other "local planning material" entries stay.
+- **Choice:** removed the `docs/` line from `.gitignore` so these documents can be committed, and anchored `ARCHITECTURE.md` to the root (`/ARCHITECTURE.md`) because it also matched `docs/ARCHITECTURE.md`. The other "local planning material" entries stay.
 
 ### S8. README length
 - **Choice:** the README is now short (what it is, how to run, results, limits). Setup detail moved unchanged to `docs/SETUP.md`. The README's Safety Boundaries list is kept word for word.
