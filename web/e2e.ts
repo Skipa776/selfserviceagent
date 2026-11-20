@@ -73,7 +73,7 @@ function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, R
       WEB_PORT: String(PORT),
       WEB_PRESENTATION: presentation ? '1' : '',
       SNOW_INSTANCE_URL: '',
-      SNOW_USERNAME: '',
+      SNOW_USER: '',
       SNOW_PASSWORD: '',
       ANTHROPIC_API_KEY: '',
     },
