@@ -1,6 +1,6 @@
 // The opt-in audit file (AUDIT_LOG_PATH): one JSON line per audit line.
 
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -21,6 +21,12 @@ describe('auditFileSink', () => {
     await handleReport({ text: 'wifi in North Residence Hall keeps dropping', identityRef: 'r1', canFollowUp: true }, system.deps);
     const lines = readFileSync(path, 'utf8').trim().split('\n').map((l) => JSON.parse(l) as { action: string });
     expect(lines.map((l) => l.action)).toEqual(system.audit.lines.map((l) => l.action));
+  });
+
+  it('creates the file readable by its owner only', () => {
+    const path = join(mkdtempSync(join(tmpdir(), 'audit-')), 'audit.jsonl');
+    auditFileSink(path);
+    expect(statSync(path).mode & 0o777).toBe(0o600);
   });
 
   it('fails at startup, not mid-request, when the path cannot be written', () => {

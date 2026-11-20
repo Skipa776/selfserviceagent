@@ -41,6 +41,7 @@ function runServer(): ChildProcessByStdio<null, Readable, Readable> {
       LLM_MODEL: 'synthetic',
       LLM_TIMEOUT_MS: '20',
       ANTHROPIC_API_KEY: '',
+      AUDIT_LOG_PATH: '', // never write test reports into a real audit file
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

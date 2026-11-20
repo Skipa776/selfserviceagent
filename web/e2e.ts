@@ -79,6 +79,7 @@ function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, R
       SNOW_USERNAME: '',
       SNOW_PASSWORD: '',
       ANTHROPIC_API_KEY: '',
+      AUDIT_LOG_PATH: '', // never write test reports into a real audit file
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

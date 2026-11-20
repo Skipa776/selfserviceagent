@@ -137,13 +137,13 @@ const server = createServer(async (req, res) => {
       // postReport chooses the status code from the outcome; we relay both.
       const { status, body } = await postReport(parsed, system.deps);
       writeJson(res, status, body);
-      printForIT();
     } catch {
       writeJson(res, 503, {
         outcome: 'UNAVAILABLE',
         reply: compose({ outcome: 'UNAVAILABLE', reason: 'incident_search_failed' }),
       });
     }
+    printForIT(); // outside the try: a print error must never become a second response
     return;
   }
 

@@ -97,7 +97,7 @@ export function identitySalt(env: NodeJS.ProcessEnv, snowConfigured: boolean): s
  */
 export function auditFileSink(path = process.env.AUDIT_LOG_PATH): ((line: AuditLine) => void) | undefined {
   if (path === undefined || path.trim() === '') return undefined;
-  appendFileSync(path, '');
+  appendFileSync(path, '', { mode: 0o600 }); // owner-only when it is created: reporter hashes
   return (line) => {
     try {
       appendFileSync(path, `${JSON.stringify(line)}\n`);
