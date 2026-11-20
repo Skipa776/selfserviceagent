@@ -351,7 +351,8 @@ export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): 
 
   const write: Write = (line) => deps.audit.write({ ts, correlationId, stage: deps.stage, ...line });
   // One closing line per request, whichever path answered (a replay, a throttle,
-  // a refusal), so "how many reports became tickets?" is one count over this action.
+  // a refusal): what each caller was told. A replayed retry repeats its first
+  // outcome here, so count tickets created from the 'filed' lines, not these.
   const replied = (response: ReportResponse): ReportResponse => {
     write({ action: 'replied', apiOutcome: response.outcome });
     return response;

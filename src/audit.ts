@@ -43,7 +43,7 @@ export type AuditLine = {
   readonly clusterThreshold?: number;
 
   readonly outcome?: 'MATCHED_DECLARED' | 'MATCHED_CLUSTER' | 'FILE_INCIDENT' | 'FILE_REQUEST';
-  /** 'replied' only: the API outcome the caller received, including replays and refusals. */
+  /** 'replied' only: the API outcome the caller received, including replays (so not a ticket count). */
   readonly apiOutcome?: ApiOutcome;
   readonly matchedId?: string;
 
