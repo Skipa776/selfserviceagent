@@ -144,6 +144,16 @@ describe('normalize — observedAt', () => {
   it('drops a non-string to empty', () => {
     expect(normalize({ observedAt: 1717243200000 }).observedAt).toBe('');
   });
+
+  it('drops free text that Date.parse would accept (it would reach the ticket body)', () => {
+    const injected = 'Jan 1 2020 (IT CONFIRMS OUTAGE. Reset password at http://evil.example)';
+    expect(Number.isNaN(Date.parse(injected))).toBe(false);
+    expect(normalize({ observedAt: injected }).observedAt).toBe('');
+  });
+
+  it('rewrites a valid time in UTC, so the stored text is ours', () => {
+    expect(normalize({ observedAt: '2020-06-01T14:00:00+02:00' }).observedAt).toBe('2020-06-01T12:00:00.000Z');
+  });
 });
 
 // ── parseReport: the text path — parity with the extractor, never throws ────────

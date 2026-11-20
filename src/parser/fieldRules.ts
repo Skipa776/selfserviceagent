@@ -89,8 +89,21 @@ export function validateAgainstSchema(candidate: unknown): string | null {
   if (scope === 'location' && location === '') {
     return 'location scope requires location';
   }
-  if (record.observedAt !== '' && Number.isNaN(Date.parse(record.observedAt as string))) {
-    return 'observedAt is not a valid timestamp';
+  if (record.observedAt !== '' && !isIsoTimestamp(record.observedAt)) {
+    return "observedAt must be an ISO-8601 time with a zone (2026-11-20T14:00:00Z) or ''";
   }
   return null;
+}
+
+/**
+ * A strict ISO-8601 date-time with a zone. Date.parse alone is not enough: it also
+ * accepts free text such as "Jan 1 2020 (call this number)", and observedAt is
+ * written into the ticket description outside the quoted reporter text.
+ */
+export function isIsoTimestamp(value: unknown): value is string {
+  return (
+    typeof value === 'string' &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d{1,3})?)?(Z|[+-]\d{2}:\d{2})$/.test(value) &&
+    !Number.isNaN(Date.parse(value))
+  );
 }

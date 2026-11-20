@@ -17,6 +17,7 @@ import type { ProblemReport } from '../contracts/types';
 import type { ReportScope, Service, Symptom } from '../vocab/catalog';
 import { SCOPES, SERVICES, SYMPTOMS } from '../vocab/catalog';
 import { extract } from './keywordExtractor';
+import { isIsoTimestamp } from './fieldRules';
 import { canonicalBuilding, canonicalLocation, canonicalRoom, matchBuilding } from '../vocab/locations';
 
 // This is a hygiene cap (ticket-body size, abuse), not a governed threshold.
@@ -70,13 +71,11 @@ function sanitizeVerbatim(value: unknown): string {
  * allowed to silently defeat match-window checks.
  */
 function normalizeObservedAt(value: unknown, now?: Date): string {
-  if (typeof value !== 'string'){
-    return '';
-  }
+  if (!isIsoTimestamp(value)) return '';
   const parsed = Date.parse(value);
-  if (Number.isNaN(parsed)) return '';
   if (now !== undefined && parsed > now.getTime()) return '';
-  return value;
+  // Rewritten by us, so the ticket shows a timestamp we produced, never model text.
+  return new Date(parsed).toISOString();
 }
 
 // ── Assembly — the eight-field guarantee and untrusted-input coercion ──────────
