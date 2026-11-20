@@ -13,7 +13,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { ParseResult } from '../orchestrator';
 import { SCOPES, SERVICES, SYMPTOMS } from '../vocab/catalog';
 import { MODEL_FIELDS, validateAgainstSchema } from './fieldRules';
-import { normalize, parseReport } from './reportParser';
+import { normalize, parseReport, VERBATIM_MAX_LEN } from './reportParser';
 import { canonicalBuilding, canonicalLocation, canonicalRoom } from '../vocab/locations';
 
 /** The parser model. Confirmed against the Models API by `npm run record:haiku`. */
@@ -171,7 +171,9 @@ function canonicalizeLocationFields(candidate: unknown): unknown {
  * so failures still record the attempt.
  */
 async function parseWithModel(text: string, deps: LlmParserDeps, telemetry: RepairTelemetry): Promise<unknown> {
-  const conversation: Anthropic.MessageParam[] = [{ role: 'user', content: text }];
+  // The same 2,000-character cap as the stored verbatim text and the specialists:
+  // the endpoint accepts 64 KB, and the model never needs more than we keep.
+  const conversation: Anthropic.MessageParam[] = [{ role: 'user', content: text.slice(0, VERBATIM_MAX_LEN) }];
   const first = await deps.createMessage(buildRequest(conversation));
   const call = toolCall(first);
   const candidate = canonicalizeLocationFields(call.input);
