@@ -1,0 +1,70 @@
+{
+  "_about": "SYNTHETIC. Phrase pools for the templated training reports (Milestone 2). scripts/buildTrainingSet.ts fills the sentence families with these phrases and a fictional building from src/vocab/locations.ts. Labels come from the slots chosen, never from reading the text back. No row from tests/corpus.ts or data/handwritten/ is used here.",
+
+  "valid": {
+    "wifi":          { "scopes": ["individual", "location", "service_wide", "unknown"], "symptoms": ["no_connection", "intermittent", "slow", "auth_failure", "unknown"] },
+    "wired_network": { "scopes": ["individual", "location", "unknown"],                 "symptoms": ["no_connection", "intermittent", "slow", "unknown"] },
+    "vpn":           { "scopes": ["individual", "service_wide", "unknown"],             "symptoms": ["no_connection", "intermittent", "slow", "auth_failure", "unknown"] },
+    "web_portal":    { "scopes": ["individual", "service_wide", "unknown"],             "symptoms": ["page_error", "slow", "auth_failure", "unknown"] },
+    "classroom_av":  { "scopes": ["location", "unknown"],                               "symptoms": ["equipment_unavailable", "intermittent", "unknown"] },
+    "unknown":       { "scopes": ["individual", "location", "unknown"],                 "symptoms": ["no_connection", "intermittent", "slow", "unknown"] }
+  },
+
+  "subjects": {
+    "wifi":          ["the wifi", "the wi-fi", "the wireless", "eduroam", "the wireless network", "the campus wifi"],
+    "wired_network": ["the ethernet", "the wired network", "the network jack", "the LAN connection", "the ethernet port", "the wired connection"],
+    "vpn":           ["the VPN", "the campus VPN", "the vpn client", "the remote access VPN"],
+    "web_portal":    ["the student portal", "Canvas", "the housing website", "the registration site", "the course website", "the library website"],
+    "classroom_av":  ["the projector", "the classroom display", "the screen in the classroom", "the AV system", "the lecture hall display", "the document camera"],
+    "unknown":       ["the internet", "my connection", "the network", "my computer", "everything online"]
+  },
+
+  "symptoms": {
+    "no_connection":         ["won't connect", "can't connect", "will not connect at all", "has no connection", "says no internet"],
+    "intermittent":          ["keeps dropping", "cuts in and out", "drops every few minutes", "is on and off", "keeps disconnecting"],
+    "slow":                  ["is really slow", "is crawling", "is super sluggish", "takes forever to load", "is so laggy"],
+    "page_error":            ["shows an error page", "won't load", "throws an error", "gives me an error message", "comes up blank"],
+    "auth_failure":          ["keeps asking me to sign in", "won't accept my password", "loops on the login page", "rejects my login", "asks me to log in over and over"],
+    "equipment_unavailable": ["won't turn on", "shows no image", "has a blank screen", "won't power on", "is completely dead"],
+    "unknown":               ["isn't working", "is broken", "is acting up", "has a problem", "is messed up"]
+  },
+
+  "scopes": {
+    "location":     { "lead": ["In {place},", "Over in {place},", "At {place},", "Here in {place},"],
+                      "trail": ["in {place}", "at {place}", "around {place}", "all over {place}", "on the second floor of {place}"] },
+    "individual":   { "lead": ["Only on my laptop,", "Just for me,", "On my phone only,", "For my account only,"],
+                      "trail": ["on my laptop but my roommate's works fine", "only for me, everyone else is fine", "on my phone only", "for my account only", "just on my machine"] },
+    "service_wide": { "lead": ["Across campus,", "For everyone on campus,", "Campus-wide,", "All over campus,"],
+                      "trail": ["for everyone on campus", "anywhere on campus", "across campus", "and nobody can use it", "for all of us everywhere"] },
+    "unknown":      { "lead": [""], "trail": [""] }
+  },
+
+  "tails": {
+    "frustrated": ["!!", ". This is the third time this week.", ". Seriously, still not fixed.", ". I'm fed up with this.", ". AGAIN.", ". Every single day!", ". This is ridiculous."],
+    "calm":       [".", ". Thanks.", ". Thanks for looking into it.", ", thank you.", "", ". No rush."]
+  },
+
+  "families": [
+    "{subject} {symptom} {trail}{tail}",
+    "{lead} {subject} {symptom}{tail}",
+    "hi, {subject} {symptom} {trail}{tail} can someone take a look?",
+    "{subject} {symptom} {trail} since this morning{tail}",
+    "is anyone else seeing this? {subject} {symptom} {trail}{tail}",
+    "{lead} {subject} {symptom} right now{tail}",
+    "reporting a problem: {subject} {symptom} {trail}{tail}",
+    "{lead} {subject} {symptom} today{tail}"
+  ],
+
+  "offTopic": [
+    "the copier jammed again on my floor",
+    "how do I sign up for the spring meal plan",
+    "I need a new parking permit",
+    "how do I change my mailing address",
+    "the coffee machine is broken",
+    "can I get a second monitor for my desk",
+    "where do I pick up my student ID",
+    "my headphones stopped working",
+    "the vending machine ate my money",
+    "who do I ask about a tuition refund"
+  ]
+}
