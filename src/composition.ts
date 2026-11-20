@@ -8,6 +8,7 @@
 // this file is where it is either true or a slogan.
 
 import { randomBytes, randomUUID } from 'node:crypto';
+import { appendFileSync } from 'node:fs';
 
 import {
   InMemoryIdentityContext,
@@ -84,6 +85,26 @@ export function identitySalt(env: NodeJS.ProcessEnv, snowConfigured: boolean): s
     throw new Error('REPORTER_HASH_SALT is required when ServiceNow is configured (see .env.example).');
   }
   return randomBytes(16).toString('hex');
+}
+
+/**
+ * AUDIT_LOG_PATH set: every audit line is also appended to that file as JSONL, so
+ * the measurement survives a restart. Off by default (where and how long to keep
+ * it is the deploying institution's call), and only the servers opt in, so a test
+ * run never writes into a real audit file. An unwritable path fails at startup;
+ * a later write failure is reported and never fails a request, because a request
+ * that errors after its ticket was created would invite a second ticket.
+ */
+export function auditFileSink(path = process.env.AUDIT_LOG_PATH): ((line: AuditLine) => void) | undefined {
+  if (path === undefined || path.trim() === '') return undefined;
+  appendFileSync(path, '', { mode: 0o600 }); // owner-only when it is created: reporter hashes
+  return (line) => {
+    try {
+      appendFileSync(path, `${JSON.stringify(line)}\n`);
+    } catch {
+      process.stderr.write(`audit log: could not append to ${path}\n`);
+    }
+  };
 }
 
 export type System = {
