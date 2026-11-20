@@ -190,7 +190,7 @@ P2, policy rule t2-reporters-15") for a person to apply.
 
 ## Request lifecycle, step by step (`src/orchestrator.ts`)
 
-1. **Parse**: stage 1, the keyword parser; stage 2, the router (specialist, then `llmParser` when a key is set, else keyword). Never throws. Every parser sees at most the first 2,000 characters, the same cap as the stored text.
+1. **Parse**: stage 1, the keyword parser; stage 2, the router (specialist, then `llmParser` when a key is set, else keyword). Never throws. The specialists and Haiku see at most the first 2,000 characters, the same cap as the stored text; the keyword parser reads the whole text.
 2. **Identity**: salted hash of the caller's opaque reference.
 3. **Throttle**: per-reporter budget, before any read load.
 4. **Idempotency**: the same reporter and the same words get the same answer back. The key is the reporter hash and the normalised words only, so a retry that parses differently still matches.
@@ -225,6 +225,6 @@ P2, policy rule t2-reporters-15") for a person to apply.
 16. `docs/DECISIONS.md`, `docs/RESULTS.md`, `docs/LEARNINGS.md`.
 
 Many comments in `src/` cite design notes by file name (`cluster_gate.md`,
-`error_rescue_map.md`, `boundaries.md` and 30 others). Those notes were never
+`error_rescue_map.md`, `boundaries.md` and 20 others). Those notes were never
 committed to this repository, so the comment around each citation is the
 explanation; the code and its tests are the source of truth.

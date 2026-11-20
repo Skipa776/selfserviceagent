@@ -181,9 +181,9 @@ The normal web app keeps one synthetic reporter identity per page load. This is 
 local stand-in for authenticated campus identity.
 
 The server's console is where IT sees what the reporter does not. After each
-answer it prints any new pending priority recommendation ("raise to P3, policy
-rule t2-reporters-5, 5 reporters; a person applies it") and any NOC pattern
-advisory (a candidate, never a declared outage). Nothing printed there changes
+answer it prints any new pending priority recommendation (`Priority recommendation
+for INC0000001: raise to P3 (policy rule t2-reporters-5, 5 reporters); a person
+applies it`) and any NOC pattern advisory (a candidate, never a declared outage). Nothing printed there changes
 a ticket.
 
 ### Presentation Mode

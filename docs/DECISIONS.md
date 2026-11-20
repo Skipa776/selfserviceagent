@@ -356,7 +356,8 @@ would change it. Source tags:
 
 Two fresh reviews (one on what people see and store, one on correctness), then a
 chair ruling on the combined list, then a code review of all twelve branches
-(8 ship, 4 fix; the fixes are follow-up commits on the same branches). Each change below is its own pull request of
+(8 ship, 4 fix). The four fixes and three smaller review notes are follow-up commits on
+seven of the branches, and a final review checked them and these docs against the merge. Each change below is its own pull request of
 at most 100 lines of code and tests; this file and the other docs are one
 separate pull request.
 
