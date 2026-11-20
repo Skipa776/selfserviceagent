@@ -246,6 +246,17 @@ would change it. Source tags:
   target"; the benefit is latency, offline operation and repeatability, not money. Refitting tau on Josh's
   set was rejected (that is tuning on the test set).
 
+### M2-S1. The models see at most 2,000 characters [session, found in the final review]
+- **Problem:** `maskPlaces` re-scans the text once per place mention, so its cost grows with the square of
+  the mentions. The web endpoint accepts 64 KB bodies; 16 KB of "HAB " took 1.65 s, and a full 64 KB body
+  of building codes would block the service for much longer.
+- **Choice:** `modelText()` in `features.ts` keeps the first `VERBATIM_MAX_LEN` (2,000) characters, the cap
+  the reporter's own words already get, then masks. Inference and the training-set builder both call it,
+  so Python and TypeScript still see identical text. All training rows are shorter than the cap: the
+  training data and the weights are byte-identical; only the parity fixture for one long input changed.
+  Measured worst case after the cap: 47 ms for a 64 KB stuffed body.
+- **Would change it:** a linear-time masker (one combined pattern), if 2,000 characters ever proves too few.
+
 ### M2 follow-up rulings (after the first training run)
 1. **Masking:** see M2-Q2.
 2. **Size:** the 1 MB weights budget was an estimate to catch runaway growth; raised to 1.5 MB, readable

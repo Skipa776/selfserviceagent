@@ -13,7 +13,8 @@ ticket, and composes the user response.
 
 ```text
 Plain-language report
-  -> parser: Claude Haiku 5.5 (forced tool), or the keyword parser with no key
+  -> parser: local specialist models first (stage 2); if they abstain,
+     Claude Haiku 5.5 (forced tool); the keyword parser with no key
   -> schema validation and normalization
   -> identity hash, throttle
   -> flood ledger: is a parent incident for this problem already open?
@@ -34,6 +35,18 @@ majority sounded frustrated (which can raise it by one level, no more). It is
 set once, at create. When more reporters arrive and the table calls for a
 higher priority, the ledger holds one pending recommendation, naming the policy
 rule, for a person to apply. Nothing updates the ticket.
+
+**Specialists (CDMForge).** Four small linear models (service, scope, symptom,
+frustration), trained by one Python script and run in TypeScript as a dot
+product, answer a report locally when they are confident and their answer passes
+the same field rules a Haiku answer must pass; otherwise the report goes to Haiku.
+The abstention threshold is chosen on a validation set for a 5% error bound.
+
+**Correlation engine.** One small engine groups signals `{key, source, time,
+weight}`. The ticket adapter feeds it report events (the advisory NOC alert); the
+security adapter feeds it alerts from
+[detection-engineering-ml](https://github.com/Skipa776/detection-engineering-ml)
+and prints incident candidates, advisory only.
 
 Supported demonstration topics: campus Wi-Fi, wired networking, VPN, web
 portals, and classroom audiovisual equipment.
@@ -70,21 +83,28 @@ npm run demo
 npm run web
 ```
 
-Then open <http://127.0.0.1:4000/>. Optional settings go in `.env` (copy
-`.env.example`): `ANTHROPIC_API_KEY` turns on the Claude parser;
+Then open <http://127.0.0.1:4000/>. Triage a file of security alerts:
+
+```bash
+npm run triage:alerts -- vendor/detection-engineering-ml/alerts.synthetic.jsonl
+```
+
+Optional settings go in `.env` (copy `.env.example`): `ANTHROPIC_API_KEY` turns on the Claude parser;
 `REPORTER_HASH_SALT` is required when ServiceNow is configured;
 `PRIORITY_POLICY_PATH` points to a real policy kept outside the repo. ServiceNow
-PDI setup, the HTTP API, the analyst demo and every script: [docs/SETUP.md](docs/SETUP.md).
+PDI setup, the HTTP API, the analyst demo, retraining the specialists and every
+script: [docs/SETUP.md](docs/SETUP.md).
 
 ## Current Results
 
-All data is synthetic; nothing here describes real campus traffic. Details,
-commands and hardware: [docs/RESULTS.md](docs/RESULTS.md).
+All data is synthetic or public; nothing here describes real campus traffic.
+Details, commands, hardware and caveats: [docs/RESULTS.md](docs/RESULTS.md).
 
-- 30 same-problem reports from 30 reporters, fired concurrently: **1 INC created**, 29 linked locally, ledger count 30, one pending recommendation (P4 → P2, rule `t2-reporters-15`).
-- 7 scripted scenarios, 132 reports: **16 creates** instead of 132, **0 false merges**, 1 missed merge (an outage that outlasts the fixed link window).
-- Keyword parser on the 26-row synthetic corpus: 137/156 fields (87.8%).
-- Claude Haiku 5.5: **not measured yet**. The offline fixture is a SYNTHETIC placeholder until `npm run record:haiku` runs with a key.
+- **Flood control:** 30 same-problem reports from 30 reporters, fired concurrently: 1 INC created, 29 linked locally, ledger count 30, one pending recommendation citing its policy rule. 7 scripted scenarios: 16 creates instead of 132, 0 false merges, 1 missed merge (an outage longer than the fixed window).
+- **Parsers on the 26-row development set** (counts, not rates): keyword 137/156 fields; Claude Haiku 5.5 149/156 (3 runs); specialist-then-Haiku router 152.3/156 (3 runs) with 15 of 26 reports sent to Haiku. The specialist accepted 11 reports with 0 errors.
+- **Specialists on 419 synthetic held-out reports:** they answer 43% of reports with 1 error among them (95% interval 0.01–3.1%); ECE ≤ 0.018. Optimistic: same generators as the training text.
+- **Security alerts** (514 public-data alerts): 98 items for a human instead of 514 (20 candidates + 78 ungrouped); 18 of 21 datasets reach a candidate. Purity 1.000 is vacuous on this data; there is no false-positive rate (no benign logs).
+- **Josh's hand-written test set:** not written yet, so not measured.
 
 ## Known Limits
 
@@ -93,7 +113,12 @@ commands and hardware: [docs/RESULTS.md](docs/RESULTS.md).
 - The link window is fixed from the parent's creation, so a long outage gets a
   second incident, and a parent IT closes inside the window still absorbs reports.
 - Reports for one problem are processed one at a time, ServiceNow search included.
-- The frustration signal is a keyword placeholder, not validated against people.
+- The specialists were trained and measured on synthetic text; their threshold
+  is certified on that distribution, not on real writing.
+- The frustration signal (lexical rule or model) is not validated against people,
+  and the model's held-out error bound (6.8%) is above its 5% target.
+- Alert triage is advisory and offline; a host with no candidate is not a clean
+  bill of health.
 - The priority mapping to impact/urgency assumes ServiceNow's default lookup.
 - Production Caller, Assignment group, Channel, Service, Service offering, and
   Configuration item mappings are not implemented; assignment routing is out of scope.

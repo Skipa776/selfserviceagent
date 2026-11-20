@@ -249,6 +249,59 @@ npm run eval:flood
 The generated `analyst-model-benchmark.json` is ignored by Git. A single run is
 not a production model-approval decision.
 
+## Specialist Models (Milestone 2)
+
+The committed `models/weights.json` is what stage 2 loads; nothing below is needed
+to run or test the service. To rebuild it, set up Python once:
+
+```bash
+python3 -m venv .venv
+```
+
+```bash
+.venv/bin/pip install -r training/requirements.txt
+```
+
+Optionally regenerate the Haiku-written training rows (needs `ANTHROPIC_API_KEY`;
+about 150 calls, a few cents):
+
+```bash
+npm run generate:training-text
+```
+
+Rebuild the training set and retrain (about 4.5 minutes on 4 CPUs):
+
+```bash
+npm run train
+```
+
+Then `npm test` checks that TypeScript reproduces the new weights to 1e-9, that the
+weights match the committed training data, and that the file stays under 1.5 MB.
+Compare parsers on the development set (Haiku rows need the key):
+
+```bash
+npm run eval:router
+```
+
+## Security Alert Triage (Milestone 3)
+
+Alerts come from [detection-engineering-ml](https://github.com/Skipa776/detection-engineering-ml)
+(schema 1.0, vendored with its provenance in `vendor/detection-engineering-ml/`).
+Print the incident candidates in any alerts file (offline, read-only):
+
+```bash
+npm run triage:alerts -- vendor/detection-engineering-ml/alerts.synthetic.jsonl
+```
+
+Measure the grouping against the producer's ground truth (aggregates only):
+
+```bash
+npm run eval:alerts -- /path/to/detection-engineering-ml/out/alerts.jsonl
+```
+
+The real alerts file is produced by that repository's own pinned fetch and
+pipeline; it is never committed here.
+
 ## HTTP API
 
 The local web server exposes `POST /report`:
@@ -315,7 +368,10 @@ analyst/   local analyst UI, server, and HTTP smoke test
 demo/      deterministic and interactive CLI demos
 scripts/   live model and ServiceNow diagnostics
 tests/     unit and integration tests with synthetic fixtures
-data/      hand-written test set (placeholder until written)
+data/      hand-written test set (placeholder) and SYNTHETIC training data
+training/  the one Python training script, its templates and pinned requirements
+models/    trained specialist weights, parity fixtures, training report
+vendor/    pinned copy of the detection-engineering-ml alert contract
 docs/      decisions, architecture, results, learnings, this setup guide
 policy.example.yaml   SYNTHETIC priority policy
 ```

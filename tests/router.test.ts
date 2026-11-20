@@ -73,6 +73,18 @@ describe('the committed specialist', () => {
   });
 });
 
+describe('the cost of a hostile report is bounded', () => {
+  // Place masking re-scans once per place mention. Before the text was capped
+  // (features.ts modelText), a 16 KB body of building codes took 1.6 s and the
+  // web endpoint accepts 64 KB; capped, the worst case measured 47 ms.
+  it('answers a 64 KB body of building codes in well under a second', () => {
+    const specialist = loadSpecialist();
+    const started = performance.now();
+    specialist.predict('HAB '.repeat(16_000));
+    expect(performance.now() - started).toBeLessThan(1_000);
+  });
+});
+
 describe('stage wiring', () => {
   it('stage 1 never uses a model, even with the weights on disk', async () => {
     const system = buildStage1({ clock: () => new Date(CORPUS_NOW) });

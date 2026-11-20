@@ -11,6 +11,7 @@
 // sampling accident (council M2 follow-up ruling 1).
 
 import { AREA_TOKENS, matchBuilding } from '../vocab/locations';
+import { VERBATIM_MAX_LEN } from './reportParser';
 
 /** Hash space: 2^16 buckets. Must equal the `dimensions` in models/weights.json. */
 export const DIMENSIONS = 65_536;
@@ -29,6 +30,17 @@ export function maskPlaces(text: string): string {
   }
   for (const area of AREA_TOKENS) masked = masked.replace(new RegExp(`\\b${area}\\b`, 'gi'), ` ${PLACE_TOKEN} `);
   return masked;
+}
+
+/**
+ * The text the models see: the first VERBATIM_MAX_LEN characters (the same cap the
+ * reporter's own words get), with places masked. Capping first bounds the cost of
+ * maskPlaces, which re-scans once per place mention: a 64 KB body stuffed with
+ * building codes took seconds before the cap. Used by both inference and the
+ * training-set builder, so the two always agree.
+ */
+export function modelText(text: string): string {
+  return maskPlaces(text.slice(0, VERBATIM_MAX_LEN));
 }
 
 export function tokens(text: string): string[] {

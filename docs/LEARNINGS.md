@@ -41,3 +41,44 @@ failed. Newest last.
 - **Runs are not repeatable.** Haiku 5.5 accepts no temperature setting, and 3 runs of the same 26 inputs gave different answers. The recorded fixture pins one run for the offline tests; accuracy claims need several runs.
 - **The prompt is most of the cost:** about 1,790 input tokens per call against about 175 output tokens.
 
+
+## Milestones 2 and 3 (2026-11-20)
+
+### Process
+
+- **There was no "engineering council" skill to load.** The account and container had none; the closest catalog match (`agentic-council`) cannot be installed from inside a session. Running each persona as a separate agent on one shared brief, with a Chair that names whose view wins, made the disagreements visible and recordable. The two most consequential rulings both overruled my own proposal: one joint abstention threshold instead of three per-field ones, and never accepting a confident `unknown`.
+- **A pre-declared trigger fired.** The Chair had ruled against masking building names "unless building tokens appear in the top features". The first training run put "humanities" (a fictional building) 5th for `symptom=no_connection`, so masking went in and the held-out split was looked at a second time. Both runs are in RESULTS.
+- **Pre-registration is cheap.** The alert rule's constants were committed (`e11d434`) before the real-data evaluation ran, so the git history shows they were not tuned on it.
+- **Commits are now authored as Josh**, with Claude as co-author, from `aeacce1` on. The nine earlier commits on this branch are authored as Claude; changing them would need a force-push.
+
+### Data
+
+- **I leaked the development set into my own templates.** Two off-topic sentences I wrote ("my printer is out of toner", "when is the housing application deadline") were corpus rows I had read. The builder's exact-match guard dropped 6 rows; variants with a tail ("…toner. Thanks.") would have gone into training. Both sentences were replaced. Writing templates after reading the evaluation set is a contamination risk even with good intentions, which is why the development set is reported as counts only.
+- **Generated labels are only as good as the generator's obedience.** One Haiku row requested as "frustrated" reads calm. Labels come from the request, so this is label noise; an audit of 50 rows is proposed to Josh.
+- **87 rows contradicted their scope label** and were dropped. Two causes were visible: Haiku sometimes mentioned a place when told not to, and the template subject "the lecture hall display" contains a building name, so the location matcher (longest alias wins) reads "the lecture hall display … in HRB" as Lecture Hall. That second one is existing extractor behaviour, not fixed here.
+- **The validation-size check caught a rare class**: 29 `equipment_unavailable` rows against a floor of 30, because that symptom exists only for classroom AV. Raising the rows per family from 300 to 350 before training fixed it.
+
+### Models
+
+- **Python and TypeScript agreed to 1e-9 on the first try**, including on non-ASCII, emoji and 2,000-character inputs. The reason is boring: an ASCII-only tokenizer, our own FNV-1a, and both sides summing the same rounded weights in the same order.
+- **Retraining reproduced every model file byte for byte** on the same machine. Bit-identical results across machines are not promised (numeric libraries differ).
+- **The size estimate was wrong.** The council expected under 1 MB; L2 logistic regression gives every bucket seen in training a non-zero weight, so the file is 1.17 MB for 5,346 buckets. The budget was raised to 1.5 MB rather than making the format less readable.
+- **A guard earned its removal.** The minimum-evidence rule changed 0 held-out decisions in two runs and was deleted, as ruled in advance.
+- **C landed on the grid's top edge** (10) for three heads. Extending the grid after seeing that would be tuning on results, so it was not extended.
+- **My ECE self-check was wrong**: with equal-mass bins, identical confidences are split across bins by row order, so "all 0.8, 80% correct" is not a known-answer case. Known-answer cases need distinct confidences.
+- **The frustration head missed its target on held-out** (upper bound 6.8% against 5%) after meeting it on validation. It stays on because it beats the lexical rule on the same rows (379 vs 363 of 396), and the priority policy caps its effect.
+
+- **The final review found a slow path I had added.** Masking place names before hashing re-scanned the whole report once per place mention: 16 KB of "HAB " took 1.65 s, and the endpoint accepts 64 KB. Capping the text the models see at the existing 2,000-character limit brought the worst case to 47 ms without changing any training row or weight.
+
+### Correlation and alerts
+
+- **A test caught my own overclaim.** I wrote that the engine gives "the same output for any input order"; it does for groups and scores, but members with exactly the same time are listed in input order. The comment and the test now say exactly that.
+- **The refactor regression was found by review, not by tests.** Moving `PatternDetector` onto the engine made a late event older than the window, arriving alone, crash (the old code returned null). The Ponytail review found it; a test was added and checked to fail without the fix.
+- **Purity on the real alerts is vacuous.** No two datasets on the same host are within an hour of each other, so a 60-minute rule cannot mix them; only the no-window baselines show mixing (purity 0.661). Window length and severity weighting changed nothing on this data.
+- **The producer's own grouping hint was the weakest key**: grouping by `correlation_key` (host and first technique) left 251 of 514 alerts ungrouped.
+- **The producer's pipeline reproduced its published numbers** (514 alerts, 17/22 datasets) in this container from its pinned fetch.
+
+### Environment
+
+- **Rendering the Mermaid diagrams to check their syntax was blocked**: the session's permission classifier refused headless Chromium launched with `--no-sandbox`. The diagrams in ARCHITECTURE.md were checked by reading, not by rendering.
+- **The Anthropic key arrived as `BOUNDARY_BENCH_ANTHROPIC_KEY`**, not `ANTHROPIC_API_KEY`; the scripts were run with `ANTHROPIC_API_KEY="$BOUNDARY_BENCH_ANTHROPIC_KEY"`. Nothing in the code reads the other name.

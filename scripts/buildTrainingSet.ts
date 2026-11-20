@@ -9,7 +9,7 @@
 //      anything equal to a development-set row (tests/corpus.ts).
 //   5. Assigns grouped splits: templated rows by sentence family, Haiku rows by
 //      generation batch, so near-duplicates never straddle train and validation.
-//   6. Stores the place-masked text Python trains on (features.ts maskPlaces), and
+//   6. Stores the capped, place-masked text Python trains on (features.ts modelText), and
 //      what today's lexical frustration rule says, for the held-out comparison.
 //
 // It also writes data/train/parity-inputs.jsonl: the texts whose probabilities
@@ -19,7 +19,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 
 import { isFrustrated } from '../src/frustration';
-import { maskPlaces } from '../src/parser/features';
+import { modelText } from '../src/parser/features';
 import { parseReport } from '../src/parser/reportParser';
 import { AREA_TOKENS, BUILDINGS } from '../src/vocab/locations';
 import { EVAL_ROWS } from '../tests/corpus';
@@ -160,7 +160,7 @@ export function buildTrainingSet(): { rows: TrainingRow[]; dropped: Record<strin
     rows.push({
       ...row,
       location,
-      featureText: maskPlaces(row.text),
+      featureText: modelText(row.text),
       lexicalFrustrated: isFrustrated(row.text),
       split: splitFor(row, t.families.length),
     });
@@ -200,7 +200,7 @@ if (process.argv[1]?.endsWith('buildTrainingSet.ts')) {
   writeFileSync(OUTPUT, rows.map((r) => JSON.stringify(r)).join('\n') + '\n');
   const heldout = rows.filter((r) => r.split === 'heldout');
   const parityTexts = [...PARITY_TEXTS, ...heldout.filter((_, i) => i % Math.max(1, Math.floor(heldout.length / 20)) === 0).slice(0, 20).map((r) => r.text)];
-  writeFileSync('data/train/parity-inputs.jsonl', parityTexts.map((text) => JSON.stringify({ text, featureText: maskPlaces(text) })).join('\n') + '\n');
+  writeFileSync('data/train/parity-inputs.jsonl', parityTexts.map((text) => JSON.stringify({ text, featureText: modelText(text) })).join('\n') + '\n');
   const count = (split: string, origin: string): number => rows.filter((r) => r.split === split && r.origin === origin).length;
   for (const split of ['train', 'validation', 'heldout']) {
     process.stdout.write(`${split.padEnd(10)} templated ${count(split, 'templated')}  haiku ${count(split, 'haiku')}\n`);

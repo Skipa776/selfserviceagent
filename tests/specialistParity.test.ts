@@ -10,7 +10,7 @@ import { readFileSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-import { featureBuckets, maskPlaces } from '../src/parser/features';
+import { featureBuckets, modelText } from '../src/parser/features';
 import { headProbabilities, loadSpecialist, validateWeights, WEIGHTS_PATH } from '../src/parser/specialist';
 
 const read = (rel: string): string => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
@@ -35,7 +35,7 @@ describe('Python and TypeScript agree (models/parity-fixtures.json)', () => {
   });
 
   it('masks and hashes every fixture to the same buckets', () => {
-    for (const f of fixtures) expect(featureBuckets(maskPlaces(f.text)), f.text.slice(0, 40)).toEqual(f.buckets);
+    for (const f of fixtures) expect(featureBuckets(modelText(f.text)), f.text.slice(0, 40)).toEqual(f.buckets);
   });
 
   it('computes the same probabilities, to 1e-9, for every head', () => {

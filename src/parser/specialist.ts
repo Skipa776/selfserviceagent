@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import { SCOPES, SERVICES, SYMPTOMS } from '../vocab/catalog';
-import { DIMENSIONS, MAX_TOKENS, featureBuckets, maskPlaces } from './features';
+import { DIMENSIONS, MAX_TOKENS, featureBuckets, modelText } from './features';
 
 export const WEIGHTS_PATH = fileURLToPath(new URL('../../models/weights.json', import.meta.url));
 
@@ -114,7 +114,7 @@ export function loadSpecialist(path = WEIGHTS_PATH): Specialist {
   const { tau, frustrationTau, datasetSha256 } = weights.header;
   return {
     predict(text) {
-      const buckets = featureBuckets(maskPlaces(text));
+      const buckets = featureBuckets(modelText(text));
       const best = (head: HeadName): { label: string; p: number } => {
         const probs = headProbabilities(weights, head, buckets);
         const i = probs.indexOf(Math.max(...probs));

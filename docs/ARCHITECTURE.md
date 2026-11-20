@@ -1,6 +1,6 @@
 # Architecture
 
-State after Milestone 1. The rule that shapes everything: **models only read
+State after Milestone 3. The rule that shapes everything: **models only read
 text; deterministic code decides.** The parser turns words into bounded fields.
 Whether to create a ticket, link to one, or set a priority is decided by plain
 code that a test can pin down.
@@ -12,6 +12,8 @@ flowchart LR
     reporter["<b>Reporter</b><br/>web form or chat assistant"]
     svc["<b>Campus Issue Reporter</b><br/>this repo"]
     claude["<b>Anthropic API</b><br/>Claude Haiku 5.5<br/>reads text only"]
+    detml["<b>detection-engineering-ml</b><br/>security alerts (JSONL)"]
+    analyst["<b>Security analyst</b><br/>reads incident candidates"]
     snow[("<b>ServiceNow</b><br/>read open records<br/>create a ticket")]
     policy[/"<b>Priority policy</b><br/>YAML, outside the repo<br/>(synthetic example inside)"/]
     it["<b>IT agent</b><br/>works the ticket,<br/>applies priority recommendations"]
@@ -25,6 +27,8 @@ flowchart LR
     svc -.->|recommendation, local| it
     svc -.->|candidate alert, local| noc
     it --> snow
+    detml -->|alerts.jsonl, schema 1.0| svc
+    svc -.->|incident candidates, CLI| analyst
 ```
 
 Solid arrows are the request path; dashed arrows are optional or advisory.
@@ -38,13 +42,17 @@ flowchart TD
     orch["orchestrator.ts<br/>one request's lifecycle"]
 
     subgraph parse ["Parser (the only model-facing part)"]
+        router["parser/router.ts<br/>stage 2: specialist first"]
+        spec["parser/specialist.ts<br/>local linear models"]
         llm["parser/llmParser.ts<br/>Haiku 5.5, forced tool"]
         kw["parser/keywordExtractor.ts<br/>fallback, no network"]
+        rules["parser/fieldRules.ts<br/>shared validity rules"]
         norm["parser/reportParser.ts<br/>normalize: 8 bounded fields"]
     end
 
     subgraph det ["Deterministic core"]
         gate["clusterGate.ts<br/>keys, thresholds, window"]
+        engine["correlate.ts<br/>{key, source, time, weight}"]
         ledger["floodLedger.ts<br/>parent + child reporters"]
         decide["decide.ts<br/>pure decision"]
         pol["priorityPolicy.ts<br/>policy table"]
@@ -58,11 +66,16 @@ flowchart TD
     end
 
     audit["audit.ts<br/>append-only JSONL"]
-    detector["patternDetector.ts<br/>advisory alerts"]
+    detector["patternDetector.ts<br/>ticket adapter, advisory alerts"]
+    alerts["alertAdapter.ts<br/>security-alert adapter"]
     root["composition.ts<br/>wires it all, reads env"]
 
     api --> orch
-    orch --> llm
+    orch --> router
+    router --> spec
+    router -->|abstain| llm
+    router --> rules
+    llm --> rules
     llm -->|fallback| kw
     llm --> norm
     kw --> norm
@@ -76,8 +89,66 @@ flowchart TD
     orch --> mem
     orch --> audit
     orch -.->|events| detector
+    detector --> engine
+    alerts --> engine
     root --> orch
 ```
+
+## The stage-2 parser: specialist, then Haiku, then keyword
+
+```mermaid
+flowchart LR
+    text["report text"] --> mask["maskPlaces + hash<br/>features.ts"]
+    mask --> heads["4 linear heads<br/>service · scope · symptom · frustration"]
+    heads --> confident{"min confidence ≥ tau<br/>and no 'unknown'?"}
+    confident -->|yes| places["places from the<br/>deterministic lookup"]
+    places --> valid{"field rules pass?"}
+    valid -->|yes| done["source: specialist"]
+    confident -->|no| haiku["Claude Haiku 5.5<br/>(keyword if no key)"]
+    valid -->|no| haiku
+    haiku --> done2["source: llm or keyword"]
+    heads -.->|frustration, if confident| done
+    heads -.->|frustration, if confident| done2
+```
+
+The specialist never decides anything downstream: it proposes catalog labels, and a
+proposal is used only when it is confident AND passes the same field rules a Haiku
+answer must pass. Stage 1 never loads a model.
+
+## Training the specialists (offline, one Python script)
+
+```mermaid
+flowchart LR
+    tpl["training/templates.json<br/>phrases, valid label combos"] --> build
+    gen["scripts/generateTrainingText.ts<br/>(network, run once)"] --> haikujsonl["data/train/haiku.jsonl"]
+    haikujsonl --> build["scripts/buildTrainingSet.ts<br/>seeded; masks places; grouped splits"]
+    build --> ds["data/train/dataset.jsonl"]
+    ds --> py["training/train.py<br/>scikit-learn"]
+    py --> w["models/weights.json"]
+    py --> fx["models/parity-fixtures.json"]
+    py --> rep["models/training-report.json"]
+    w --> ts["src/parser/specialist.ts"]
+    fx --> parity["tests/specialistParity.test.ts<br/>TS = Python to 1e-9"]
+```
+
+Python sees only the place-masked text; all text handling (masking, location
+extraction) is TypeScript, so there is one building matcher.
+
+## Security alerts: the second adapter of the same engine
+
+```mermaid
+flowchart LR
+    jsonl["alerts.jsonl<br/>(untrusted)"] --> guard["parseAlertLine<br/>fail-closed guard, stricter than the schema"]
+    guard --> signals["signals: key = host,<br/>source = detector id, weight 1"]
+    signals --> engine["correlate()<br/>fixed 60-minute windows"]
+    engine --> rule{"≥ 2 distinct detectors?"}
+    rule -->|yes| cand["incident candidate<br/>(advisory; authors credited)"]
+    rule -->|no| rest["counted, not dropped"]
+```
+
+The ticket side uses the same `correlate()`: `patternDetector.ts` turns report
+events into signals (key = groupKey, source = reporter hash, weight 1) and raises an
+advisory alert when the score is more than the topic's threshold.
 
 ## Data flow: a burst of reports about one problem
 
@@ -119,7 +190,7 @@ P2, policy rule t2-reporters-15") for a person to apply.
 
 ## Request lifecycle, step by step (`src/orchestrator.ts`)
 
-1. **Parse**: `llmParser` (key set) or the keyword parser. Never throws.
+1. **Parse**: stage 1, the keyword parser; stage 2, the router (specialist, then `llmParser` when a key is set, else keyword). Never throws.
 2. **Identity**: salted hash of the caller's opaque reference.
 3. **Throttle**: per-reporter budget, before any read load.
 4. **Idempotency**: the same reporter and the same text get the same answer back.
@@ -143,8 +214,11 @@ P2, policy rule t2-reporters-15") for a person to apply.
 6. `src/floodLedger.ts`: parents, child reporters, the per-key queue.
 7. `src/priorityPolicy.ts` with `policy.example.yaml`, then `src/frustration.ts`.
 8. `src/orchestrator.ts`: steps 1–11 above, in order.
-9. `src/parser/llmParser.ts`, then `src/parser/reportParser.ts` and `src/parser/keywordExtractor.ts`.
-10. `src/adapters/servicenow.ts`: the only code that talks to ServiceNow.
-11. `src/composition.ts`: how it is wired, and which environment variables matter.
-12. `tests/floodControl.test.ts` and `tests/floodScenarios.ts`: the acceptance tests.
-13. `docs/DECISIONS.md`, `docs/RESULTS.md`, `docs/LEARNINGS.md`.
+9. `src/parser/llmParser.ts` and `src/parser/fieldRules.ts`, then `src/parser/reportParser.ts` and `src/parser/keywordExtractor.ts`.
+10. `src/parser/router.ts`, `src/parser/specialist.ts`, `src/parser/features.ts`: the stage-2 specialist path.
+11. `training/train.py` with `training/templates.json` and `scripts/buildTrainingSet.ts`: how the specialists are made.
+12. `src/correlate.ts`, then its two adapters: `src/patternDetector.ts` and `src/alertAdapter.ts`.
+13. `src/adapters/servicenow.ts`: the only code that talks to ServiceNow.
+14. `src/composition.ts`: how it is wired, and which environment variables matter.
+15. Tests to read first: `tests/floodControl.test.ts`, `tests/specialistParity.test.ts`, `tests/router.test.ts`, `tests/alertContract.test.ts`.
+16. `docs/DECISIONS.md`, `docs/RESULTS.md`, `docs/LEARNINGS.md`.
