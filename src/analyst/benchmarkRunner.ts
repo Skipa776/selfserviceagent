@@ -21,7 +21,7 @@ export type TimedModelBenchmarkResult = ModelBenchmarkResult & {
     readonly rowId: string;
     readonly input: string;
     readonly output: Awaited<ReturnType<ReturnType<typeof createLlmParser>['parse']>>['report'];
-    readonly source: 'llm' | 'keyword';
+    readonly source: Awaited<ReturnType<ReturnType<typeof createLlmParser>['parse']>>['source'];
     readonly repairAttempted: boolean;
     readonly exact: boolean;
     readonly misses: readonly string[];

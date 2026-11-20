@@ -141,6 +141,17 @@ describe('failure and escape paths', () => {
   });
 });
 
+describe('where the frustration signal comes from', () => {
+  it("a confident frustration-model answer replaces the lexical rule (stage 2's specialist)", async () => {
+    const system = buildStage1({ clock: () => new Date(CORPUS_NOW) });
+    // Calm words, but the parser reports a confident "frustrated": the model wins.
+    const keyword = system.deps.parser;
+    const deps = { ...system.deps, parser: { parse: async (text: string) => ({ ...(await keyword.parse(text)), frustrated: true }) } };
+    await handleReport({ text: NRH_WIFI, identityRef: 'r1', canFollowUp: true }, deps);
+    expect(system.tickets.filed[0].priority).toEqual({ priority: 3, ruleId: 't2-reporters-1', frustrationRaised: true });
+  });
+});
+
 describe('scripted scenarios (tests/floodScenarios.ts)', () => {
   it('merge nothing that should stay apart', async () => {
     for (const scenario of SCENARIOS) {

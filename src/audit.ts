@@ -56,8 +56,13 @@ export type AuditLine = {
   /** The score that was wrong. THIS FIELD IS THE LABELLED TRAINING DATA. */
   readonly overriddenScore?: number;
 
-  readonly parseSource?: 'keyword' | 'llm';
+  readonly parseSource?: 'keyword' | 'llm' | 'specialist';
   readonly repairAttempted?: boolean;
+  /** Stage 2: the specialist's per-head confidence, threshold and training-data hash, so
+   *  a later review can recompute risk-coverage and tell which model version answered. */
+  readonly specialistConfidence?: { readonly service: number; readonly scope: number; readonly symptom: number };
+  readonly specialistTau?: number | null;
+  readonly specialistDataset?: string;
 
   /** Salted hash, NEVER a raw identity. */
   readonly reporterHash?: string;

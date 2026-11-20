@@ -1,0 +1,317 @@
+{
+  "header": {
+    "format": "cdmforge-linear-v1",
+    "hash": "fnv1a-32",
+    "dimensions": 65536,
+    "ngrams": [
+      1,
+      2
+    ],
+    "maxTokens": 400,
+    "tau": 0.5978455962340232,
+    "frustrationTau": 0.7367385165882226,
+    "targetError": 0.05,
+    "tauFloor": 0.5,
+    "seed": 20261120,
+    "c": {
+      "service": 10.0,
+      "scope": 10.0,
+      "symptom": 10.0,
+      "frustrated": 1.0
+    },
+    "datasetSha256": "7fe9042b8d9939b6b2f24b6fd6f6d508b88d82df3617e8cdae8f3f3e764df631",
+    "rows": {
+      "train": 1998,
+      "validation": 721,
+      "heldout": 419
+    },
+    "versions": {
+      "python": "3.13.18",
+      "sklearn": "1.9.1",
+      "numpy": "2.5.5",
+      "scipy": "1.18.1"
+    }
+  },
+  "validation": {
+    "n": 721,
+    "accepted": 265,
+    "coverage": 0.3675,
+    "errors": 4,
+    "selectiveRisk": 0.0151,
+    "selectiveRisk95": [
+      0.0041,
+      0.0382
+    ],
+    "fieldAccuracy": {
+      "service": 0.9931,
+      "scope": 0.9917,
+      "symptom": 0.9792
+    }
+  },
+  "heldout": {
+    "n": 419,
+    "accepted": 180,
+    "coverage": 0.4296,
+    "errors": 1,
+    "selectiveRisk": 0.0056,
+    "selectiveRisk95": [
+      0.0001,
+      0.0306
+    ],
+    "fieldAccuracy": {
+      "service": 0.9881,
+      "scope": 0.9881,
+      "symptom": 0.9714
+    },
+    "frustration": {
+      "against": "generator labels",
+      "accepted": 396,
+      "coverage": 0.9451,
+      "errors": 17,
+      "risk95": [
+        0.0252,
+        0.0678
+      ]
+    },
+    "curve": [
+      {
+        "tau": 0.3923,
+        "coverage": 0.4391,
+        "risk": 0.0272
+      },
+      {
+        "tau": 0.9326,
+        "coverage": 0.4153,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9711,
+        "coverage": 0.3938,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9798,
+        "coverage": 0.3723,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9874,
+        "coverage": 0.3508,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9907,
+        "coverage": 0.3294,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9942,
+        "coverage": 0.3079,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9958,
+        "coverage": 0.284,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9969,
+        "coverage": 0.2625,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9978,
+        "coverage": 0.2411,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9983,
+        "coverage": 0.2196,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9987,
+        "coverage": 0.1981,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9989,
+        "coverage": 0.1766,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.999,
+        "coverage": 0.1551,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9991,
+        "coverage": 0.1313,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9993,
+        "coverage": 0.1098,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9995,
+        "coverage": 0.0883,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9996,
+        "coverage": 0.0668,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9997,
+        "coverage": 0.0453,
+        "risk": 0.0
+      },
+      {
+        "tau": 0.9998,
+        "coverage": 0.0239,
+        "risk": 0.0
+      },
+      {
+        "tau": 1.0,
+        "coverage": 0.0024,
+        "risk": 0.0
+      }
+    ],
+    "ece": {
+      "service": 0.0098,
+      "scope": 0.0041,
+      "symptom": 0.017,
+      "frustrated": 0.0177
+    },
+    "scopeConfusion": {
+      "individual->individual": 121,
+      "individual->service_wide": 1,
+      "individual->unknown": 1,
+      "location->location": 100,
+      "service_wide->service_wide": 55,
+      "unknown->individual": 3,
+      "unknown->unknown": 138
+    },
+    "frustrationVsLexical": {
+      "allRows": {
+        "n": 419,
+        "head": 395,
+        "lexical": 384
+      },
+      "acceptedRows": {
+        "n": 396,
+        "head": 379,
+        "lexical": 363
+      }
+    }
+  },
+  "topFeatures": {
+    "service=wifi": [
+      "eduroam",
+      "wifi",
+      "wireless",
+      "the wireless",
+      "the wifi",
+      "wi fi"
+    ],
+    "service=wired_network": [
+      "ethernet",
+      "jack",
+      "wired",
+      "the ethernet",
+      "network jack",
+      "the wired"
+    ],
+    "service=vpn": [
+      "vpn",
+      "the vpn",
+      "campus vpn",
+      "the campus",
+      "campus",
+      "vpn is"
+    ],
+    "service=web_portal": [
+      "canvas",
+      "website",
+      "portal",
+      "site",
+      "registration",
+      "the registration"
+    ],
+    "service=classroom_av": [
+      "projector",
+      "the projector",
+      "display",
+      "classroom",
+      "av",
+      "the av"
+    ],
+    "service=unknown": [
+      "the network",
+      "the internet",
+      "internet",
+      "my connection",
+      "my",
+      "online"
+    ],
+    "symptom=no_connection": [
+      "connect",
+      "t connect",
+      "no",
+      "no connection",
+      "has no",
+      "internet"
+    ],
+    "symptom=intermittent": [
+      "keeps",
+      "disconnecting",
+      "dropping",
+      "keeps dropping",
+      "and",
+      "keeps disconnecting"
+    ],
+    "symptom=slow": [
+      "crawling",
+      "is crawling",
+      "slow",
+      "is",
+      "but",
+      "sluggish"
+    ],
+    "symptom=page_error": [
+      "error",
+      "an error",
+      "an",
+      "t load",
+      "load",
+      "blank"
+    ],
+    "symptom=auth_failure": [
+      "login",
+      "password",
+      "my password",
+      "rejects my",
+      "rejects",
+      "my login"
+    ],
+    "symptom=equipment_unavailable": [
+      "screen",
+      "blank screen",
+      "a blank",
+      "blank",
+      "no image",
+      "image"
+    ],
+    "symptom=unknown": [
+      "is broken",
+      "broken",
+      "a problem",
+      "working",
+      "problem",
+      "up"
+    ]
+  }
+}

@@ -22,6 +22,10 @@
     "eval:models": "tsx --env-file-if-exists=.env scripts/compareParserModels.ts",
     "record:haiku": "tsx --env-file-if-exists=.env scripts/recordHaiku.ts",
     "eval:flood": "tsx scripts/evalFlood.ts",
+    "eval:router": "tsx --env-file-if-exists=.env scripts/evalRouter.ts",
+    "generate:training-text": "tsx --env-file-if-exists=.env scripts/generateTrainingText.ts",
+    "build:training-set": "tsx scripts/buildTrainingSet.ts",
+    "train": "tsx scripts/buildTrainingSet.ts && .venv/bin/python -I training/train.py",
     "snow:check": "tsx --env-file-if-exists=.env scripts/snowCheck.ts",
     "snow:inspect-analyst": "tsx --env-file-if-exists=.env scripts/snowInspectAnalyst.ts",
     "snow:peers": "tsx --env-file-if-exists=.env scripts/snowPeersCheck.ts"

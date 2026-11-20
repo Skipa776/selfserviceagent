@@ -31,6 +31,8 @@ import { AuditLog, type AuditLine } from './audit';
 import { configureGate, type GateTuning } from './clusterGate';
 import { InMemoryFloodLedger } from './floodLedger';
 import { createLlmParser, createMessageFromEnv, type CreateMessage } from './parser/llmParser';
+import { createRouter } from './parser/router';
+import { loadSpecialist, type Specialist } from './parser/specialist';
 import { parseReport } from './parser/reportParser';
 import { PatternDetector } from './patternDetector';
 import { InMemoryIdempotencyStore, type OrchestratorDeps } from './orchestrator';
@@ -197,12 +199,31 @@ export function buildStage1(options?: BuildOptions): System {
   return build(1, () => keywordParser, options);
 }
 
+/**
+ * The specialist models from models/weights.json, or null when the file is
+ * missing or does not match this code: the router then skips straight to the
+ * next parser. One line on stderr says why; `npm test` checks the committed file.
+ */
+function specialistFromDisk(): Specialist | null {
+  try {
+    return loadSpecialist();
+  } catch (error) {
+    process.stderr.write(`specialist off: ${error instanceof Error ? error.message : 'unreadable weights'}\n`);
+    return null;
+  }
+}
+
 /** How stage 2 reaches a ServiceNow PDI. `fetchImpl` is injected by tests. */
 export type SnowWiring = { config: SnowConfig; fetchImpl?: Fetch };
 
 /**
  * Stage 2 — AI-capable, contained. Identical to stage 1 in every respect except
  * the parser. Compare the two function bodies: that comparison IS the board demo.
+ *
+ * The stage-2 parser is a router: the local specialist models first, then Claude
+ * Haiku 5.5 (or the keyword parser when there is no key). `specialist` is
+ * injected by tests; left undefined, it is loaded from models/weights.json.
+ * Stage 1 never loads a model.
  *
  * `createMessage` is injected so tests can replay recorded Claude responses and
  * never touch a live API. Left undefined, it reads ANTHROPIC_API_KEY.
@@ -223,9 +244,10 @@ export type SnowWiring = { config: SnowConfig; fetchImpl?: Fetch };
  * that is what `npm run snow:check` is for.
  */
 export function buildStage2(
-  options?: BuildOptions & { createMessage?: CreateMessage | null; snow?: SnowWiring | null },
+  options?: BuildOptions & { createMessage?: CreateMessage | null; specialist?: Specialist | null; snow?: SnowWiring | null },
 ): System {
   const createMessage = options?.createMessage === undefined ? createMessageFromEnv() : options.createMessage;
+  const specialist = options?.specialist === undefined ? specialistFromDisk() : options.specialist;
 
   const config = snowConfigFromEnv();
   const snow =
@@ -233,7 +255,7 @@ export function buildStage2(
 
   return build(
     2,
-    (clock) => (createMessage === null ? keywordParser : createLlmParser({ createMessage, now: clock })),
+    (clock) => createRouter(specialist, createMessage === null ? keywordParser : createLlmParser({ createMessage, now: clock })),
     options,
     snow,
   );

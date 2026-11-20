@@ -37,6 +37,7 @@ import type {
 import { decide, type Evidence } from './decide';
 import type { FloodParent, InMemoryFloodLedger } from './floodLedger';
 import { isFrustrated } from './frustration';
+import type { SpecialistAudit } from './parser/specialist';
 import { priorityFor, raiseFor, type PriorityPolicy } from './priorityPolicy';
 import { throttleLimits } from './throttleLimits';
 import type { TicketScope } from './vocab/catalog';
@@ -53,9 +54,13 @@ import type { TicketScope } from './vocab/catalog';
  */
 export type ParseResult = {
   readonly report: ProblemReport;
-  readonly source: 'keyword' | 'llm';
+  readonly source: 'keyword' | 'llm' | 'specialist';
   /** Only meaningful when the LLM ran. Undefined at stage 1 — there is no repair. */
   readonly repairAttempted?: boolean;
+  /** Stage 2 only: the frustration model's answer, present only when it is confident. */
+  readonly frustrated?: boolean;
+  /** Stage 2 only, for the audit log: never read by decide() or the priority policy. */
+  readonly specialist?: SpecialistAudit;
 };
 
 /**
@@ -314,6 +319,9 @@ type LifecycleContext = {
   readonly report: ProblemReport;
   readonly source: ParseResult['source'];
   readonly repairAttempted: boolean | undefined;
+  /** The frustration model's confident answer, if any; otherwise the lexical rule decides. */
+  readonly frustrated: boolean | undefined;
+  readonly specialist: SpecialistAudit | undefined;
   readonly identity: { hash: string; snowUserId: string | null; affiliation: string };
 };
 
@@ -344,19 +352,23 @@ export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): 
   const write: Write = (line) => deps.audit.write({ ts, correlationId, stage: deps.stage, ...line });
 
   // 1. PARSE — never throws; unknown values normalize (report_parser.md).
-  const { report, source, repairAttempted } = await deps.parser.parse(req.text);
+  const parsed = await deps.parser.parse(req.text);
+  const { report, source, repairAttempted } = parsed;
 
   // 2. IDENTITY — no identity means no throttle key and no requester.
   let identity: { hash: string; snowUserId: string | null; affiliation: string };
   try {
     identity = await deps.identity.resolve(req.identityRef);
   } catch {
-    writeParsed(req, report, source, repairAttempted, write);
+    writeParsed(req, parsed, write);
     write({ action: 'error', errorKind: 'identity_unavailable' });
     return unavailable('identity_unavailable');
   }
 
-  const context: LifecycleContext = { correlationId, now, ts, tuning, report, source, repairAttempted, identity };
+  const context: LifecycleContext = {
+    correlationId, now, ts, tuning, report, source, repairAttempted, identity,
+    frustrated: parsed.frustrated, specialist: parsed.specialist,
+  };
   const overrideMatchId = req.overrideMatchId ?? '';
   if (overrideMatchId !== '') return runLifecycle(req, deps, context);
 
@@ -364,13 +376,8 @@ export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): 
   return coordinateInFlight(deps.idempotency, key, () => runLifecycle(req, deps, context));
 }
 
-function writeParsed(
-  req: ReportRequest,
-  report: ProblemReport,
-  source: ParseResult['source'],
-  repairAttempted: boolean | undefined,
-  write: Write,
-): void {
+function writeParsed(req: ReportRequest, parsed: ParseResult, write: Write): void {
+  const { report, source, repairAttempted, specialist } = parsed;
   write({
     action: 'parsed',
     service: report.service,
@@ -381,6 +388,9 @@ function writeParsed(
     symptom: report.symptom,
     parseSource: source,
     repairAttempted,
+    ...(specialist === undefined
+      ? {}
+      : { specialistConfidence: specialist.confidence, specialistTau: specialist.tau, specialistDataset: specialist.datasetSha256 }),
   });
   if (req.text.trim() === '') write({ action: 'error', errorKind: 'empty_report' });
   if (report.scope === 'unknown' && report.location !== '') {
@@ -393,10 +403,10 @@ async function runLifecycle(
   deps: OrchestratorDeps,
   context: LifecycleContext,
 ): Promise<ReportResponse> {
-  const { now, report, source, repairAttempted, identity } = context;
+  const { now, report, source, repairAttempted, frustrated, specialist, identity } = context;
   const write = writerFor(deps, context);
 
-  writeParsed(req, report, source, repairAttempted, write);
+  writeParsed(req, { report, source, repairAttempted, frustrated, specialist }, write);
 
   // 3. THROTTLE — before the search, so a throttled identity generates no read
   //    load against IT systems either.
@@ -463,7 +473,7 @@ async function searchDecideAct(
   const write = writerFor(deps, context);
   const overrideMatchId = req.overrideMatchId ?? '';
   const isOverride = overrideMatchId !== '';
-  const frustrated = isFrustrated(effective.verbatim);
+  const frustrated = context.frustrated ?? isFrustrated(effective.verbatim);
 
   // 5c. FLOOD LEDGER — is a parent incident for this problem already open?
   const parent = parentKey === null ? null : deps.ledger.open(parentKey, now, tuning.matchTimeWindowMinutes);

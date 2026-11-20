@@ -1,0 +1,1957 @@
+[
+ {
+  "text": "",
+  "buckets": [],
+  "probabilities": {
+   "service": [
+    0.0886171468003051,
+    0.01503422275454445,
+    0.013148042251980272,
+    0.06323855226468336,
+    0.029729999475381633,
+    0.7902320364531051
+   ],
+   "scope": [
+    0.0008379254247054263,
+    0.002301967867890138,
+    0.001518046562151971,
+    0.9953420601452524
+   ],
+   "symptom": [
+    0.01162619277121908,
+    0.044933933990352,
+    0.049253237211483586,
+    0.01644387845335574,
+    0.008571216242013905,
+    0.011907470839025483,
+    0.8572640704925502
+   ],
+   "frustrated": [
+    0.8240460658523867,
+    0.1759539341476132
+   ]
+  },
+  "labels": {
+   "service": "unknown",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.7902320364531051,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "wifi",
+  "buckets": [
+   25672
+  ],
+  "probabilities": {
+   "service": [
+    0.9160756904199007,
+    0.0020511748831664968,
+    0.0017279577895212325,
+    0.005588838549734265,
+    0.003654224854957837,
+    0.07090211350271947
+   ],
+   "scope": [
+    0.0009608974431246018,
+    0.002578476501362151,
+    0.0014269161302262713,
+    0.995033709925287
+   ],
+   "symptom": [
+    0.014408703863840163,
+    0.04862102717881334,
+    0.059744763683957744,
+    0.0127257899715897,
+    0.01285614040689554,
+    0.008198927623240856,
+    0.8434446472716627
+   ],
+   "frustrated": [
+    0.7938634460269588,
+    0.20613655397304106
+   ]
+  },
+  "labels": {
+   "service": "wifi",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.8434446472716627,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "the wifi in North Residence Hall keeps dropping",
+  "buckets": [
+   1194,
+   22753,
+   25672,
+   27172,
+   28995,
+   31390,
+   35010,
+   42704,
+   45596,
+   48535,
+   58513
+  ],
+  "probabilities": {
+   "service": [
+    0.9968097557664277,
+    0.00038974062900834115,
+    1.9716462842661166e-05,
+    5.150700444419898e-06,
+    0.0016108547440894208,
+    0.0011647816971872562
+   ],
+   "scope": [
+    1.5136070084938826e-05,
+    0.9985637486585122,
+    2.965641730836772e-05,
+    0.0013914588540943692
+   ],
+   "symptom": [
+    3.3807761087961866e-07,
+    0.9999969228974771,
+    4.27449992657031e-07,
+    4.1157658951657915e-08,
+    1.0239981844157897e-06,
+    1.6034711621427056e-07,
+    1.0860719600329517e-06
+   ],
+   "frustrated": [
+    0.849110031665478,
+    0.15088996833452192
+   ]
+  },
+  "labels": {
+   "service": "wifi",
+   "scope": "location",
+   "symptom": "intermittent",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9968097557664277,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Le wifi ne marche pas \u00e0 la biblioth\u00e8que \u2014 tr\u00e8s lent \ud83d\ude21",
+  "buckets": [
+   514,
+   3038,
+   4091,
+   10182,
+   10941,
+   11675,
+   17794,
+   18602,
+   20483,
+   22987,
+   24636,
+   25672,
+   32232,
+   35471,
+   42542,
+   46091,
+   48643,
+   51172,
+   51678,
+   53290,
+   60293
+  ],
+  "probabilities": {
+   "service": [
+    0.9399244868680368,
+    0.0018913451375588482,
+    0.0017597637004320265,
+    0.006182936305174385,
+    0.002724907653502563,
+    0.04751656033529524
+   ],
+   "scope": [
+    0.0028019592376487476,
+    0.003931760623136851,
+    0.0022400468816464536,
+    0.9910262332575679
+   ],
+   "symptom": [
+    0.022553900541867577,
+    0.03889148362665354,
+    0.06334760593244942,
+    0.014187595464898466,
+    0.009461558491831577,
+    0.004765682464478529,
+    0.8467921734778208
+   ],
+   "frustrated": [
+    0.7255900650273492,
+    0.2744099349726507
+   ]
+  },
+  "labels": {
+   "service": "wifi",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.8467921734778208,
+  "confident": false,
+  "frustrationConfident": false
+ },
+ {
+  "text": "THE PROJECTOR WON'T TURN ON!!! \u00c9COLE \u216b \ufb01x",
+  "buckets": [
+   12240,
+   15779,
+   20171,
+   20615,
+   31341,
+   33159,
+   37316,
+   45596,
+   48464,
+   48579,
+   53882,
+   56188,
+   61155,
+   62255,
+   62678
+  ],
+  "probabilities": {
+   "service": [
+    0.0001615435996776511,
+    6.12876787326962e-05,
+    0.00010617727185854313,
+    0.00042415600474198694,
+    0.9990424740290127,
+    0.00020436141597648616
+   ],
+   "scope": [
+    0.0009079359969054024,
+    0.0012170964739823692,
+    0.0005627556203742635,
+    0.9973122119087381
+   ],
+   "symptom": [
+    9.58378533436219e-05,
+    5.510252583581414e-06,
+    4.7467539742306203e-07,
+    5.8173108246014305e-05,
+    1.3983164907517552e-05,
+    0.9998144677580307,
+    1.1553187491051865e-05
+   ],
+   "frustrated": [
+    0.9317620648066395,
+    0.06823793519336047
+   ]
+  },
+  "labels": {
+   "service": "classroom_av",
+   "scope": "unknown",
+   "symptom": "equipment_unavailable",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9973122119087381,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "everyone everywhere campus-wide outage nobody can connect my laptop only",
+  "buckets": [
+   2240,
+   8621,
+   13352,
+   14049,
+   14464,
+   14693,
+   16047,
+   17649,
+   23174,
+   27742,
+   29155,
+   30537,
+   35319,
+   38735,
+   46169,
+   52269,
+   52473,
+   52714,
+   56696,
+   58482,
+   65171
+  ],
+  "probabilities": {
+   "service": [
+    0.7866918552402917,
+    0.0012366119951645652,
+    0.026383607208352148,
+    0.03443812130284079,
+    0.00011923983764107308,
+    0.1511305644157099
+   ],
+   "scope": [
+    0.009123349690375811,
+    2.3305494502986212e-05,
+    0.9908522667724633,
+    1.0780426579511997e-06
+   ],
+   "symptom": [
+    0.9887314672509679,
+    0.000752091546775394,
+    0.0011104209069828664,
+    0.00045178779961940903,
+    0.0018982765805151177,
+    2.2974626699562676e-06,
+    0.007053658452469344
+   ],
+   "frustrated": [
+    0.8879433260178831,
+    0.11205667398211694
+   ]
+  },
+  "labels": {
+   "service": "wifi",
+   "scope": "service_wide",
+   "symptom": "no_connection",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.7866918552402917,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "frustrated again again again AGAIN ridiculous fed up still broken!!",
+  "buckets": [
+   297,
+   2848,
+   5863,
+   12895,
+   20951,
+   24573,
+   25674,
+   30274,
+   36049,
+   43632,
+   43962,
+   54402,
+   55456,
+   58703
+  ],
+  "probabilities": {
+   "service": [
+    0.03252067322278485,
+    0.01215108524377443,
+    0.0035579862911567983,
+    0.06139408446374321,
+    0.03264799634895732,
+    0.8577281744295833
+   ],
+   "scope": [
+    0.00030434304731013557,
+    0.0014368585653199556,
+    0.000686683443450554,
+    0.9975721149439194
+   ],
+   "symptom": [
+    5.522396233695761e-06,
+    4.521133675198632e-06,
+    3.363936502714966e-06,
+    2.7289173493927296e-05,
+    2.7166292524945395e-06,
+    4.368060718621061e-06,
+    0.9999522186701233
+   ],
+   "frustrated": [
+    0.0003117507597973574,
+    0.9996882492402026
+   ]
+  },
+  "labels": {
+   "service": "unknown",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.8577281744295833,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer printer ",
+  "buckets": [
+   10903,
+   26623
+  ],
+  "probabilities": {
+   "service": [
+    0.0886171468003051,
+    0.01503422275454445,
+    0.013148042251980272,
+    0.06323855226468336,
+    0.029729999475381633,
+    0.7902320364531051
+   ],
+   "scope": [
+    0.0008379254247054263,
+    0.002301967867890138,
+    0.001518046562151971,
+    0.9953420601452524
+   ],
+   "symptom": [
+    0.01162619277121908,
+    0.044933933990352,
+    0.049253237211483586,
+    0.01644387845335574,
+    0.008571216242013905,
+    0.011907470839025483,
+    0.8572640704925502
+   ],
+   "frustrated": [
+    0.8240460658523867,
+    0.1759539341476132
+   ]
+  },
+  "labels": {
+   "service": "unknown",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.7902320364531051,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over and over the vpn keeps asking me to sign in over ",
+  "buckets": [
+   2617,
+   3576,
+   6862,
+   10919,
+   12004,
+   18468,
+   20188,
+   21007,
+   22753,
+   27998,
+   31390,
+   35748,
+   41248,
+   41475,
+   44948,
+   45596,
+   49830,
+   51917,
+   57039,
+   61792,
+   62948
+  ],
+  "probabilities": {
+   "service": [
+    0.00010091952196392965,
+    4.901982116916076e-06,
+    0.9997241170777511,
+    0.0001403509240915037,
+    2.424167809094693e-05,
+    5.468815985545593e-06
+   ],
+   "scope": [
+    0.00022167128169067507,
+    0.0003851546897356715,
+    0.002154866372470297,
+    0.9972383076561034
+   ],
+   "symptom": [
+    3.175751636406906e-10,
+    2.9525506466840933e-06,
+    1.1182554027461888e-10,
+    6.371210183158493e-11,
+    0.9999970466308646,
+    3.992518203298566e-11,
+    2.854506249180144e-10
+   ],
+   "frustrated": [
+    0.488114081776316,
+    0.5118859182236841
+   ]
+  },
+  "labels": {
+   "service": "vpn",
+   "scope": "unknown",
+   "symptom": "auth_failure",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.9972383076561034,
+  "confident": false,
+  "frustrationConfident": false
+ },
+ {
+  "text": "Only on my laptop, the library website won't accept my password today",
+  "buckets": [
+   12240,
+   15779,
+   18449,
+   19673,
+   20171,
+   23477,
+   24344,
+   29374,
+   30537,
+   32297,
+   32986,
+   34432,
+   35319,
+   38802,
+   45596,
+   47453,
+   52269,
+   52426,
+   59871,
+   62255,
+   63060,
+   64166,
+   64464,
+   65171
+  ],
+  "probabilities": {
+   "service": [
+    0.00011492105194557613,
+    1.1484509619905445e-05,
+    2.8627287970762107e-05,
+    0.9998035991147393,
+    1.1330609714861664e-05,
+    3.003742600953586e-05
+   ],
+   "scope": [
+    0.9990130781363262,
+    1.3082531742768059e-05,
+    3.1951393035285835e-05,
+    0.0009418879388956239
+   ],
+   "symptom": [
+    7.406674067767369e-07,
+    1.770418003182607e-08,
+    1.1120859620877699e-08,
+    4.716048698271923e-05,
+    0.9999512995644314,
+    3.451675193778561e-07,
+    4.2528862004131053e-07
+   ],
+   "frustrated": [
+    0.6147435066445962,
+    0.3852564933554038
+   ]
+  },
+  "labels": {
+   "service": "web_portal",
+   "scope": "individual",
+   "symptom": "auth_failure",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9990130781363262,
+  "confident": true,
+  "frustrationConfident": false
+ },
+ {
+  "text": "The campus wifi is messed up today, thank you.",
+  "buckets": [
+   2848,
+   4449,
+   14464,
+   17752,
+   25672,
+   28302,
+   29374,
+   34275,
+   36629,
+   41974,
+   42053,
+   44689,
+   45596,
+   49744,
+   53404,
+   54541,
+   55844
+  ],
+  "probabilities": {
+   "service": [
+    0.9997624724329793,
+    9.850532377327854e-06,
+    8.282877309575342e-05,
+    6.303124161864882e-05,
+    6.847383847075278e-05,
+    1.33431814583327e-05
+   ],
+   "scope": [
+    0.0007673391579942888,
+    0.0018403963955945255,
+    0.021431843347010968,
+    0.9759604210994002
+   ],
+   "symptom": [
+    2.586254357767702e-08,
+    5.1860883641990606e-08,
+    8.638533328711648e-07,
+    3.12713137153605e-08,
+    3.396529827399328e-08,
+    1.1177766117206097e-08,
+    0.9999989820088617
+   ],
+   "frustrated": [
+    0.9958490215300728,
+    0.0041509784699272564
+   ]
+  },
+  "labels": {
+   "service": "wifi",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9759604210994002,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "On my phone only, the vpn client keeps disconnecting today. No rush.",
+  "buckets": [
+   3107,
+   4527,
+   11727,
+   12004,
+   12240,
+   16294,
+   22753,
+   28666,
+   29374,
+   32986,
+   35319,
+   37037,
+   37331,
+   39966,
+   41257,
+   43140,
+   45596,
+   50188,
+   53927,
+   56496,
+   57039,
+   60600,
+   65171
+  ],
+  "probabilities": {
+   "service": [
+    1.9288023394831532e-05,
+    1.0742368589226862e-05,
+    0.9999125496594474,
+    7.510545531370723e-06,
+    5.069739085230792e-06,
+    4.48396639521731e-05
+   ],
+   "scope": [
+    0.9993455182693997,
+    5.76158553932285e-06,
+    1.427982127268047e-05,
+    0.000634440323788252
+   ],
+   "symptom": [
+    4.3006844903784395e-06,
+    0.9999854541633934,
+    4.2888762034250605e-07,
+    7.974101081644515e-08,
+    6.208795533111445e-06,
+    1.0349296679503734e-08,
+    3.5173786554324973e-06
+   ],
+   "frustrated": [
+    0.9889045896630175,
+    0.011095410336982386
+   ]
+  },
+  "labels": {
+   "service": "vpn",
+   "scope": "individual",
+   "symptom": "intermittent",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9993455182693997,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "In Innovation Building, the wired connection is crawling today. Thanks for looking into it.",
+  "buckets": [
+   1194,
+   3935,
+   10821,
+   11199,
+   14672,
+   16816,
+   21626,
+   23628,
+   23816,
+   28995,
+   29374,
+   31390,
+   32935,
+   33680,
+   33808,
+   34126,
+   35500,
+   36629,
+   40665,
+   42787,
+   43017,
+   44869,
+   45596,
+   47175,
+   49076
+  ],
+  "probabilities": {
+   "service": [
+    1.5227135209670397e-05,
+    0.9999222424782485,
+    6.212543481380942e-07,
+    8.666600722770218e-07,
+    1.753831291687642e-05,
+    4.35041592044468e-05
+   ],
+   "scope": [
+    0.00010537817843310749,
+    0.998515597470242,
+    3.516644711448948e-05,
+    0.0013438579042103019
+   ],
+   "symptom": [
+    8.391130822304794e-07,
+    1.1376396745365141e-06,
+    0.9999960062407349,
+    2.240673272159306e-09,
+    1.23446834380841e-08,
+    1.249962405638708e-07,
+    1.877424910880522e-06
+   ],
+   "frustrated": [
+    0.9991380722792887,
+    0.0008619277207112421
+   ]
+  },
+  "labels": {
+   "service": "wired_network",
+   "scope": "location",
+   "symptom": "slow",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.998515597470242,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "On my phone only, the network won't connect today. Every single day!",
+  "buckets": [
+   3107,
+   4527,
+   5529,
+   8701,
+   11727,
+   12240,
+   15457,
+   15779,
+   18153,
+   20171,
+   20407,
+   28760,
+   29374,
+   31908,
+   32986,
+   34501,
+   35085,
+   35319,
+   45596,
+   50188,
+   52473,
+   58314,
+   62255,
+   63236,
+   65171
+  ],
+  "probabilities": {
+   "service": [
+    0.0006228497999271252,
+    0.0009834535408340605,
+    5.341179747750161e-05,
+    8.817120167813386e-05,
+    1.9906906684816406e-06,
+    0.9982501229694147
+   ],
+   "scope": [
+    0.9998048742212389,
+    7.671242300520344e-06,
+    2.3051892600675085e-06,
+    0.0001851493472006564
+   ],
+   "symptom": [
+    0.9999947354737293,
+    1.013127070376452e-06,
+    8.941218192526669e-08,
+    2.0659211460400463e-06,
+    1.2247137112801394e-06,
+    3.5470291232124973e-07,
+    5.166492488480483e-07
+   ],
+   "frustrated": [
+    0.005437650105108316,
+    0.9945623498948918
+   ]
+  },
+  "labels": {
+   "service": "unknown",
+   "scope": "individual",
+   "symptom": "no_connection",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.9982501229694147,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "The remote access VPN is crawling today. Thanks.",
+  "buckets": [
+   3986,
+   16816,
+   21235,
+   23816,
+   29374,
+   31059,
+   34126,
+   35421,
+   36629,
+   43017,
+   45596,
+   47175,
+   48919,
+   51947,
+   57039
+  ],
+  "probabilities": {
+   "service": [
+    1.036007201106539e-05,
+    1.2304704730783996e-05,
+    0.999841142337157,
+    1.974073342720631e-05,
+    5.034518266783186e-05,
+    6.610697000595968e-05
+   ],
+   "scope": [
+    0.00024816737881366683,
+    0.0001061667319762529,
+    0.0010991019280064704,
+    0.9985465639612037
+   ],
+   "symptom": [
+    5.028845278085302e-07,
+    1.7025283122138136e-06,
+    0.9999801945593269,
+    4.785219265693543e-08,
+    4.323160596929489e-07,
+    4.4227965912244994e-07,
+    1.6677579921781494e-05
+   ],
+   "frustrated": [
+    0.9924098771013445,
+    0.007590122898655496
+   ]
+  },
+  "labels": {
+   "service": "vpn",
+   "scope": "unknown",
+   "symptom": "slow",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9985465639612037,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "For everyone on campus, the housing website takes forever to load today. Every single day!",
+  "buckets": [
+   2449,
+   5529,
+   8701,
+   12240,
+   14464,
+   15505,
+   15585,
+   17216,
+   18153,
+   18468,
+   20407,
+   23017,
+   25859,
+   27836,
+   28760,
+   29374,
+   32888,
+   33680,
+   34580,
+   37153,
+   37339,
+   45596,
+   52426,
+   54977,
+   56242,
+   56696,
+   59967,
+   63236,
+   65136
+  ],
+  "probabilities": {
+   "service": [
+    0.0001742559696757171,
+    5.691323421269463e-06,
+    5.664693083360699e-05,
+    0.9997572798088974,
+    1.0991397279283396e-06,
+    5.026827444155966e-06
+   ],
+   "scope": [
+    4.036906233960706e-05,
+    1.0423662319483827e-05,
+    0.9999089435872147,
+    4.026368812622242e-05
+   ],
+   "symptom": [
+    1.318150848124696e-07,
+    4.693621349597343e-07,
+    0.9999560500153889,
+    3.73192181249507e-05,
+    4.619374629200705e-06,
+    8.36941563727682e-08,
+    1.3265204809080971e-06
+   ],
+   "frustrated": [
+    0.001999232823476365,
+    0.9980007671765236
+   ]
+  },
+  "labels": {
+   "service": "web_portal",
+   "scope": "service_wide",
+   "symptom": "slow",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.9997572798088974,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Only on my laptop, the LAN connection will not connect at all today. AGAIN.",
+  "buckets": [
+   5512,
+   12240,
+   19396,
+   28045,
+   29374,
+   30537,
+   32784,
+   32986,
+   34432,
+   35319,
+   35863,
+   38802,
+   40074,
+   40665,
+   42491,
+   45596,
+   46346,
+   47468,
+   52269,
+   52473,
+   54670,
+   55688,
+   57304,
+   57629,
+   58703,
+   58879,
+   65171
+  ],
+  "probabilities": {
+   "service": [
+    0.00011611373106259047,
+    0.9990975005171255,
+    5.2682332411666337e-05,
+    1.0838383930373948e-05,
+    1.8372665583944183e-06,
+    0.0007210277689114267
+   ],
+   "scope": [
+    0.9987590583157143,
+    5.7426187334243714e-05,
+    2.7900676921083816e-05,
+    0.0011556148200301574
+   ],
+   "symptom": [
+    0.9999994564448341,
+    3.1482076447285887e-07,
+    2.1107280337550023e-08,
+    3.847870347834589e-09,
+    7.329378677173009e-09,
+    1.1787562283901437e-09,
+    1.952711156787875e-07
+   ],
+   "frustrated": [
+    0.133574489660467,
+    0.8664255103395331
+   ]
+  },
+  "labels": {
+   "service": "wired_network",
+   "scope": "individual",
+   "symptom": "no_connection",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.9987590583157143,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Over in SSB, the LAN connection can't connect today. Thanks for looking into it.",
+  "buckets": [
+   1194,
+   3935,
+   5334,
+   10821,
+   14672,
+   14693,
+   14975,
+   15779,
+   16816,
+   21007,
+   21626,
+   23628,
+   28995,
+   29374,
+   31390,
+   31908,
+   32784,
+   33680,
+   33808,
+   35085,
+   40665,
+   42787,
+   44869,
+   45596,
+   47175,
+   52473,
+   55025,
+   55688,
+   58879
+  ],
+  "probabilities": {
+   "service": [
+    0.0001455669713322667,
+    0.999597038030606,
+    4.234869507599713e-06,
+    7.68121400148935e-07,
+    1.848438394949282e-05,
+    0.00023390762320444326
+   ],
+   "scope": [
+    1.7644296189366588e-05,
+    0.9997041601437686,
+    2.8819236419029688e-05,
+    0.0002493763236229966
+   ],
+   "symptom": [
+    0.9999974347654285,
+    1.5389113724607253e-06,
+    1.570881178469194e-07,
+    7.466300548778158e-09,
+    7.048562062535065e-08,
+    1.6525573461618264e-07,
+    6.260274254725479e-07
+   ],
+   "frustrated": [
+    0.9984942129391757,
+    0.001505787060824287
+   ]
+  },
+  "labels": {
+   "service": "wired_network",
+   "scope": "location",
+   "symptom": "no_connection",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.999597038030606,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Only on my laptop, the VPN has no connection today. Thanks.",
+  "buckets": [
+   4067,
+   9947,
+   12004,
+   12240,
+   13956,
+   16816,
+   21806,
+   28666,
+   29374,
+   30537,
+   32986,
+   34432,
+   35319,
+   38802,
+   40665,
+   45596,
+   47175,
+   52269,
+   53514,
+   57039,
+   65171
+  ],
+  "probabilities": {
+   "service": [
+    5.942153277271015e-05,
+    0.0001843683051291275,
+    0.9989329270341759,
+    2.1226765634166336e-05,
+    7.017962370355041e-06,
+    0.0007950383999174258
+   ],
+   "scope": [
+    0.999334678440323,
+    6.551054752581656e-06,
+    2.92100677565577e-05,
+    0.0006295604371677816
+   ],
+   "symptom": [
+    0.9999953818776324,
+    2.2680006378489314e-06,
+    1.855271474563601e-07,
+    2.3145729894620814e-08,
+    3.947462040467685e-07,
+    5.3126591394109424e-08,
+    1.6935760571178708e-06
+   ],
+   "frustrated": [
+    0.9932960762219326,
+    0.006703923778067307
+   ]
+  },
+  "labels": {
+   "service": "vpn",
+   "scope": "individual",
+   "symptom": "no_connection",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9989329270341759,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Over in North Residence Hall room 167, the document camera keeps dropping today. This is ridiculous.",
+  "buckets": [
+   821,
+   1194,
+   5334,
+   11261,
+   12922,
+   14887,
+   17652,
+   19412,
+   21007,
+   22753,
+   22986,
+   25674,
+   26133,
+   27172,
+   28995,
+   29374,
+   31390,
+   35010,
+   36203,
+   36629,
+   38990,
+   42379,
+   45596,
+   53889,
+   57340,
+   59938,
+   61712
+  ],
+  "probabilities": {
+   "service": [
+    4.00936612723526e-05,
+    5.160937018886528e-05,
+    7.848526771827976e-07,
+    8.233702909921033e-07,
+    0.9998202070094259,
+    8.648173614476877e-05
+   ],
+   "scope": [
+    8.033444175825558e-07,
+    0.9997450995093012,
+    7.408190046920335e-06,
+    0.0002466889562343595
+   ],
+   "symptom": [
+    2.165579756232624e-08,
+    0.9999928220138317,
+    1.416535253162305e-07,
+    1.39198330460964e-09,
+    4.2476903328632157e-08,
+    6.4551947750470525e-06,
+    5.156131838994955e-07
+   ],
+   "frustrated": [
+    0.01365697668780161,
+    0.9863430233121983
+   ]
+  },
+  "labels": {
+   "service": "classroom_av",
+   "scope": "location",
+   "symptom": "intermittent",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.9997450995093012,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "In Main Auditorium room 191, the AV system is broken today. Thanks.",
+  "buckets": [
+   1194,
+   2716,
+   6318,
+   9381,
+   12922,
+   12998,
+   16816,
+   17980,
+   25979,
+   26133,
+   28995,
+   29374,
+   29409,
+   31390,
+   35699,
+   36629,
+   45596,
+   47175,
+   48471,
+   55456,
+   58122
+  ],
+  "probabilities": {
+   "service": [
+    3.699101937614593e-05,
+    3.3043798660850794e-05,
+    1.3158382481640836e-06,
+    6.998154095374823e-06,
+    0.9998083740177695,
+    0.00011327717184989858
+   ],
+   "scope": [
+    1.990195051964939e-06,
+    0.9993391525928093,
+    6.934292055985919e-06,
+    0.0006519229200830082
+   ],
+   "symptom": [
+    2.1113330351997562e-08,
+    1.5591406230340921e-06,
+    8.69891288070119e-07,
+    2.2810823968633994e-09,
+    1.203491350149598e-08,
+    6.0339402673641585e-06,
+    0.9999915015984954
+   ],
+   "frustrated": [
+    0.9336828585421956,
+    0.06631714145780442
+   ]
+  },
+  "labels": {
+   "service": "classroom_av",
+   "scope": "location",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9993391525928093,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "The internet has a problem today. No rush.",
+  "buckets": [
+   4067,
+   10540,
+   28666,
+   29374,
+   32572,
+   34780,
+   37331,
+   37859,
+   40981,
+   41257,
+   45596,
+   52296,
+   54516,
+   57249,
+   60600
+  ],
+  "probabilities": {
+   "service": [
+    0.000528779311717674,
+    0.00031253568813773296,
+    0.00031438156228277034,
+    0.001055700614101921,
+    0.000713709605552835,
+    0.9970748932182072
+   ],
+   "scope": [
+    0.00016724233600820377,
+    0.0010040885095992957,
+    0.00026589787206233995,
+    0.9985627712823301
+   ],
+   "symptom": [
+    1.7558677905512673e-05,
+    1.4959515297935798e-07,
+    1.178442189927986e-07,
+    2.4104884187061306e-08,
+    1.6261049796157718e-08,
+    7.596902975183801e-07,
+    0.999981373826491
+   ],
+   "frustrated": [
+    0.9952042801975121,
+    0.00479571980248787
+   ]
+  },
+  "labels": {
+   "service": "unknown",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9970748932182072,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "The vpn client has a problem today. Thanks for looking into it.",
+  "buckets": [
+   3935,
+   4067,
+   10540,
+   12004,
+   14672,
+   16294,
+   16816,
+   21626,
+   23628,
+   29374,
+   33680,
+   33808,
+   34780,
+   37859,
+   39966,
+   40981,
+   42787,
+   44869,
+   45596,
+   47175,
+   52296,
+   57039,
+   61874
+  ],
+  "probabilities": {
+   "service": [
+    1.2841636767145905e-05,
+    1.2794786256227106e-05,
+    0.9997947273215145,
+    4.745254999158894e-05,
+    0.00011149143415359085,
+    2.0692271316797436e-05
+   ],
+   "scope": [
+    0.0002584258479732352,
+    0.00012392925802689716,
+    0.0015428127368513804,
+    0.9980748321571484
+   ],
+   "symptom": [
+    2.0073635610022335e-07,
+    1.1184502458995345e-07,
+    1.8140769037278298e-07,
+    1.1008051188961541e-08,
+    7.664394200629565e-08,
+    1.4214670507452556e-07,
+    0.9999992762122306
+   ],
+   "frustrated": [
+    0.9992861947385772,
+    0.0007138052614228049
+   ]
+  },
+  "labels": {
+   "service": "vpn",
+   "scope": "unknown",
+   "symptom": "unknown",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9980748321571484,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Just for me, the student portal takes forever to load today. Thanks.",
+  "buckets": [
+   9263,
+   10919,
+   12576,
+   14291,
+   16816,
+   17216,
+   18468,
+   23017,
+   23947,
+   28124,
+   29374,
+   32888,
+   33680,
+   34580,
+   35078,
+   35256,
+   40543,
+   44326,
+   45596,
+   47175,
+   54977,
+   59967,
+   65136
+  ],
+  "probabilities": {
+   "service": [
+    8.811347545658792e-05,
+    0.00015562051968314407,
+    7.183364629347679e-05,
+    0.9994500709221187,
+    1.672129367583292e-05,
+    0.00021764014277236878
+   ],
+   "scope": [
+    0.9793957844540426,
+    0.00048644444066434827,
+    0.0016810524331342335,
+    0.01843671867215869
+   ],
+   "symptom": [
+    3.499812678680612e-08,
+    3.733227283595767e-08,
+    0.9999705213500885,
+    2.5890722897210647e-05,
+    3.1725786619613607e-06,
+    2.652243300332803e-08,
+    3.1649551951544534e-07
+   ],
+   "frustrated": [
+    0.981869243947526,
+    0.018130756052474
+   ]
+  },
+  "labels": {
+   "service": "web_portal",
+   "scope": "individual",
+   "symptom": "slow",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9793957844540426,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Across campus, the remote access VPN keeps dropping today. AGAIN.",
+  "buckets": [
+   2617,
+   3986,
+   11261,
+   14464,
+   21235,
+   22753,
+   27172,
+   29374,
+   31059,
+   35010,
+   37339,
+   41869,
+   45596,
+   46346,
+   48919,
+   49444,
+   51947,
+   57039,
+   58703
+  ],
+  "probabilities": {
+   "service": [
+    1.5540839830427902e-05,
+    2.1797744030820016e-06,
+    0.9999545796885603,
+    7.4978974153720205e-06,
+    1.657810148174133e-05,
+    3.6236983089069202e-06
+   ],
+   "scope": [
+    1.4588475377017439e-05,
+    2.4165260125498253e-05,
+    0.998949222179729,
+    0.0010120240847685071
+   ],
+   "symptom": [
+    3.234763151776922e-07,
+    0.999992787324552,
+    2.926993277491847e-07,
+    5.656207028414805e-08,
+    4.355976454740431e-06,
+    1.0214215662729022e-08,
+    2.173747064321201e-06
+   ],
+   "frustrated": [
+    0.0448215353336546,
+    0.9551784646663454
+   ]
+  },
+  "labels": {
+   "service": "vpn",
+   "scope": "service_wide",
+   "symptom": "intermittent",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.998949222179729,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "I still can't get on the wireless network. It just won't connect, and it's been doing this for days now.",
+  "buckets": [
+   4960,
+   5124,
+   11847,
+   12240,
+   13764,
+   14693,
+   15779,
+   17794,
+   19244,
+   20171,
+   21702,
+   23110,
+   26414,
+   29379,
+   31307,
+   31404,
+   31755,
+   33680,
+   33808,
+   34501,
+   35085,
+   36049,
+   36304,
+   39355,
+   39513,
+   39671,
+   40543,
+   42839,
+   45596,
+   46321,
+   49378,
+   49830,
+   52271,
+   52473,
+   53270,
+   53889,
+   53898,
+   55025,
+   57291,
+   58440,
+   62255,
+   63628,
+   63719
+  ],
+  "probabilities": {
+   "service": [
+    0.9997688188631582,
+    2.195962631995274e-05,
+    9.33372654182531e-06,
+    2.3351018455484567e-05,
+    5.056802887024272e-07,
+    0.00017603108523587752
+   ],
+   "scope": [
+    0.13084289240757188,
+    0.008038483666966675,
+    0.04132461641476959,
+    0.8197940075106919
+   ],
+   "symptom": [
+    0.9999999875170372,
+    1.71687758085386e-10,
+    9.8300105594655e-10,
+    1.3910799249506764e-09,
+    9.676659352908618e-09,
+    2.511093184962442e-10,
+    9.425401917324949e-12
+   ],
+   "frustrated": [
+    0.01950025703275372,
+    0.9804997429672464
+   ]
+  },
+  "labels": {
+   "service": "wifi",
+   "scope": "unknown",
+   "symptom": "no_connection",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.8197940075106919,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Good morning. The network wall jack in The Lantern connects, but downloads and web pages are extremely slow. It affects all of the desks in that area. Would it be possible to check it when you have a moment? Many thanks.",
+  "buckets": [
+   1019,
+   1194,
+   1389,
+   1609,
+   2523,
+   5594,
+   7239,
+   8516,
+   9105,
+   10540,
+   11541,
+   12464,
+   12760,
+   13100,
+   13389,
+   13738,
+   14067,
+   15280,
+   15464,
+   16067,
+   16816,
+   16989,
+   17008,
+   17080,
+   17489,
+   18468,
+   18843,
+   19098,
+   19245,
+   19396,
+   19701,
+   22538,
+   28556,
+   28995,
+   31365,
+   31390,
+   33071,
+   33808,
+   34073,
+   34481,
+   34501,
+   35433,
+   36010,
+   36031,
+   36770,
+   38179,
+   38367,
+   38400,
+   40309,
+   40698,
+   41088,
+   41534,
+   42820,
+   43595,
+   44336,
+   44685,
+   45072,
+   45596,
+   46533,
+   47876,
+   48273,
+   48864,
+   49830,
+   52378,
+   52637,
+   53404,
+   54481,
+   55650,
+   58314,
+   61027,
+   62984,
+   63080,
+   63446,
+   63668,
+   64830
+  ],
+  "probabilities": {
+   "service": [
+    0.00041190913843342896,
+    0.9913473805373926,
+    6.650861826565943e-05,
+    0.00010737074877935698,
+    0.0010565168515084817,
+    0.007010314105620636
+   ],
+   "scope": [
+    1.2734084454252518e-06,
+    0.9996108490654005,
+    0.00022510752420205728,
+    0.00016277000195204434
+   ],
+   "symptom": [
+    7.634478910903312e-05,
+    0.0001134664333778804,
+    0.999805603859563,
+    6.310319624495395e-08,
+    4.646549365927598e-07,
+    2.225265296575851e-06,
+    1.83189452037712e-06
+   ],
+   "frustrated": [
+    0.9999907781753892,
+    9.221824610847555e-06
+   ]
+  },
+  "labels": {
+   "service": "wired_network",
+   "scope": "location",
+   "symptom": "slow",
+   "frustrated": "false"
+  },
+  "minConfidence": 0.9913473805373926,
+  "confident": true,
+  "frustrationConfident": true
+ },
+ {
+  "text": "Ugh, the campus VPN refuses to connect again. It's been doing this for days and I'm fed up with it. Can someone actually fix this?",
+  "buckets": [
+   1345,
+   2152,
+   2848,
+   5124,
+   5291,
+   6675,
+   7169,
+   12152,
+   13764,
+   14004,
+   14464,
+   14693,
+   16739,
+   17794,
+   18468,
+   19244,
+   19431,
+   23480,
+   23815,
+   24573,
+   24802,
+   29379,
+   33400,
+   33680,
+   33808,
+   35170,
+   36304,
+   39513,
+   39574,
+   42053,
+   43632,
+   45372,
+   45596,
+   46395,
+   49298,
+   49830,
+   51226,
+   52473,
+   53270,
+   53889,
+   53898,
+   54043,
+   56552,
+   57039,
+   57291,
+   58440,
+   58703,
+   59096,
+   62305,
+   62620,
+   65129
+  ],
+  "probabilities": {
+   "service": [
+    0.00022021901442769763,
+    4.632585202183758e-06,
+    0.999734548550924,
+    2.9813425770850983e-05,
+    2.681493247551426e-06,
+    8.104930427700667e-06
+   ],
+   "scope": [
+    0.0067309260351234,
+    0.0009819926275437812,
+    0.17635797710642037,
+    0.8159291042309125
+   ],
+   "symptom": [
+    0.990777547734484,
+    0.00375732173943108,
+    0.0014151139198947448,
+    4.779946306599327e-05,
+    0.0013704026230040957,
+    1.0492025596101289e-07,
+    0.002631709599864296
+   ],
+   "frustrated": [
+    2.6879714930958525e-06,
+    0.999997312028507
+   ]
+  },
+  "labels": {
+   "service": "vpn",
+   "scope": "unknown",
+   "symptom": "no_connection",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.8159291042309125,
+  "confident": false,
+  "frustrationConfident": true
+ },
+ {
+  "text": "The library website won't load for me. When I click the search link I get a blank page with an error code. I checked with a few classmates and it's the same for them across the whole campus.",
+  "buckets": [
+   1641,
+   4583,
+   5326,
+   6516,
+   6626,
+   6847,
+   7617,
+   7870,
+   8771,
+   10409,
+   10540,
+   10919,
+   12764,
+   13764,
+   14464,
+   15779,
+   16522,
+   17160,
+   17524,
+   17648,
+   17794,
+   18137,
+   18317,
+   18333,
+   19003,
+   19605,
+   19982,
+   20166,
+   20171,
+   21666,
+   23017,
+   23381,
+   23477,
+   23855,
+   27892,
+   30672,
+   32062,
+   33680,
+   33808,
+   34073,
+   34641,
+   34882,
+   35078,
+   37112,
+   37769,
+   38393,
+   38772,
+   38856,
+   39513,
+   42839,
+   43119,
+   45596,
+   47270,
+   49444,
+   49830,
+   52271,
+   52426,
+   52498,
+   53839,
+   56154,
+   59363,
+   59871,
+   62102,
+   62182,
+   62255,
+   62692,
+   64118,
+   64166,
+   64464,
+   65124,
+   65129
+  ],
+  "probabilities": {
+   "service": [
+    2.216598609860268e-07,
+    4.643027115941865e-09,
+    2.666958976547579e-07,
+    0.9999994622514711,
+    4.129108219616811e-08,
+    3.4586611011635843e-09
+   ],
+   "scope": [
+    0.0005498550576659965,
+    2.4976798739894e-05,
+    0.9991539857715586,
+    0.00027118237203558704
+   ],
+   "symptom": [
+    2.172526833768286e-10,
+    4.3146774559940135e-13,
+    6.185514617711441e-12,
+    0.9999999997026017,
+    1.3851202122595254e-11,
+    5.901512948040019e-11,
+    6.623960681837915e-13
+   ],
+   "frustrated": [
+    0.23069116417101795,
+    0.7693088358289821
+   ]
+  },
+  "labels": {
+   "service": "web_portal",
+   "scope": "service_wide",
+   "symptom": "page_error",
+   "frustrated": "true"
+  },
+  "minConfidence": 0.9991539857715586,
+  "confident": true,
+  "frustrationConfident": true
+ }
+]
