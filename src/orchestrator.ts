@@ -159,10 +159,10 @@ function coordinateInFlight(
  * behaviour anyway.
  */
 export function idempotencyKey(reporterHash: string, r: ProblemReport): string {
+  // The words only, not the parsed fields: a retry can parse differently (Haiku
+  // the first time, the keyword fallback the second) and must still match.
   const normalizedVerbatim = r.verbatim.trim().toLowerCase().replace(/\s+/g, ' ');
-  return createHash('sha256')
-    .update([reporterHash, r.service, r.scope, r.location, r.building, r.room, normalizedVerbatim].join(':'))
-    .digest('hex');
+  return createHash('sha256').update([reporterHash, normalizedVerbatim].join(':')).digest('hex');
 }
 
 // ── Step 5: completeness gate ─────────────────────────────────────────────────
@@ -686,7 +686,10 @@ async function searchDecideAct(
         // second create could double-file in a way the key cannot catch.
         startParent(null, '');
         write({ action: 'error', errorKind: 'ticket_create_ambiguous' });
-        return unavailable('ticket_create_ambiguous');
+        // A retry of the same words gets this answer back instead of a second create.
+        const response = unavailable('ticket_create_ambiguous');
+        if (!isOverride) deps.idempotency.set(idempotencyKey(identity.hash, report), response, now);
+        return response;
       }
       try {
         created = await deps.tickets.createTicket(payload);

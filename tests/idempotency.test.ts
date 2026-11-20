@@ -31,6 +31,23 @@ beforeEach(() => {
   configureThrottle(TEST_THROTTLE);
 });
 
+describe('the idempotency key', () => {
+  it('matches a retry that parses differently (Haiku first, the keyword fallback second)', async () => {
+    const individual: ProblemReport = { ...REPORT, scope: 'individual', location: '', building: '' };
+    const h = harness(individual);
+    let calls = 0;
+    h.deps = {
+      ...h.deps,
+      parser: { parse: async () => ({ report: calls++ === 0 ? individual : { ...individual, scope: 'unknown' }, source: 'keyword' }) },
+    };
+    const first = await handleReport({ ...request(), canFollowUp: false }, h.deps);
+    const retry = await handleReport({ ...request(), canFollowUp: false }, h.deps);
+
+    expect(retry).toEqual(first);
+    expect(h.tickets.filed).toHaveLength(1);
+  });
+});
+
 describe('in-flight idempotency', () => {
   it('coalesces concurrent identical reports into one lifecycle', async () => {
     const h = harness(REPORT);
