@@ -82,7 +82,7 @@ describe('incident candidates on the SYNTHETIC fixture', () => {
   });
 
   it('lists the alerts left out, by host, so none drops out of sight', () => {
-    expect(incidentCandidates(alerts).ungroupedHosts).toEqual([{ host: 'synthetic-ws2', alerts: 1, topSeverity: 'medium' }]);
+    expect(incidentCandidates(alerts).ungroupedHosts).toEqual([{ host: 'SYNTHETIC-WS2', alerts: 1, topSeverity: 'medium' }]);
   });
 
   it('puts the most severe candidate first, whatever its time', () => {

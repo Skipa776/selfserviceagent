@@ -152,11 +152,18 @@ export function incidentCandidates(alerts: readonly Alert[]): {
   candidates.sort((a, b) => moreSevere(a.severities[0], b.severities[0]) || a.firstTime - b.firstTime || (a.host < b.host ? -1 : 1));
 
   const inCandidate = new Set(firing.flatMap((g) => g.members));
-  const byHost = new Map<string, Alert['severity'][]>();
+  // Grouped by lowercased host, like the candidates; shown in the host's own spelling
+  // (the first in sort order, so input order cannot change it).
+  const byHost = new Map<string, { host: string; severities: Alert['severity'][] }>();
   alerts.forEach((a, i) => {
-    if (!inCandidate.has(i)) byHost.set(a.host.toLowerCase(), [...(byHost.get(a.host.toLowerCase()) ?? []), a.severity]);
+    if (inCandidate.has(i)) return;
+    const seen = byHost.get(a.host.toLowerCase());
+    byHost.set(a.host.toLowerCase(), {
+      host: seen === undefined || a.host < seen.host ? a.host : seen.host,
+      severities: [...(seen?.severities ?? []), a.severity],
+    });
   });
-  const ungroupedHosts = [...byHost].map(([host, severities]) => ({ host, alerts: severities.length, topSeverity: severities.sort(moreSevere)[0] }));
+  const ungroupedHosts = [...byHost.values()].map(({ host, severities }) => ({ host, alerts: severities.length, topSeverity: severities.sort(moreSevere)[0] }));
   ungroupedHosts.sort((a, b) => moreSevere(a.topSeverity, b.topSeverity) || b.alerts - a.alerts || (a.host < b.host ? -1 : 1));
   return { candidates, alertsInNoCandidate: alerts.length - inCandidate.size, ungroupedHosts };
 }
