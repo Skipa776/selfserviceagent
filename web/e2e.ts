@@ -7,6 +7,7 @@
 // always offline and cannot create ServiceNow records.
 
 import { spawn, type ChildProcessByStdio } from 'node:child_process';
+import { request } from 'node:http';
 import type { Readable } from 'node:stream';
 import { setTimeout as sleep } from 'node:timers/promises';
 
@@ -205,6 +206,29 @@ async function main(): Promise<void> {
         emptyBody.outcome === 'UNAVAILABLE' &&
         emptyBody.reply.includes(HUMAN_PATH),
     );
+
+    const crossSite = await fetch(`${BASE}/report`, {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain' }, // what a cross-site page can send without a preflight
+      body: JSON.stringify({ text: 'wifi down in North Residence Hall', identityRef: 'e2e-cross-site' }),
+    });
+    const crossSiteBody = (await crossSite.json()) as ReportResponse;
+    check(
+      'non-JSON content type -> 400 UNAVAILABLE, nothing filed',
+      crossSite.status === 400 && crossSiteBody.outcome === 'UNAVAILABLE' && crossSiteBody.ticket === undefined,
+    );
+
+    // fetch() will not send a custom Host header, so this one uses node:http.
+    const reboundStatus = await new Promise<number>((resolve, reject) => {
+      const body = JSON.stringify({ text: 'wifi down in North Residence Hall', identityRef: 'e2e-rebind' });
+      const req = request(`${BASE}/report`, { method: 'POST', headers: { host: `evil.example:${PORT}`, 'content-type': 'application/json' } }, (res) => {
+        res.resume();
+        resolve(res.statusCode ?? 0);
+      });
+      req.on('error', reject);
+      req.end(body);
+    });
+    check('a request addressed to another name (DNS rebinding) -> 400', reboundStatus === 400);
 
     const emptyJson = await post({});
     check(

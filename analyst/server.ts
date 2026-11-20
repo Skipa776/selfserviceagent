@@ -178,6 +178,8 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/report') {
+      // JSON only, so another site cannot file through this page (see web/server.ts).
+      if (!(req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json')) return text(res, 400, 'invalid request');
       const body = await readBody(req).catch(() => null);
       if (body === null) return text(res, 400, 'invalid request');
       const result = await postReport(body, system.deps);
