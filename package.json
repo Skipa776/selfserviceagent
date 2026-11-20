@@ -26,6 +26,8 @@
     "generate:training-text": "tsx --env-file-if-exists=.env scripts/generateTrainingText.ts",
     "build:training-set": "tsx scripts/buildTrainingSet.ts",
     "train": "tsx scripts/buildTrainingSet.ts && .venv/bin/python -I training/train.py",
+    "triage:alerts": "tsx scripts/triageAlerts.ts",
+    "eval:alerts": "tsx scripts/evalAlerts.ts",
     "snow:check": "tsx --env-file-if-exists=.env scripts/snowCheck.ts",
     "snow:inspect-analyst": "tsx --env-file-if-exists=.env scripts/snowInspectAnalyst.ts",
     "snow:peers": "tsx --env-file-if-exists=.env scripts/snowPeersCheck.ts"
@@ -33,6 +35,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^26.1.2",
+    "ajv": "8.20.0",
     "eslint": "^10.8.0",
     "tsx": "^4.23.1",
     "typescript": "^6.0.3",

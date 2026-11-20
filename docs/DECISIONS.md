@@ -142,3 +142,200 @@ would change it. Source tags:
 
 ### S8. README length
 - **Choice:** the README is now short (what it is, how to run, results, limits). Setup detail moved unchanged to `docs/SETUP.md`. The README's Safety Boundaries list is kept word for word.
+
+## How Milestone 2 and 3 decisions were made: the engineering council [session]
+
+- **Asked for:** "use the /engineering council skills and personalities to review engineering decisions."
+- **Found:** no such skill is installed in this account or container. The closest catalog match is the
+  `agentic-council` plugin (a `/council` command with personas); it was offered as an install card,
+  since plugins cannot be installed from inside a session.
+- **Done instead:** for each open decision, four personas, each a separate Fable agent with one lens, read the
+  same brief and answered independently: **Architect** (structure, readability), **Skeptic** (evaluation
+  validity), **Guardian** (safety, untrusted input, licensing), **Operator** (determinism, size, operations).
+  A fifth Fable agent, the **Chair**, read all four and issued binding rulings, naming whose view won.
+  Follow-up questions went back to the same Chair. Briefs, positions and rulings are summarized below; the
+  rulings are quoted as decisions, not as evidence.
+- **Would change it:** installing the `agentic-council` plugin; then its `/council` command replaces this.
+
+## Milestone 2 decisions [engineering council, 2026-11-20]
+
+### M2-Q1. Four heads
+- **Choice:** service, scope, symptom, and a boolean frustration head. Location, building and room stay
+  vocabulary lookup (they feed thresholds and the idempotency key); `observedAt` stays Haiku-only.
+- **Would change it:** the hand-written set showing the lookup, not classification, as the main error source.
+
+### M2-Q2. Features
+- **Choice:** our own FNV-1a 32-bit hash, ASCII-only lowercasing, `[a-z0-9]+` tokens (first 400), word
+  1+2-grams, binary presence, 2^16 buckets (Architect over Operator's 2^14: file size depends on buckets
+  seen, not on D). No character n-grams.
+- **Place masking (follow-up ruling):** first ruled out (it would need a second building matcher in Python).
+  After the first training run put "humanities" (a fictional building) among the top features of
+  `symptom=no_connection`, the Chair's own trigger fired: places are now replaced by `xplacex` in TypeScript
+  (`maskPlaces`, the service's own matcher), the builder stores the masked text, and Python never sees a
+  building name. The held-out split had been looked at once before this change; RESULTS shows both runs.
+- **Would change it:** grouped cross-validation showing character n-grams gain ≥ 2 points.
+
+### M2-Q3. Model and calibration
+- **Choice:** multinomial L2 logistic regression; C from the fixed grid [0.1, 0.3, 1, 3, 10] by 5-fold
+  GroupKFold on train (groups = template family or Haiku batch); one temperature per head from a fixed grid
+  (0.50–5.00, step 0.05) minimizing validation log loss.
+- **Measured note:** C = 10 (the grid's top edge) won for service, scope and symptom. The grid was
+  deliberately **not** extended after seeing that (follow-up ruling 2), because that would be tuning on results.
+
+### M2-Q4. Abstention threshold (Skeptic won)
+- **Options:** per-field targets (5% service and symptom, 2% scope); one joint target.
+- **Choice:** ONE threshold tau over the minimum of the three report heads' calibrated confidences, the
+  lowest tau whose two-sided 95% Clopper-Pearson **upper** bound on whole-report error among accepted
+  validation reports is ≤ 5%, with the full acceptance rule applied. Floor 0.5, checked again at load. No
+  tau meets it: `tau: null`, specialist off. Per-field targets were rejected because, ANDed together, they
+  permit about 12% whole-report error.
+- **Would change it:** coverage near zero at 5%; then report it, do not loosen silently.
+
+### M2-Q5. Router semantics
+- **Choice:** whole report, one source, no per-field mixing. A specialist answer is used only if it is
+  confident AND passes the same field rules a Haiku answer must pass (now in `src/parser/fieldRules.ts`)
+  together with the deterministic places.
+
+### M2-Q6. Where frustration lives (Architect lost)
+- **Choice:** the router puts the frustration head's answer on `ParseResult.frustrated`, only when confident,
+  whichever parser answered the fields; the orchestrator uses `parsed.frustrated ?? isFrustrated(text)`.
+  Haiku is not asked; `ProblemReport` and the priority policy are untouched.
+- **Why not inside `frustration.ts`:** stage 1 would then silently use a model.
+
+### M2-Q7. Training data
+- **Choice:** templates and the explicit valid label combinations in one JSON file; templated rows (seeded)
+  and Haiku-written rows, **both committed** with a split column (Operator lost: committed rows are
+  inspectable and make stale weights detectable offline). Splits grouped by template family / Haiku batch:
+  train, validation (temperature and tau), synthetic held-out (only measured). Validation ≥ 500 rows and
+  ≥ 30 per class, asserted by the builder. Labels are the requested ones; the development set and the
+  hand-written set are never sent to Haiku or used as seeds; exact duplicates are removed across splits.
+- **Session note:** the builder's first run raised validation `equipment_unavailable` to 29 < 30, so rows per
+  family went from 300 to 350 before any training.
+
+### M2-Q8. The 26 corpus rows are a development set (Skeptic won)
+- **Choice:** the keyword parser and the M1 prompt were tuned on them, and the templates were written by
+  someone who had read them. They get counts only (accepted n, errors k, per parser), no ECE or curve.
+  Haiku is run 3 times, mean and range.
+
+### M2-Q9. Artefacts
+- **Choice:** `training/` holds the one script and pinned `requirements.txt` (gitignored `.venv`);
+  `models/weights.json` carries a header with the feature configuration, label lists, seed, library versions,
+  dataset sha256, C, temperatures and thresholds. Parity fixtures come from the ROUNDED exported weights;
+  TypeScript must match to 1e-9 with identical accept/abstain decisions. `npm test` never runs Python.
+
+### M2-Q10. Files
+- **Choice:** `src/parser/features.ts` (the parity-critical part), `src/parser/specialist.ts`,
+  `src/parser/router.ts` (a plain `Parser`). The audit records source, three confidences, tau and the data
+  hash; `decide()` never sees confidences.
+
+### M2-Q11. Safety of the specialist path
+- **Choice:** stage 2 only; never accept a specialist `unknown` (it would skip Haiku on exactly the hard
+  reports); output passes `normalize()`; a throw or a bad weights file means "abstain" / "specialist off",
+  never a failed request. Keyword-stuffed reports are tests that check the output still obeys the field
+  rules; they are reported, not claimed as defended.
+- **Minimum-evidence rule:** proposed (abstain when fewer than 3 known features fire), then **removed** as
+  the ruling required: it changed 0 held-out decisions in both runs.
+
+### M2-Q12. Deterministic building fill
+- **Choice:** when Haiku returns an exact canonical location with an empty building code, the code is filled
+  by table lookup before validation; a contradicting building still fails. The Haiku baseline was re-run;
+  the earlier number is labelled "pre-fix".
+
+### M2-Q13. Reporting rules
+- **Choice:** the Skeptic's metric definitions (RESULTS.md); "observed k/n, 95% interval", never "achieves
+  target"; the benefit is latency, offline operation and repeatability, not money. Refitting tau on Josh's
+  set was rejected (that is tuning on the test set).
+
+### M2 follow-up rulings (after the first training run)
+1. **Masking:** see M2-Q2.
+2. **Size:** the 1 MB weights budget was an estimate to catch runaway growth; raised to 1.5 MB, readable
+   nested format and 6 decimals kept. (The masked model is 1.17 MB.)
+3. **Frustration head stays on** although its held-out upper bound (6.8%) is above 5%: the threshold came from
+   the pre-declared procedure, and switching it off after seeing held-out would be post hoc. The off-switch
+   condition: the lexical rule agreeing with the labels at least as well on the same rows. Measured: the head
+   379/396 vs lexical 363/396 on the rows it accepts, so it stays.
+
+### M2 proposals for Josh (not applied)
+1. README Safety Boundaries line: "A specialist that abstains or fails falls through to the next parser."
+2. Should a single first reporter's frustration raise priority at all? Today 1 of 1 is a majority.
+3. Audit 50 random Haiku-generated rows and report the label agreement.
+4. Write the hand-written set with ≥ 40 frustrated and ≥ 40 not; optionally reserve a labelled slice for a
+   tau refit, declared before anyone looks.
+5. Confirm the one-line orchestrator change for frustration (M2-Q6) against the stage-seam comment.
+
+## Milestone 3 decisions [engineering council, 2026-11-20]
+
+### M3-Q1/Q2. The engine (Architect won)
+- **Choice:** `correlate(signals, windowMs)` in `src/correlate.ts`: a pure batch function over
+  `{key, source, time, weight}`. Per key, sorted by (time, input index); a group starts at its first signal
+  and takes every signal at most `windowMs` later; the next one opens a new group (fixed, not sliding). It
+  returns score (sum over distinct sources of each source's highest weight), first/last time and member
+  indexes. No clock, no threshold, no state. "Raise once, then update", the clock and the per-topic
+  threshold stay in `PatternDetector`; the flood ledger stays separate (it gates a create, and the action
+  path must not share code with attacker-influenced alert input).
+- **Rejected:** an `asOf` trailing window (overlapping windows give no group definition for the metrics).
+- **Would change it:** ticket events arriving future-dated (the one-group guarantee in the ticket adapter breaks).
+
+### M3-Q3. Who compares against the threshold
+- **Choice:** each adapter, in one commented line: tickets `score > thresholdFor(...)` (unchanged, strict),
+  alerts `score >= DEMO_MIN_DETECTORS`. Characterization tests pin today's ticket edges (strict cutoff,
+  threshold + 1, silent update, arrival order) and stayed green through the refactor.
+
+### M3-Q4. Alert key, source and weight (Skeptic won on weights)
+- **Choice:** key = `entity.host` (validated, lowercased), never the producer's `correlation_key`
+  (host|first technique splits one intrusion into fragments, and it has no pattern or length limit);
+  source = `detector.id`; time = `time_observed`; weight 1 in the headline. Severity weights 1/2/3/5 with
+  ≥ 4 appear only as a comparison row: with critical = 5, one alert would fire a group, a severity filter
+  rather than correlation.
+
+### M3-Q5. Advisory only
+- **Choice:** `incidentCandidates()` and `npm run triage:alerts -- <path>`; no network, no ServiceNow
+  create, no model. Attacker-shaped input must not trigger a write, and there is no benign data to give a
+  false-positive rate.
+
+### M3-Q6. Contract and validation; a new dev dependency
+- **Choice:** the schema and the producer's SYNTHETIC fixture are vendored byte for byte under
+  `vendor/detection-engineering-ml/` (commit `c5cefed`, sha256 pinned by a test). **`ajv` 8.20.0, exactly
+  pinned, dev dependency, contract test only** (`ajv/dist/2020`; eslint's transitive ajv 6 cannot do JSON
+  Schema 2020-12). At runtime a hand-written guard reads only the fields grouping needs, rejects any
+  `schema_version` but "1.0", and fails closed (skip and count). Tests check: both hashes; the fixture passes
+  ajv and the guard; a mutation table is rejected by both; the guard is stricter where untrusted text becomes
+  a key or output. All five fixture alerts are Sigma, so the anomaly branch is untested.
+- **Would change it:** Node gaining a built-in 2020-12 validator.
+
+### M3-Q7. DEMO constants, PRE-REGISTERED 2026-11-20 before any evaluation on real alerts
+- **Choice:** `DEMO_WINDOW_MS` = 60 minutes and `DEMO_MIN_DETECTORS` = 2, labelled DEMO at the top of
+  `src/alertAdapter.ts`, not routed through `configureGate`. The council had seen the producer's alert
+  count (514) but no purity or coverage number. They are committed in git before `npm run eval:alerts` is
+  run on the real file.
+- **Would change it:** a change after evaluation must be labelled as tuned on results.
+
+### M3-Q8. Evaluation
+- **Choice:** `npm run eval:alerts -- <path>` takes a path, fetches nothing and prints the input sha256.
+  Metrics: queue reduction, alert coverage, micro purity with the impure-group count, fragmentation, dataset
+  coverage, and the vacuity count (definitions in the script and RESULTS.md). Rows: headline; 30 and 120
+  minutes; host with no window; host + UTC day; `correlation_key`; severity-weighted. `ground_truth` is read
+  in that script only, after grouping. Only aggregates are committed; no hostnames, titles or per-alert rows;
+  no precision or false-positive claim.
+
+### M3-Q9. Files (Architect won)
+- **Choice:** flat: `src/correlate.ts`, `src/alertAdapter.ts`, and `src/patternDetector.ts` stays as the ticket
+  adapter (same export, same tests). `clusterGate.ts` untouched.
+
+### M3-Q10. Untrusted alert fields
+- **Choice:** host must match `^[A-Za-z0-9._-]{1,64}$` or the line is skipped (no truncation or replacement,
+  which could merge distinct hosts); `detector.id` ≤ 128 characters; lines ≤ 64 KB. The parsed type omits
+  `ground_truth`, `evidence`, `title`, `entity.user`, `entity.process` and `correlation_key`. The CLI prints
+  only host, detector name and author (control and bidi characters stripped, 120-character cap), technique
+  IDs, severities, times and counts, and names every Sigma rule author (Detection Rule License 1.1). No
+  dedupe by `alert_id` (distinct-source scoring already neutralizes duplicates). A test checks that deleting
+  `ground_truth` and scrambling `event_refs` (which embed the dataset id) leaves the groups identical.
+
+### M3 proposals for Josh (not applied)
+1. README Safety Boundaries lines: "Alert content is untrusted data: never executed, sent to a model, or
+   written to a ticket; alert triage is advisory, read-only, offline" and "a host with no candidate is not a
+   clean bill of health".
+2. Confirm that committing aggregate metrics computed from public OTRF / SigmaHQ data is acceptable.
+3. Add a README credit line for SigmaHQ (DRL 1.1) and OTRF (MIT).
+4. Accept that the engine's `weight` is exercised only by tests and the comparison row, not by either
+   adapter's headline rule.

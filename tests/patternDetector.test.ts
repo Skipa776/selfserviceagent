@@ -78,6 +78,42 @@ describe('the event-stream counting rule', () => {
     expect(last).toBeNull();
     expect(d.raised).toHaveLength(0);
   });
+
+  // Characterisation (M3 council, before the engine refactor): pin today's edges.
+  it('an event exactly one window old has aged out (the cutoff is strict)', () => {
+    const { clock, advanceMinutes } = mutableClock();
+    const d = new PatternDetector(clock);
+    d.consume(event({ reporterHash: 'rh_old', ts: clock().toISOString() }));
+    advanceMinutes(TEST_GATE.matchTimeWindowMinutes);
+    // The old event sits exactly on the cutoff, so these FIRES_AT - 1 new ones
+    // plus it would fire only if the edge were inclusive.
+    const results = Array.from({ length: FIRES_AT - 1 }, (_, i) =>
+      d.consume(event({ reporterHash: `rh_${i}`, ts: clock().toISOString() })),
+    );
+    expect(results.every((r) => r === null)).toBe(true);
+  });
+
+  it('a late event older than the window, arriving alone, is ignored without error', () => {
+    const { clock, advanceMinutes } = mutableClock();
+    const d = new PatternDetector(clock);
+    const old = clock().toISOString();
+    advanceMinutes(TEST_GATE.matchTimeWindowMinutes * 2);
+    expect(d.consume(event({ ts: old }))).toBeNull();
+  });
+
+  it('builds the alert from the kept events, in arrival order', () => {
+    const { clock, advanceMinutes } = mutableClock();
+    const d = new PatternDetector(clock);
+    let alert = null;
+    for (let i = 0; i < FIRES_AT; i++) {
+      alert = d.consume(event({ reporterHash: `rh_${i}`, ticketNumber: `INC${i}`, correlationId: `c${i}`, ts: clock().toISOString() }));
+      advanceMinutes(1);
+    }
+    expect(alert?.ticketNumbers).toEqual(Array.from({ length: FIRES_AT }, (_, i) => `INC${i}`));
+    expect(alert?.sampleCorrelationIds).toEqual(['c0', 'c1', 'c2', 'c3', 'c4']);
+    expect(alert?.firstReportAt).toBe(CORPUS_NOW);
+    expect(alert?.distinctReporters).toBe(FIRES_AT);
+  });
 });
 
 describe('alert de-duplication', () => {

@@ -14,10 +14,20 @@
 // What it must never do: declare, open, escalate or resolve an incident; become a
 // status source; read the ticketing system; de-anonymize anyone. `status` is
 // always 'candidate' — the type has no other value, so a human at NOC decides.
+//
+// Since Milestone 3 this file is the TICKET ADAPTER of the correlation engine
+// (src/correlate.ts): it turns report events into signals {key: groupKey,
+// source: reporter hash, time, weight 1} and owns everything the engine does not
+// know — the clock, the per-topic threshold, and "raise once, then update".
+//
+// Known behaviours kept on purpose (M3 council Q10), each a demo-scale shortcut:
+// a quiet key's events are never evicted from `seen`; a raised alert never
+// expires; `alertId` replaces only the first '|' of the key.
 
 import type { Clock } from './adapters/memory';
 import { gateTuning, groupKey, thresholdFor } from './clusterGate';
 import type { PatternAlert, ReportEvent } from './contracts/types';
+import { correlate } from './correlate';
 
 export class PatternDetector {
   private readonly seen = new Map<string, ReportEvent[]>();
@@ -44,22 +54,37 @@ export class PatternDetector {
     const key = groupKey(event);
     const cutoff = this.clock().getTime() - windowMinutes * 60_000;
 
+    // The clock decides what is still recent (strictly newer than the cutoff)...
     const kept = [...(this.seen.get(key) ?? []), event].filter((e) => Date.parse(e.ts) > cutoff);
     this.seen.set(key, kept);
 
-    // DISTINCT reporters, never report count. One person reporting five times is
-    // one reporter; without this the alert path is trivially abusable by a single
-    // identity, and the throttle would be the only thing in the way.
-    const distinctReporters = new Set(kept.map((e) => e.reporterHash)).size;
+    // ...and the engine decides what belongs together. Every kept event is newer
+    // than the cutoff, so they normally form ONE group; if a future-dated event
+    // ever splits them, the group holding the current event is the one judged.
+    const groups = correlate(
+      kept.map((e) => ({ key, source: e.reporterHash, time: Date.parse(e.ts), weight: 1 })),
+      windowMinutes * 60_000,
+    );
+    // A late event older than the window is not in `kept`; the others are then
+    // judged as before, and with nothing kept there is nothing to judge.
+    const current = kept.indexOf(event);
+    const group = groups.find((g) => g.members.includes(current)) ?? groups[0];
+    if (group === undefined) return null;
+    const inGroup = new Set(group.members);
+    const events = kept.filter((_, i) => inGroup.has(i)); // arrival order, as before
+
+    // DISTINCT reporters, never report count: the engine counts each source once
+    // and every weight is 1. One person reporting five times is one reporter.
+    const distinctReporters = group.score;
     // The same per-topic ceiling used by request-path deflection, but a deliberately
     // different comparison because this stream includes the CURRENT report event.
     // Request search deflects when existing peers >= threshold; this detector then
     // sees those peers plus the current accepted/deflected report and alerts when
     // stream reporters > threshold. Both happen on the same interaction.
     const threshold = thresholdFor(event.service, event.scope === 'service_wide' ? '' : event.location);
+    // The ticket rule: strictly MORE distinct reporters than the topic's threshold.
     if (distinctReporters <= threshold) return null;
 
-    const timestamps = kept.map((e) => e.ts).sort();
     const shared = {
       service: event.service,
       location: event.scope === 'service_wide' ? '' : event.location,
@@ -67,10 +92,10 @@ export class PatternDetector {
       room: event.room ?? '',
       windowMinutes,
       distinctReporters,
-      firstReportAt: timestamps[0],
-      lastReportAt: timestamps[timestamps.length - 1],
-      ticketNumbers: kept.map((e) => e.ticketNumber).filter((t) => t !== ''),
-      sampleCorrelationIds: kept.map((e) => e.correlationId).slice(0, 5),
+      firstReportAt: kept[group.members[0]].ts,
+      lastReportAt: kept[group.members[group.members.length - 1]].ts,
+      ticketNumbers: events.map((e) => e.ticketNumber).filter((t) => t !== ''),
+      sampleCorrelationIds: events.map((e) => e.correlationId).slice(0, 5),
       status: 'candidate' as const,
     };
 
