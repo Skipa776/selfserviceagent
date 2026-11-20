@@ -116,6 +116,13 @@ const server = createServer(async (req, res) => {
 
   // ── The real backend call ──────────────────────────────────────────────────
   if (req.method === 'POST' && url === '/report') {
+    // JSON only. Any web page the presenter opens can make the browser POST
+    // text/plain here without asking; application/json needs a CORS preflight,
+    // which this server never grants. So no other site can file tickets through it.
+    if (!(req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json')) {
+      writeJson(res, 400, invalidRequestResponse());
+      return;
+    }
     let raw: string;
     try {
       raw = await readBody(req);

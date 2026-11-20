@@ -76,6 +76,11 @@ async function main(): Promise<void> {
       body: JSON.stringify({ text: 'The projector in Lecture Hall West is down', identityRef: 'analyst-e2e', canFollowUp: false }),
     });
     check('ordinary report path remains available', report.ok);
+    const crossSite = await fetch(`${BASE}/report`, {
+      method: 'POST', headers: { 'content-type': 'text/plain' },
+      body: JSON.stringify({ text: 'The projector in Lecture Hall West is down', identityRef: 'analyst-e2e-cross-site' }),
+    });
+    check('a non-JSON report (what another site can send) is refused', crossSite.status === 400);
 
     const stateResponse = await fetch(`${BASE}/operator/state`, { headers: { cookie } });
     const state = await stateResponse.json() as { mode?: string; serviceNowCreationEnabled?: boolean; snapshots?: unknown[] };

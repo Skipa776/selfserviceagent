@@ -206,6 +206,17 @@ async function main(): Promise<void> {
         emptyBody.reply.includes(HUMAN_PATH),
     );
 
+    const crossSite = await fetch(`${BASE}/report`, {
+      method: 'POST',
+      headers: { 'content-type': 'text/plain' }, // what a cross-site page can send without a preflight
+      body: JSON.stringify({ text: 'wifi down in North Residence Hall', identityRef: 'e2e-cross-site' }),
+    });
+    const crossSiteBody = (await crossSite.json()) as ReportResponse;
+    check(
+      'non-JSON content type -> 400 UNAVAILABLE, nothing filed',
+      crossSite.status === 400 && crossSiteBody.outcome === 'UNAVAILABLE' && crossSiteBody.ticket === undefined,
+    );
+
     const emptyJson = await post({});
     check(
       'empty JSON object flows through postReport',
