@@ -72,10 +72,8 @@ function sanitizeVerbatim(value: unknown): string {
  */
 function normalizeObservedAt(value: unknown, now?: Date): string {
   if (!isIsoTimestamp(value)) return '';
-  const parsed = Date.parse(value);
-  if (now !== undefined && parsed > now.getTime()) return '';
-  // Rewritten by us, so the ticket shows a timestamp we produced, never model text.
-  return new Date(parsed).toISOString();
+  if (now !== undefined && Date.parse(value) > now.getTime()) return '';
+  return value;
 }
 
 // ── Assembly — the eight-field guarantee and untrusted-input coercion ──────────

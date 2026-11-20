@@ -151,8 +151,8 @@ describe('normalize — observedAt', () => {
     expect(normalize({ observedAt: injected }).observedAt).toBe('');
   });
 
-  it('rewrites a valid time in UTC, so the stored text is ours', () => {
-    expect(normalize({ observedAt: '2020-06-01T14:00:00+02:00' }).observedAt).toBe('2020-06-01T12:00:00.000Z');
+  it('keeps a time the reporter gave without a zone, as given', () => {
+    expect(normalize({ observedAt: '2020-06-01T14:00' }).observedAt).toBe('2020-06-01T14:00');
   });
 });
 
