@@ -54,29 +54,26 @@ function isCanonicalResponse(body: ReportResponse): boolean {
   return KNOWN_OUTCOMES.has(body.outcome) && typeof body.reply === 'string' && body.reply !== '';
 }
 
-async function waitForServer(timeoutMs = 15_000): Promise<void> {
+// Waits for this server's own "listening" line. Polling the port instead could be
+// answered by a server left over from an earlier run.
+async function waitForServer(output: () => string, timeoutMs = 15_000): Promise<void> {
   const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
-    try {
-      const res = await fetch(`${BASE}/`);
-      if (res.ok) return;
-    } catch {
-      // not up yet
-    }
-    await sleep(300);
+  while (!output().includes(`listening on 127.0.0.1:${PORT}`)) {
+    if (Date.now() > deadline) throw new Error(`server did not start in time: ${output().trim()}`);
+    await sleep(100);
   }
-  throw new Error('server did not start in time');
 }
 
 function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, Readable> {
-  return spawn('npx', ['tsx', '--env-file-if-exists=.env', 'web/server.ts'], {
+  // node itself, not npx: killing an npx wrapper leaves its server running.
+  return spawn(process.execPath, ['--env-file-if-exists=.env', '--import', 'tsx', 'web/server.ts'], {
     env: {
       ...process.env,
       WEB_HOST: '',
       WEB_PORT: String(PORT),
       WEB_PRESENTATION: presentation ? '1' : '',
       SNOW_INSTANCE_URL: '',
-      SNOW_USERNAME: '',
+      SNOW_USER: '',
       SNOW_PASSWORD: '',
       ANTHROPIC_API_KEY: '',
     },
@@ -85,7 +82,7 @@ function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, R
 }
 
 async function stopServer(server: ChildProcessByStdio<null, Readable, Readable>): Promise<void> {
-  if (server.exitCode !== null) return;
+  if (server.exitCode !== null || server.signalCode !== null) return; // already gone: waiting for 'exit' would hang
   const exited = new Promise<void>((resolve) => server.once('exit', () => resolve()));
   server.kill();
   await exited;
@@ -102,7 +99,7 @@ async function main(): Promise<void> {
   });
 
   try {
-    await waitForServer();
+    await waitForServer(() => serverOutput);
     check(
       'server defaults to 127.0.0.1 and prints its host',
       serverOutput.includes(`listening on 127.0.0.1:${PORT}`),
@@ -249,7 +246,7 @@ async function main(): Promise<void> {
     presentationOutput += chunk.toString('utf8');
   });
   try {
-    await waitForServer();
+    await waitForServer(() => presentationOutput);
     const configResponse = await fetch(`${BASE}/app/config`);
     const config = (await configResponse.json()) as { presentationMode?: boolean };
     const page = await fetch(`${BASE}/`);
