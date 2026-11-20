@@ -46,6 +46,8 @@ export type ReportResponse = {
   readonly ticket?: { readonly ticketNumber: string; readonly url: string };
   /** NEEDS_DETAIL only. */
   readonly missingFields?: readonly string[];
+  /** THROTTLED only: seconds until this reporter may report again (also the Retry-After header). */
+  readonly retryAfterSeconds?: number;
 
   /**
    * Present on BOTH match outcomes, never omitted as a UI simplification. The
