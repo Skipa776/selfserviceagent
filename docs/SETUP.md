@@ -79,13 +79,15 @@ Set, `npm run web` and the analyst demo append every audit line to that file as
 JSON Lines, so the record survives a restart. Unset (the default), the log lives
 only in memory. Only the servers read this variable, so `npm test` never writes
 to it. A path the server cannot write stops it at startup; a later write
-failure is printed and never fails a request. `/audit*.jsonl` in the repository
-root is gitignored. The lines hold salted reporter hashes, never names, but they
-are still a record of who reported what: where to keep them, and for how long,
-is the deploying institution's decision.
+failure is printed and never fails a request. A new file is created readable by
+its owner only, `/audit*.jsonl` in the repository root is gitignored, and the
+smoke tests blank the variable. The lines hold salted reporter hashes, never
+names, but they are still a record of who reported what: where to keep them, and
+for how long, is the deploying institution's decision.
 
 Each request ends with one `replied` line carrying `apiOutcome`, the outcome the
-caller received. Count outcomes with:
+caller received. A replayed retry repeats its first outcome, so count tickets
+created from the `filed` lines; count what callers were told with:
 
 ```bash
 grep '"action":"replied"' audit.jsonl | grep -o '"apiOutcome":"[A-Z_]*"' | sort | uniq -c
@@ -358,9 +360,11 @@ Request fields:
 | `canFollowUp` | boolean | Whether the caller can ask for missing detail |
 | `overrideMatchId` | string, optional | Existing match the reporter rejected |
 
-The request must be sent as `content-type: application/json`. Anything else gets
-400: a page on another site can make a browser send `text/plain` to a local
-server without asking, but not JSON.
+The request must be sent as `content-type: application/json`, and on the default
+loopback address it must be addressed to `127.0.0.1` or `localhost`. Anything else
+gets 400. A page on another site can make a browser send `text/plain` to a local
+server without asking, but not JSON; and a site that re-points its own name at
+127.0.0.1 (DNS rebinding) still sends its own name in the `Host` header.
 
 Successful application outcomes return HTTP 200. Malformed, empty, oversized, or
 non-JSON HTTP bodies return 400 with a canonical `UNAVAILABLE` response. Throttling

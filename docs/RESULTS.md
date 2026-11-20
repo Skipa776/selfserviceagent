@@ -27,7 +27,7 @@ was not measured is listed as not measured. Failures and negative results are ke
 
 | | Result |
 | --- | --- |
-| `npm test` (offline, no key, no Python) | **539 tests pass** in 40 files (about 4 s), on Node 22.23.4 and on Node 24.22.3 (round 4 merge; 525 in 39 files before it) |
+| `npm test` (offline, no key, no Python) | **540 tests pass** in 40 files (about 4 s), on Node 22.23.4 and on Node 24.22.3 (round 4 merge; 525 in 39 files before it) |
 | `npm run build`, `npm run lint` | clean |
 
 ```bash
@@ -91,6 +91,12 @@ With `ANTHROPIC_API_KEY` set for the Haiku rows (each Haiku arm run 3 times):
 | router: specialist, then keyword (offline) | 142 | 16 | 0 |
 | Haiku 5.5 only, 3 runs | 149, 149, 149 | 19, 19, 19 | 26 |
 | router: specialist, then Haiku 5.5, 3 runs | mean 152.3 (152–153) | 22, 22, 23 | 15 |
+| *Round 4 re-run on the merged branches:* Haiku 5.5 only, 3 runs | mean 149.3 (149–150) | 19, 19, 20 | 26 |
+| *Round 4 re-run:* router, specialist then Haiku 5.5, 3 runs | mean 152.0 (152–152) | 22, 22, 22 | 15 |
+
+The round 4 changes that reach the Haiku path (the 2,000-character input cap and the
+`observedAt` check) changed nothing measurable here: every development-set report is
+short and states no time, and the differences are within run-to-run variation.
 
 - The specialist accepted **11 of 26** reports; **0** of those had service, scope or symptom wrong.
 - Most of the router's gain over Haiku alone is scope: Haiku 5.5 tends to leave `scope: unknown` when a building is named (5 of its 6 misses in the first M1 measurement), and the specialist does not.
@@ -216,7 +222,7 @@ The table is `npm run eval:alerts` output as printed (round 4 added the items co
 
 `npm run triage:alerts` on the same file shows the analyst exactly these 98 items: the 20
 candidates, most severe first, then the 78 ungrouped alerts as 6 host lines
-(e.g. `hr001.shire.com: 17 alerts, top severity high`).
+(e.g. `HR001.shire.com: 17 alerts, top severity high`).
 
 How to read this honestly:
 
@@ -232,7 +238,7 @@ How to read this honestly:
 | `npm run demo` | runs | flood control narrative |
 | `npm run triage:alerts -- vendor/detection-engineering-ml/alerts.synthetic.jsonl` | 2 candidates (WS1, WS3), then WS2 listed as `1 alert, top severity medium`; authors printed | the SYNTHETIC fixture |
 | `npm run demo:analyst:e2e` | **11 passed, 0 failed** (round 4 merge, Node 22 and 24) | was 10/10; the added check refuses a non-JSON report |
-| `npm run web:e2e` | **20 passed, 0 failed** (round 4 merge, Node 22 and 24; three runs in a row on its branch) | was 17/18: the test killed only the `npx` wrapper, so the first server kept the port and answered for the second (LEARNINGS.md). Two checks added: non-JSON refused, `Retry-After` on 429 |
+| `npm run web:e2e` | **21 passed, 0 failed** (round 4 merge, Node 22 and 24; three runs in a row on its branch) | was 17/18: the test killed only the `npx` wrapper, so the first server kept the port and answered for the second (LEARNINGS.md). Three checks added: non-JSON refused, a foreign Host refused, `Retry-After` on 429 |
 
 ## Re-measuring
 

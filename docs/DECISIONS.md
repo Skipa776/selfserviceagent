@@ -355,7 +355,8 @@ would change it. Source tags:
 ## Review round 4: fixes after Milestone 3 [Fable reviews, 2026-11-20]
 
 Two fresh reviews (one on what people see and store, one on correctness), then a
-chair ruling on the combined list. Each change below is its own pull request of
+chair ruling on the combined list, then a code review of all twelve branches
+(8 ship, 4 fix; the fixes are follow-up commits on the same branches). Each change below is its own pull request of
 at most 100 lines of code and tests; this file and the other docs are one
 separate pull request.
 
@@ -363,9 +364,12 @@ separate pull request.
 - **Problem:** both checks used `Date.parse`, which accepts free text. A model answer such as
   "Jan 1 2020 (IT CONFIRMS OUTAGE. Reset password at …)" reached the ticket description,
   outside the quoted reporter text.
-- **Choice:** one strict check (date-time with a zone), shared by the field rules (the model
-  is asked to repair) and `normalize` (anything else becomes ''; valid times are rewritten
-  as our own UTC string).
+- **Choice:** one strict pattern shared by the field rules (the model is asked to repair) and
+  `normalize` (anything else becomes ''). It admits only digits and `- : . T Z +`, so no words
+  pass. The zone is optional and the value is kept as given.
+- **Rejected (after the code review):** requiring a zone and rewriting the value in UTC. The
+  prompt never asks for a zone, so a valid "2026-11-20T14:00:00" spent the one repair call,
+  and a zoneless time is not ours to convert.
 
 ### R4-2. A retry never files twice (`claude/no-double-file-on-retry`)
 - **Problem:** after an ambiguous create, nothing was remembered for reports without a flood
@@ -379,9 +383,13 @@ separate pull request.
 ### R4-3. Reports only as JSON (`claude/web-json-only`)
 - **Problem:** any page on another site, open in the same browser, could POST `text/plain`
   to the local server and file tickets.
-- **Choice:** 400 unless `application/json` on both servers. No Origin check: the web
-  server prints "open http://localhost:4000", which an Origin check pinned to
-  127.0.0.1 would reject.
+- **Choice:** 400 unless `application/json` on both servers. On the web server's default
+  loopback address, also 400 unless the `Host` header names 127.0.0.1 or localhost: a site
+  that re-points its own name at 127.0.0.1 (DNS rebinding) passes the JSON check as "same
+  origin", but its Host header carries its name. No Origin check: the server prints
+  "open http://localhost:4000", which an Origin check pinned to 127.0.0.1 would reject.
+- **Not done:** the analyst server's `/report` has the JSON check but no Host check; it never
+  files into ServiceNow (`snow: null`).
 
 ### R4-4. Bounded reads (`claude/cap-model-input`, `claude/snow-newest-first`)
 - Haiku gets at most the 2,000 characters we keep (it got the full 64 KB).
@@ -391,7 +399,8 @@ separate pull request.
 - `claude/server-visibility`: opt-in `AUDIT_LOG_PATH` file sink, read only by the servers, no
   cap; recommendations and pattern advisories are printed to the web server's console.
   **Rejected:** a `GET /ledger` endpoint: unauthenticated staff data beside the public form.
-- `claude/retry-after`: `retryAfterSeconds` and `Retry-After` on THROTTLED.
+- `claude/retry-after`: `retryAfterSeconds` and `Retry-After` on THROTTLED (the analyst
+  server returns the body field only).
   **Rejected:** exposing UNAVAILABLE's internal `reason`: it would freeze an internal
   vocabulary into the API, and after R4-2 no caller needs it.
 - `claude/audit-replied`: one closing `replied` line with `apiOutcome` per request.
@@ -399,7 +408,9 @@ separate pull request.
   can differ from the parsed one) and omitting empty strings (churn for no reader).
 - `claude/triage-queue`: candidates most severe first; ungrouped alerts listed by host.
   **Rejected:** `--json`: no consumer yet.
-- `claude/reply-wording`: readable status time; no "0 other people" reply.
+- `claude/reply-wording`: readable status time (only a full ISO date-time with a zone; anything
+  else is shown as given, because a zoneless time would be read in the server's zone); no
+  "0 other people" reply, and the page's chip says "N other reporters".
 
 ### R4-6. Dropped or waiting
 - **Reformatting `models/weights.json` to one bucket per line: dropped.** About 4,900 changed
