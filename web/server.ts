@@ -17,7 +17,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { buildStage2 } from '../src/composition';
+import { auditFileSink, buildStage2 } from '../src/composition';
 import { postReport } from '../src/api';
 import { snowConfigFromEnv } from '../src/adapters/servicenow';
 import { compose } from '../src/composer';
@@ -31,7 +31,7 @@ const snowConfig = snowConfigFromEnv();
 
 // One system for the process lifetime. Audit and short-lived in-memory state
 // accumulate across requests; peer evidence comes from the configured adapter.
-const system = buildStage2();
+const system = buildStage2({ auditSink: auditFileSink() });
 
 function readBody(req: import('node:http').IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -137,6 +137,7 @@ const server = createServer(async (req, res) => {
       // postReport chooses the status code from the outcome; we relay both.
       const { status, body } = await postReport(parsed, system.deps);
       writeJson(res, status, body);
+      printForIT();
     } catch {
       writeJson(res, 503, {
         outcome: 'UNAVAILABLE',
@@ -199,6 +200,28 @@ const server = createServer(async (req, res) => {
   res.writeHead(404, { 'content-type': 'text/plain' });
   res.end('not found');
 });
+
+// After answering, never before: what IT should look at goes to this console,
+// not into anyone's reply. Pattern alerts are candidates; recommendations are
+// for a person to apply. Nothing here touches a ticket.
+let auditPrinted = 0;
+function printForIT(): void {
+  for (const alert of system.drainToDetector()) {
+    if (alert === null) continue;
+    process.stdout.write(
+      `  NOC advisory ${alert.alertId}: ${alert.distinctReporters} distinct reporters, ` +
+        `${alert.service} @ ${alert.location || 'campus-wide'}, tickets ${alert.ticketNumbers.join(', ')} (a human decides)\n`,
+    );
+  }
+  for (const line of system.audit.lines.slice(auditPrinted)) {
+    if (line.action !== 'recommended') continue;
+    process.stdout.write(
+      `  Priority recommendation for ${line.matchedId}: raise to P${line.priority} ` +
+        `(policy rule ${line.policyRuleId}, ${line.clusterSize} reporters); a person applies it\n`,
+    );
+  }
+  auditPrinted = system.audit.lines.length;
+}
 
 server.listen(PORT, HOST, () => {
   process.stdout.write(`\n  Campus Issue Reporter - local app\n`);

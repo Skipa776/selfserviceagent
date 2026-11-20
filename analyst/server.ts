@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { AnalystSessionStore } from '../src/analyst/session';
 import { AnalystWorkspace } from '../src/analyst/workspace';
 import { postReport } from '../src/api';
-import { buildStage2 } from '../src/composition';
+import { auditFileSink, buildStage2 } from '../src/composition';
 import { llmClientFromEnv } from '../src/parser/chatClient';
 import { snowConfigFromEnv } from '../src/adapters/servicenow';
 
@@ -22,7 +22,7 @@ const snowConfig = snowConfigFromEnv();
 // Shadow means shadow: ordinary reports in this process use the in-memory sink,
 // even when ServiceNow credentials exist in the shell. The report parser reads
 // ANTHROPIC_API_KEY on its own; `client` is only the analyst proposal model.
-const system = buildStage2({ snow: null });
+const system = buildStage2({ snow: null, auditSink: auditFileSink() });
 const workspace = new AnalystWorkspace(
   process.env.ANALYST_DB_PATH?.trim() || '.analyst-demo.sqlite',
   client,
