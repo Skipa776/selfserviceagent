@@ -81,6 +81,21 @@ describe('incident candidates on the SYNTHETIC fixture', () => {
     expect(alertsInNoCandidate).toBe(1);
   });
 
+  it('lists the alerts left out, by host, so none drops out of sight', () => {
+    expect(incidentCandidates(alerts).ungroupedHosts).toEqual([{ host: 'synthetic-ws2', alerts: 1, topSeverity: 'medium' }]);
+  });
+
+  it('puts the most severe candidate first, whatever its time', () => {
+    const ws3Critical = lines.map((line) => {
+      const a = JSON.parse(line);
+      if (a.entity.host === 'SYNTHETIC-WS3') a.severity = 'critical';
+      return JSON.stringify(a);
+    });
+    const { candidates } = incidentCandidates(parseAlerts(ws3Critical.join('\n')).alerts);
+    expect(candidates.map((c) => c.host)).toEqual(['SYNTHETIC-WS3', 'SYNTHETIC-WS1']);
+    expect(candidates[1].severities).toEqual(['high', 'medium']);
+  });
+
   it('names every Sigma rule author, as the Detection Rule License requires', () => {
     const [ws1] = incidentCandidates(alerts).candidates;
     expect(ws1.detectors.map((d) => d.author)).toEqual(['SYNTHETIC Author One', 'SYNTHETIC Author Two']);

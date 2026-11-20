@@ -34,19 +34,24 @@ function main(): number {
     return 1;
   }
   const { alerts, skipped } = parseAlerts(jsonl);
-  const { candidates, alertsInNoCandidate } = incidentCandidates(alerts);
+  const { candidates, alertsInNoCandidate, ungroupedHosts } = incidentCandidates(alerts);
   const out = (s = ''): void => {
     process.stdout.write(`${s}\n`);
   };
 
   out(`${alerts.length} alerts read, ${skipped} lines skipped by the guard.`);
   out(`Rule: >= ${DEMO_MIN_DETECTORS} distinct detectors on one host within ${DEMO_WINDOW_MS / 60_000} minutes (DEMO values).`);
-  out(`${candidates.length} incident candidates; ${alertsInNoCandidate} alerts are in no candidate.`);
+  out(`${candidates.length} incident candidates (most severe first); ${alertsInNoCandidate} alerts on ${ungroupedHosts.length} hosts are in no candidate.`);
   for (const c of candidates) {
     out();
     out(`■ ${printable(c.host)}  ${new Date(c.firstTime).toISOString()} → ${new Date(c.lastTime).toISOString()}`);
     out(`  ${c.distinctDetectors} detectors, ${c.alertIds.length} alerts, severities: ${c.severities.join(', ')}, techniques: ${c.techniques.join(', ') || 'none'}`);
     for (const d of c.detectors) out(`  - ${printable(d.name)}${d.author === null ? '' : ` (rule by ${printable(d.author)})`}`);
+  }
+  if (ungroupedHosts.length > 0) {
+    out();
+    out('In no candidate, by host (most severe first):');
+    for (const u of ungroupedHosts) out(`  ${printable(u.host)}: ${u.alerts} ${u.alerts === 1 ? 'alert' : 'alerts'}, top severity ${u.topSeverity}`);
   }
   out();
   out('Advisory only: a human decides. A host with no candidate is not a clean bill of health.');

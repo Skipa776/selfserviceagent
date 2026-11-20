@@ -119,8 +119,20 @@ export function alertGroups(alerts: readonly Alert[], windowMs = DEMO_WINDOW_MS)
   );
 }
 
-/** The groups worth a human's look, plus how many alerts fell in no such group. */
-export function incidentCandidates(alerts: readonly Alert[]): { candidates: IncidentCandidate[]; alertsInNoCandidate: number } {
+/** The alerts in no candidate, one entry per host, so none of them drops out of sight. */
+export type UngroupedHost = { readonly host: string; readonly alerts: number; readonly topSeverity: Alert['severity'] };
+
+const moreSevere = (a: Alert['severity'], b: Alert['severity']): number => SEVERITIES.indexOf(b) - SEVERITIES.indexOf(a);
+
+/**
+ * The groups worth a human's look, most severe first, plus every alert left out
+ * of them, by host. Ties break on time and host, so input order never matters.
+ */
+export function incidentCandidates(alerts: readonly Alert[]): {
+  candidates: IncidentCandidate[];
+  alertsInNoCandidate: number;
+  ungroupedHosts: UngroupedHost[];
+} {
   // The alert rule: at least DEMO_MIN_DETECTORS distinct detectors in one window.
   const firing = alertGroups(alerts).filter((g) => g.score >= DEMO_MIN_DETECTORS);
   const candidates = firing.map((g) => {
@@ -132,11 +144,19 @@ export function incidentCandidates(alerts: readonly Alert[]): { candidates: Inci
       lastTime: g.lastTime,
       distinctDetectors: g.score,
       detectors: [...detectors.values()],
-      severities: [...new Set(members.map((a) => a.severity))],
+      severities: [...new Set(members.map((a) => a.severity))].sort(moreSevere),
       techniques: [...new Set(members.flatMap((a) => a.techniques))],
       alertIds: members.map((a) => a.alertId),
     };
   });
-  const covered = firing.reduce((n, g) => n + g.members.length, 0);
-  return { candidates, alertsInNoCandidate: alerts.length - covered };
+  candidates.sort((a, b) => moreSevere(a.severities[0], b.severities[0]) || a.firstTime - b.firstTime || (a.host < b.host ? -1 : 1));
+
+  const inCandidate = new Set(firing.flatMap((g) => g.members));
+  const byHost = new Map<string, Alert['severity'][]>();
+  alerts.forEach((a, i) => {
+    if (!inCandidate.has(i)) byHost.set(a.host.toLowerCase(), [...(byHost.get(a.host.toLowerCase()) ?? []), a.severity]);
+  });
+  const ungroupedHosts = [...byHost].map(([host, severities]) => ({ host, alerts: severities.length, topSeverity: severities.sort(moreSevere)[0] }));
+  ungroupedHosts.sort((a, b) => moreSevere(a.topSeverity, b.topSeverity) || b.alerts - a.alerts || (a.host < b.host ? -1 : 1));
+  return { candidates, alertsInNoCandidate: alerts.length - inCandidate.size, ungroupedHosts };
 }
