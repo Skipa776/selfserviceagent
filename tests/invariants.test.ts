@@ -257,7 +257,24 @@ describe('the audit log writes exactly one line per action', () => {
     await handleReport({ text: report.verbatim, identityRef: IDENTITY_REF, canFollowUp: true }, h.deps);
 
     const actions = h.audit.lines.map((l) => l.action);
-    expect(actions).toEqual(['parsed', 'searched', 'decided', 'filed', 'published']);
+    expect(actions).toEqual(['parsed', 'searched', 'decided', 'filed', 'published', 'replied']);
+    expect(h.audit.lines.at(-1)?.apiOutcome).toBe('FILED_INCIDENT');
+  });
+
+  it('a replayed retry writes only its own closing line, with the same outcome', async () => {
+    const report: ProblemReport = {
+      service: 'vpn', scope: 'individual', location: '', building: '', room: '',
+      symptom: 'no_connection', observedAt: '', verbatim: 'my vpn will not connect',
+    };
+    const h = harness(report);
+    const request = { text: report.verbatim, identityRef: IDENTITY_REF, canFollowUp: true };
+    await handleReport(request, h.deps);
+    const before = h.audit.lines.length;
+    await handleReport(request, h.deps);
+
+    const retry = h.audit.lines.slice(before);
+    expect(retry.map((l) => l.action)).toEqual(['parsed', 'replied']);
+    expect(retry[1].apiOutcome).toBe('FILED_REQUEST');
   });
 
   it('every line carries ts, correlationId and stage', () => {

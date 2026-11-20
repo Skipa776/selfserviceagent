@@ -7,6 +7,8 @@
 // is built before there is anything to measure, deliberately — retrofitting it
 // after launch means losing the launch data.
 
+import type { ApiOutcome } from './contracts/types';
+
 /** One line. Fields are optional per action; the contract lists which go where. */
 export type AuditLine = {
   readonly ts: string; // ISO-8601
@@ -22,6 +24,7 @@ export type AuditLine = {
     | 'throttled'
     | 'linked' // a child report added to an open parent incident (flood ledger)
     | 'recommended' // the parent's pending priority raise was set or replaced
+    | 'replied' // the last line of every request: what the person was told
     | 'error';
 
   readonly service?: string;
@@ -40,6 +43,8 @@ export type AuditLine = {
   readonly clusterThreshold?: number;
 
   readonly outcome?: 'MATCHED_DECLARED' | 'MATCHED_CLUSTER' | 'FILE_INCIDENT' | 'FILE_REQUEST';
+  /** 'replied' only: the API outcome the caller received, including replays (so not a ticket count). */
+  readonly apiOutcome?: ApiOutcome;
   readonly matchedId?: string;
 
   readonly ticketClass?: 'INC' | 'REQ';

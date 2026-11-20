@@ -350,6 +350,13 @@ export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): 
   const tuning = gateTuning();
 
   const write: Write = (line) => deps.audit.write({ ts, correlationId, stage: deps.stage, ...line });
+  // One closing line per request, whichever path answered (a replay, a throttle,
+  // a refusal): what each caller was told. A replayed retry repeats its first
+  // outcome here, so count tickets created from the 'filed' lines, not these.
+  const replied = (response: ReportResponse): ReportResponse => {
+    write({ action: 'replied', apiOutcome: response.outcome });
+    return response;
+  };
 
   // 1. PARSE — never throws; unknown values normalize (report_parser.md).
   const parsed = await deps.parser.parse(req.text);
@@ -362,7 +369,7 @@ export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): 
   } catch {
     writeParsed(req, parsed, write);
     write({ action: 'error', errorKind: 'identity_unavailable' });
-    return unavailable('identity_unavailable');
+    return replied(unavailable('identity_unavailable'));
   }
 
   const context: LifecycleContext = {
@@ -370,10 +377,10 @@ export async function handleReport(req: ReportRequest, deps: OrchestratorDeps): 
     frustrated: parsed.frustrated, specialist: parsed.specialist,
   };
   const overrideMatchId = req.overrideMatchId ?? '';
-  if (overrideMatchId !== '') return runLifecycle(req, deps, context);
+  if (overrideMatchId !== '') return replied(await runLifecycle(req, deps, context));
 
   const key = idempotencyKey(identity.hash, report);
-  return coordinateInFlight(deps.idempotency, key, () => runLifecycle(req, deps, context));
+  return replied(await coordinateInFlight(deps.idempotency, key, () => runLifecycle(req, deps, context)));
 }
 
 function writeParsed(req: ReportRequest, parsed: ParseResult, write: Write): void {
