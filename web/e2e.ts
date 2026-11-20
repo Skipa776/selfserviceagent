@@ -234,6 +234,23 @@ async function main(): Promise<void> {
         oversizedBody.reply.includes(HUMAN_PATH),
     );
 
+    // 7. A throttled reporter is told when to come back, in the body and the header.
+    let throttled: Response | null = null;
+    for (let i = 0; i < 25 && throttled === null; i++) {
+      const res = await fetch(`${BASE}/report`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: `the vpn will not connect, attempt ${i}`, identityRef: 'e2e-throttle', canFollowUp: false }),
+      });
+      if (res.status === 429) throttled = res;
+    }
+    const throttledBody = (await throttled?.json()) as ReportResponse & { retryAfterSeconds?: number };
+    check(
+      'throttled -> 429 with retryAfterSeconds and a Retry-After header',
+      throttled !== null && throttledBody.retryAfterSeconds! > 0 &&
+        throttled.headers.get('retry-after') === String(Math.ceil(throttledBody.retryAfterSeconds!)),
+    );
+
     const favicon = await fetch(`${BASE}/favicon.ico`);
     check('favicon request is retained', favicon.status === 204);
   } finally {

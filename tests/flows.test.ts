@@ -226,6 +226,7 @@ describe('deflect outcomes create nothing and always offer recourse', () => {
   it('F12 — a throttled report performs no search, files nothing, publishes nothing', async () => {
     const { response, tickets, stream, audit } = await runScenario(FLOWS.find((f) => f.id === 'F12')!);
     expect(response.outcome).toBe('THROTTLED');
+    expect(response.retryAfterSeconds).toBeGreaterThan(0); // machines get the wait, not only the prose
     expect(tickets.filed).toHaveLength(0);
     expect(stream.events).toHaveLength(0);
     expect(audit.lines.some((l) => l.action === 'searched')).toBe(false);

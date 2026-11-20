@@ -136,6 +136,7 @@ const server = createServer(async (req, res) => {
     try {
       // postReport chooses the status code from the outcome; we relay both.
       const { status, body } = await postReport(parsed, system.deps);
+      if (body.retryAfterSeconds !== undefined) res.setHeader('retry-after', String(Math.ceil(body.retryAfterSeconds)));
       writeJson(res, status, body);
     } catch {
       writeJson(res, 503, {

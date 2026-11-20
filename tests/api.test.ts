@@ -118,6 +118,7 @@ describe('the response shape is mutually exclusive BY CONSTRUCTION', () => {
         }
       }
       if (body.outcome === 'NEEDS_DETAIL') expect(body.missingFields?.length).toBeGreaterThan(0);
+      expect(body.retryAfterSeconds === undefined, `${s.id}`).toBe(body.outcome !== 'THROTTLED');
       // No path returns an empty reply.
       expect(body.reply.length, `${s.id}`).toBeGreaterThan(0);
     }

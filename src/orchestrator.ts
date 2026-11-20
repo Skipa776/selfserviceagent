@@ -416,6 +416,7 @@ async function runLifecycle(
     return {
       outcome: 'THROTTLED',
       reply: compose({ outcome: 'THROTTLED', retryAfterSeconds: budget.retryAfterSeconds }),
+      retryAfterSeconds: budget.retryAfterSeconds,
     };
   }
 
