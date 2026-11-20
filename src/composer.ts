@@ -59,6 +59,16 @@ const OVERRIDE_AFFORDANCE =
   'If that is not the same problem you are having, reply "this is not my issue" ' +
   'and I will file your report separately.';
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "2026-07-28T11:45:00.000Z" → "28 Jul 2026, 11:45 UTC". Anything else is shown as given. */
+export function readableTime(value: string): string {
+  const time = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value) ? new Date(value) : null;
+  if (time === null || Number.isNaN(time.getTime())) return value;
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  return `${time.getUTCDate()} ${MONTHS[time.getUTCMonth()]} ${time.getUTCFullYear()}, ${pad(time.getUTCHours())}:${pad(time.getUTCMinutes())} UTC`;
+}
+
 /** missingFields values → the question a person can actually answer. */
 const FIELD_QUESTIONS: Record<string, string> = {
   service: 'which service this is about — for example wifi, VPN, or a campus website',
@@ -100,7 +110,7 @@ export function compose(input: ComposeInput): string {
       // timestamp reads as current, and it may be hours stale. No ETA, ever.
       return (
         `IT has an open incident that looks like it covers this. They describe it as: ` +
-        `"${summary}". The status they have published is "${status}", last updated ${statusUpdatedAt}. ` +
+        `"${summary}". The status they have published is "${status}", last updated ${readableTime(statusUpdatedAt)}. ` +
         `Details: ${url}. I have not created a new ticket. ${OVERRIDE_AFFORDANCE}`
       );
     }
@@ -113,6 +123,14 @@ export function compose(input: ComposeInput): string {
       // (boundaries.md boundary 2).
       const others = input.reportCount === 1 ? '1 other person has' : `${input.reportCount} other people have`;
       const tickets = input.ticketIds.length === 1 ? 'a ticket is' : 'tickets are';
+      // Zero others happens when the same person reports again: "0 other people" is
+      // true but reads like a mistake, so say only what is open.
+      if (input.reportCount === 0) {
+        return (
+          `${tickets === 'a ticket is' ? 'A ticket is' : 'Tickets are'} already open for this ` +
+          `(${input.ticketIds.join(', ')}). I have not created another one. ${OVERRIDE_AFFORDANCE}`
+        );
+      }
       return (
         `${others} recently reported something similar, and ${tickets} already open for it ` +
         `(${input.ticketIds.join(', ')}). I have not created another one. ${OVERRIDE_AFFORDANCE}`
