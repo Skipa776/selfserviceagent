@@ -82,7 +82,7 @@ function runServer(presentation: boolean): ChildProcessByStdio<null, Readable, R
 }
 
 async function stopServer(server: ChildProcessByStdio<null, Readable, Readable>): Promise<void> {
-  if (server.exitCode !== null) return;
+  if (server.exitCode !== null || server.signalCode !== null) return; // already gone: waiting for 'exit' would hang
   const exited = new Promise<void>((resolve) => server.once('exit', () => resolve()));
   server.kill();
   await exited;
