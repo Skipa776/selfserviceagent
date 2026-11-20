@@ -32,3 +32,7 @@ ITS_PROJECT_DOCUMENTATION.txt
 stack_config.toml
 context/
 Campus Building Codes.txt
+
+# Python virtualenv for training/ (Milestone 2)
+.venv/
+__pycache__/

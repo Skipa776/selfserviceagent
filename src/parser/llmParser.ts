@@ -6,12 +6,13 @@
 // as an object that already matches the schema's types and enums (`strict:
 // true`), so there is no JSON to dig out of prose or code fences. What a schema
 // cannot express (location/building pairs, scope vs location) is still checked
-// by validateAgainstSchema() below, with one repair turn.
+// by validateAgainstSchema() (fieldRules.ts), with one repair turn.
 
 import Anthropic from '@anthropic-ai/sdk';
 
 import type { ParseResult } from '../orchestrator';
 import { SCOPES, SERVICES, SYMPTOMS } from '../vocab/catalog';
+import { MODEL_FIELDS, validateAgainstSchema } from './fieldRules';
 import { normalize, parseReport } from './reportParser';
 import { canonicalBuilding, canonicalLocation, canonicalRoom } from '../vocab/locations';
 
@@ -29,17 +30,6 @@ export type LlmParserDeps = {
   /** Injected for deterministic future-timestamp normalization. */
   readonly now: () => Date;
 };
-
-/** The seven fields we ask the model for. `verbatim` is deliberately not one. */
-export const MODEL_FIELDS = [
-  'service',
-  'scope',
-  'location',
-  'building',
-  'room',
-  'symptom',
-  'observedAt',
-] as const;
 
 /**
  * Builds the closed model-output schema directly from the canonical catalogs.
@@ -159,88 +149,20 @@ function toolCall(message: Anthropic.Message): Anthropic.ToolUseBlock {
 function canonicalizeLocationFields(candidate: unknown): unknown {
   if (typeof candidate !== 'object' || candidate === null || Array.isArray(candidate)) return candidate;
   const record = candidate as Record<string, unknown>;
+  const location = canonicalLocation(record.location) || (record.location === '' ? '' : record.location);
+  // An exact canonical location with an empty building code: the code follows by
+  // table lookup, so fill it rather than spend the repair (measured: Haiku 5.5 did
+  // this twice in a row for "Hillside Academic Building"). A building that
+  // contradicts the location is left alone and still fails validation.
+  const fillBuilding = record.building === '' && record.location !== '' && record.location === canonicalLocation(record.location);
   return {
     ...record,
-    location: canonicalLocation(record.location) || (record.location === '' ? '' : record.location),
-    building: canonicalBuilding(record.building) || (record.building === '' ? '' : record.building),
+    location,
+    building: fillBuilding
+      ? canonicalBuilding(location)
+      : canonicalBuilding(record.building) || (record.building === '' ? '' : record.building),
     room: canonicalRoom(record.room) || (record.room === '' ? '' : record.room),
   };
-}
-
-/**
- * Strictly checks the model fields before normalization and returns the first
- * actionable validation error for repair. Validation never coerces model output.
- * It still runs under `strict: true`: the schema guarantee is the API's promise,
- * and this is our own trust boundary.
- */
-export function validateAgainstSchema(candidate: unknown): string | null {
-  if (typeof candidate !== 'object' || candidate === null || Array.isArray(candidate)) {
-    return 'response is not a JSON object';
-  }
-  const record = candidate as Record<string, unknown>;
-  const unexpected = Object.keys(record).find((field) => !(MODEL_FIELDS as readonly string[]).includes(field));
-  if (unexpected !== undefined) {
-    return `unexpected field ${unexpected}`;
-  }
-  for (const field of MODEL_FIELDS) {
-    if (!(field in record)) {
-      return `missing required field ${field}`;
-    }
-    if (typeof record[field] !== 'string') {
-      return `field ${field} is not a string`;
-    }
-    if (record[field].trim() !== record[field]) {
-      return `field ${field} has leading or trailing whitespace`;
-    }
-    if (record[field] === 'unknown' && (field === 'location' || field === 'building' || field === 'room')) {
-      return `field ${field} must use '' rather than 'unknown'`;
-    }
-  }
-  if (!(SERVICES as readonly string[]).includes(record.service as string)) {
-    return `service: ${record.service} is not in the catalog`;
-  }
-  if (!(SCOPES as readonly string[]).includes(record.scope as string)) {
-    return `scope: ${record.scope} is not in the catalog`;
-  }
-  if (!(SYMPTOMS as readonly string[]).includes(record.symptom as string)) {
-    return `symptom: ${record.symptom} is not in the catalog`;
-  }
-
-  const location = record.location as string;
-  const building = record.building as string;
-  const room = record.room as string;
-  const scope = record.scope as string;
-  if (location !== '' && canonicalLocation(location) !== location) {
-    return `location: ${location} is not canonical`;
-  }
-  if (building !== '' && canonicalBuilding(building) !== building) {
-    return `building: ${building} is not a canonical building code`;
-  }
-  if (room !== '' && canonicalRoom(room) !== room) {
-    return `room: ${room} is not canonical`;
-  }
-  if (location === '' && building !== '') {
-    return 'building requires location';
-  }
-  if (room !== '' && building === '') {
-    return 'room requires building';
-  }
-  if (location !== '' && building === '') {
-    return 'location requires building';
-  }
-  if (location !== '' && canonicalBuilding(location) !== building) {
-    return 'location and building do not form a canonical pair';
-  }
-  if ((scope === 'individual' || scope === 'service_wide') && (location !== '' || building !== '' || room !== '')) {
-    return `${scope} scope cannot include location, building, or room`;
-  }
-  if (scope === 'location' && location === '') {
-    return 'location scope requires location';
-  }
-  if (record.observedAt !== '' && Number.isNaN(Date.parse(record.observedAt as string))) {
-    return 'observedAt is not a valid timestamp';
-  }
-  return null;
 }
 
 /**

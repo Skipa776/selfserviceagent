@@ -11,8 +11,8 @@ import {
   REPORT_TOOL,
   schemaFromCatalog,
   SYSTEM_PROMPT,
-  validateAgainstSchema,
 } from '../src/parser/llmParser';
+import { validateAgainstSchema } from '../src/parser/fieldRules';
 import { SCOPES, SERVICES, SYMPTOMS } from '../src/vocab/catalog';
 import { BUILDINGS, canonicalLocation } from '../src/vocab/locations';
 import { CORPUS_NOW } from './corpus';
@@ -220,6 +220,24 @@ describe('validateAgainstSchema', () => {
 });
 
 describe('safe canonicalization before strict validation', () => {
+  it('fills an empty building code from an exact canonical location, without a repair', async () => {
+    // Recorded behaviour of Haiku 5.5: canonical location, building left empty.
+    const create = fakeCreateMessage(toolUseMessage({
+      service: 'wired_network', scope: 'location', location: 'Hillside Academic Building', building: '', room: '', symptom: 'slow', observedAt: '',
+    }));
+    const result = await createLlmParser({ createMessage: create, now }).parse('Wired network in the Hillside Academic Building is very sluggish');
+    expect(create.calls).toHaveLength(1);
+    expect(result).toMatchObject({ source: 'llm', repairAttempted: false });
+    expect(result.report).toMatchObject({ location: 'Hillside Academic Building', building: 'HAB' });
+  });
+
+  it('still rejects a building that contradicts the location', async () => {
+    const create = fakeCreateMessage(toolUseMessage({ ...CLEAN, building: 'LECT' }), toolUseMessage({ ...CLEAN, building: 'LECT' }));
+    const result = await createLlmParser({ createMessage: create, now }).parse(TEXT);
+    expect(create.calls).toHaveLength(2);
+    expect(result.source).toBe('keyword');
+  });
+
   it('accepts recognized location aliases without a repair', async () => {
     const create = fakeCreateMessage(toolUseMessage({
       service: 'wired_network',

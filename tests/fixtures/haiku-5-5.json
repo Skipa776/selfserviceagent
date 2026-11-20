@@ -6,7 +6,7 @@
     "id": "claude-haiku-5-5",
     "display_name": "Claude Haiku 5.5"
   },
-  "recordedAt": "2026-11-20T03:14:24.206Z",
+  "recordedAt": "2026-11-20T03:25:38.016Z",
   "sdkVersion": "1.8.0",
   "exchanges": [
     {
@@ -14,13 +14,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT7QDoPpDDFx6TBQvf8",
+          "id": "msg_011ChDTx5kAmJ5LMCKqQVq9L",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01MfTiujmdYBu9SaYTnhDkkY",
+              "id": "toolu_01D7pgHH2FkwiCiosq3Wgjo1",
               "name": "record_report_fields",
               "input": {
                 "service": "wifi",
@@ -79,13 +79,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT7i858xLZxNEPN7Aum",
+          "id": "msg_011ChDTxDYyf2ExwftqrxXpS",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01XVyo6Yf9hRTk6CWhtEU2CG",
+              "id": "toolu_01VNDLByh79jtNKJ8ms4anpq",
               "name": "record_report_fields",
               "input": {
                 "service": "web_portal",
@@ -144,13 +144,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT7rQQWw292oMTdmvZU",
+          "id": "msg_011ChDTxL2uhWYP4o45SQmN7",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01R74CWq5WzGyAm2AyYzJc6T",
+              "id": "toolu_015WeCfabb9Cf4CatsA8UKSE",
               "name": "record_report_fields",
               "input": {
                 "service": "wifi",
@@ -209,13 +209,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT7vSFNn47a5MLTo15s",
+          "id": "msg_011ChDTxSsv83wmJq6d4YYJQ",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01HkmZHSzn6FM3HGGdowv815",
+              "id": "toolu_01JsgrArgn31SzjrnBhLHbSi",
               "name": "record_report_fields",
               "input": {
                 "service": "wifi",
@@ -274,13 +274,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT7zb31hqYEAsiW6HP5",
+          "id": "msg_011ChDTxa4WPzUKLMmb7Ds9N",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01NF4fq2jzaFsZmV1oKhwNkt",
+              "id": "toolu_01RqLp8sA2nsJqxVkCfWaKeX",
               "name": "record_report_fields",
               "input": {
                 "service": "unknown",
@@ -339,13 +339,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT84STR5R5NCQQaHgcc",
+          "id": "msg_011ChDTxhHak6uoDPcWWuUY8",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01DYvY7SSEbeJ5NvoSQ6bpuv",
+              "id": "toolu_01WDbY5amQnsmvynUrPqSikx",
               "name": "record_report_fields",
               "input": {
                 "service": "vpn",
@@ -404,13 +404,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT88He1C1qZRcEDhLvx",
+          "id": "msg_011ChDTxpQiHfeDWzzazRaW8",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01FTd12MKvjButCBco64jKat",
+              "id": "toolu_018dTmRRQDEn7PsePNuDdECF",
               "name": "record_report_fields",
               "input": {
                 "service": "unknown",
@@ -469,13 +469,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8CRgJRFNGdZwNLcyM",
+          "id": "msg_011ChDTxwSdUMGyUh9vCp39p",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_018ibQ3zm6TWZt89gw4hU4PZ",
+              "id": "toolu_01AV4UovkejHgHACgBY78buP",
               "name": "record_report_fields",
               "input": {
                 "service": "unknown",
@@ -534,17 +534,17 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8HLbUb6jc15fD8Q3z",
+          "id": "msg_011ChDTy4Ax6mfs8DzZDWBMa",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01WiXmEVVwqdQYL8SskvsT3g",
+              "id": "toolu_01RYorvGqe9WhDTGX7ToJTnJ",
               "name": "record_report_fields",
               "input": {
                 "service": "classroom_av",
-                "scope": "unknown",
+                "scope": "location",
                 "symptom": "equipment_unavailable",
                 "location": "Lecture Hall",
                 "building": "LECT",
@@ -568,7 +568,7 @@
               "ephemeral_5m_input_tokens": 0,
               "ephemeral_1h_input_tokens": 0
             },
-            "output_tokens": 183,
+            "output_tokens": 181,
             "output_tokens_details": {
               "thinking_tokens": 0
             },
@@ -582,7 +582,7 @@
       "parsed": {
         "report": {
           "service": "classroom_av",
-          "scope": "unknown",
+          "scope": "location",
           "location": "Lecture Hall",
           "building": "LECT",
           "room": "",
@@ -599,13 +599,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8MpDqe2CnWHi2aTeW",
+          "id": "msg_011ChDTyBFMJjgRveSXkJYca",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01YYiqvZn9WCjWzMLjiya5Aq",
+              "id": "toolu_01TQo36r5C44Upz19YQnySma",
               "name": "record_report_fields",
               "input": {
                 "service": "wifi",
@@ -664,13 +664,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8SEP66ApoQtWEaHgE",
+          "id": "msg_011ChDTyJwwwsMXFxqKGLkw4",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01SfQCBVv15emifsHQtZD72G",
+              "id": "toolu_01N43ZYRfTVgGMSwqGxKsfBH",
               "name": "record_report_fields",
               "input": {
                 "service": "wifi",
@@ -729,13 +729,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8WMgSKqg4qrtkkAn2",
+          "id": "msg_011ChDTySNgnWvc7dw64D9XL",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01CVUC1oxqQCb1yMnc2e137r",
+              "id": "toolu_01CzbhaSeFVJ2zH48VnVRUzD",
               "name": "record_report_fields",
               "input": {
                 "service": "wired_network",
@@ -775,13 +775,13 @@
         },
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8aXxBdtJ9DCjfdRkZ",
+          "id": "msg_011ChDTyZ5FghmFNpDSVAaYk",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01WbaooabMaffvoZzDnuFJxF",
+              "id": "toolu_017TxpCUojg1ddhodLz8pw3f",
               "name": "record_report_fields",
               "input": {
                 "service": "wired_network",
@@ -840,13 +840,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8edWjS8U5xWZgFJW6",
+          "id": "msg_011ChDTyfgsi9ZYZnc4uNUW1",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_015ujUGbVJSbND6aMumVDain",
+              "id": "toolu_01V3vzTg6bZ9AXP5UEBZbGRb",
               "name": "record_report_fields",
               "input": {
                 "service": "wired_network",
@@ -883,52 +883,6 @@
             "speed": "standard"
           },
           "diagnostics": null
-        },
-        {
-          "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8ijKUQSKfgciXbUoV",
-          "type": "message",
-          "role": "assistant",
-          "content": [
-            {
-              "type": "tool_use",
-              "id": "toolu_015qSQsBoh521uNNNPCNCBBH",
-              "name": "record_report_fields",
-              "input": {
-                "service": "wired_network",
-                "scope": "location",
-                "symptom": "slow",
-                "location": "Hillside Academic Building",
-                "building": "",
-                "room": "",
-                "observedAt": ""
-              },
-              "caller": {
-                "type": "direct"
-              }
-            }
-          ],
-          "container": null,
-          "stop_reason": "tool_use",
-          "stop_sequence": null,
-          "stop_details": null,
-          "usage": {
-            "input_tokens": 2000,
-            "cache_creation_input_tokens": 0,
-            "cache_read_input_tokens": 0,
-            "cache_creation": {
-              "ephemeral_5m_input_tokens": 0,
-              "ephemeral_1h_input_tokens": 0
-            },
-            "output_tokens": 173,
-            "output_tokens_details": {
-              "thinking_tokens": 0
-            },
-            "service_tier": "standard",
-            "inference_geo": "global",
-            "speed": "standard"
-          },
-          "diagnostics": null
         }
       ],
       "parsed": {
@@ -942,8 +896,8 @@
           "observedAt": "",
           "verbatim": "Wired network in the Hillside Academic Building is very sluggish"
         },
-        "source": "keyword",
-        "repairAttempted": true
+        "source": "llm",
+        "repairAttempted": false
       }
     },
     {
@@ -951,13 +905,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8nUYX3uhRBEWxZouA",
+          "id": "msg_011ChDTynYd6UHuw12FXX8fS",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01YWuB3sxvi8XMKhM6veipir",
+              "id": "toolu_01FiTVt9CDicZPonCS72qgpS",
               "name": "record_report_fields",
               "input": {
                 "service": "wired_network",
@@ -1016,13 +970,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8rhYdnP1trYGCNNze",
+          "id": "msg_011ChDTyv92WeGbNy3niveqU",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01BsfQUd6qBxAYAb2zF58Evo",
+              "id": "toolu_01L4LE9trZhsiSbZGnc7YuPs",
               "name": "record_report_fields",
               "input": {
                 "service": "wired_network",
@@ -1081,13 +1035,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8vYiKQFHTfWSZktxX",
+          "id": "msg_011ChDTz33W5aWW5ZBga8EHM",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_0168GXSyhpmrcPabqFETC9rH",
+              "id": "toolu_019dTcPDf67SZNyD4bfDsgvA",
               "name": "record_report_fields",
               "input": {
                 "service": "vpn",
@@ -1146,13 +1100,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT8zA21atX7VPu3hu5u",
+          "id": "msg_011ChDTz9yj8EqCna6DfXrCK",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_014zDZnmtc9dTrU12cL1SWVJ",
+              "id": "toolu_01R8242pKJTD67vYBYdwFjEE",
               "name": "record_report_fields",
               "input": {
                 "service": "vpn",
@@ -1211,59 +1165,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT944fMYESFj5srha2w",
+          "id": "msg_011ChDTzHTghVPioCzoneksB",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01717oRZc8w1nDE9PHWKdL14",
-              "name": "record_report_fields",
-              "input": {
-                "service": "web_portal",
-                "scope": "service_wide",
-                "symptom": "page_error",
-                "location": "\"\"",
-                "building": "",
-                "room": "",
-                "observedAt": ""
-              },
-              "caller": {
-                "type": "direct"
-              }
-            }
-          ],
-          "container": null,
-          "stop_reason": "tool_use",
-          "stop_sequence": null,
-          "stop_details": null,
-          "usage": {
-            "input_tokens": 1767,
-            "cache_creation_input_tokens": 0,
-            "cache_read_input_tokens": 0,
-            "cache_creation": {
-              "ephemeral_5m_input_tokens": 0,
-              "ephemeral_1h_input_tokens": 0
-            },
-            "output_tokens": 169,
-            "output_tokens_details": {
-              "thinking_tokens": 0
-            },
-            "service_tier": "standard",
-            "inference_geo": "global",
-            "speed": "standard"
-          },
-          "diagnostics": null
-        },
-        {
-          "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT98DSkeGoRAhN5XQ79",
-          "type": "message",
-          "role": "assistant",
-          "content": [
-            {
-              "type": "tool_use",
-              "id": "toolu_0154fMrkZKCHai3J8YZWw2Gb",
+              "id": "toolu_01MYZmHVug8SpUqiUfAaRcLj",
               "name": "record_report_fields",
               "input": {
                 "service": "web_portal",
@@ -1284,7 +1192,7 @@
           "stop_sequence": null,
           "stop_details": null,
           "usage": {
-            "input_tokens": 1996,
+            "input_tokens": 1767,
             "cache_creation_input_tokens": 0,
             "cache_read_input_tokens": 0,
             "cache_creation": {
@@ -1314,7 +1222,7 @@
           "verbatim": "Canvas is returning an error for everyone in my course"
         },
         "source": "llm",
-        "repairAttempted": true
+        "repairAttempted": false
       }
     },
     {
@@ -1322,13 +1230,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9BthvmwyJCGMm9sfw",
+          "id": "msg_011ChDTzRuvi3WKSxH4dv8ax",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_0135SS3hKqRjrcpSj7qv8pBH",
+              "id": "toolu_01W4mKN13BeVZj24mmxeW6jE",
               "name": "record_report_fields",
               "input": {
                 "service": "web_portal",
@@ -1387,13 +1295,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9FQnxCBgwTjy7oHGM",
+          "id": "msg_011ChDTzYZH1qh3Qat63da7k",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01Wjm9SjELUfg3zvRTjUZDK3",
+              "id": "toolu_013cBeNrHxviwL4WR2VHspwH",
               "name": "record_report_fields",
               "input": {
                 "service": "web_portal",
@@ -1452,13 +1360,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9K7nbNzRkLtmDnKKZ",
+          "id": "msg_011ChDTzgBg58QB2X5EfThZe",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01ER7vP5LPodYAUZGMVZ4fmS",
+              "id": "toolu_01Cq7aeXTMwsFnfTkMJQsDuC",
               "name": "record_report_fields",
               "input": {
                 "service": "unknown",
@@ -1517,13 +1425,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9P8dBXW4iUHmrAQWZ",
+          "id": "msg_011ChDTzndNDVQvWYTTmfgug",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01AYf3kdpdfjwjCKxY3Aidz4",
+              "id": "toolu_01T8E5cufiJjAiwjPbhshNPt",
               "name": "record_report_fields",
               "input": {
                 "service": "classroom_av",
@@ -1582,13 +1490,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9T51Pnmtcse4mr139",
+          "id": "msg_011ChDTzunit26UnGDch5WUg",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01XCZzteRaSANmwEfnwa2Cdp",
+              "id": "toolu_01UMeT5rcmoJ2m74UnLYqmCW",
               "name": "record_report_fields",
               "input": {
                 "service": "classroom_av",
@@ -1647,13 +1555,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9WuwkGcQXBh7HgKqw",
+          "id": "msg_011ChDU12mAPjgjKSwczzg4S",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_01NJBjd91FDVFhwodjpWVaL9",
+              "id": "toolu_014uGyF2brD8AD5VWsmB9huX",
               "name": "record_report_fields",
               "input": {
                 "service": "classroom_av",
@@ -1712,13 +1620,13 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9arq1cEqouwabAzwP",
+          "id": "msg_011ChDU19zzKqmMERqv3xobX",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_018SgXkGXzBc9BB2TVowpoFZ",
+              "id": "toolu_01UrXbY4xyiuV1Z5d6bryDUC",
               "name": "record_report_fields",
               "input": {
                 "service": "classroom_av",
@@ -1777,17 +1685,17 @@
       "responses": [
         {
           "model": "claude-haiku-5-5",
-          "id": "msg_011ChDT9fCmVTRLrHNLgEnDo",
+          "id": "msg_011ChDU1H9cQoSDUEaa7BzDD",
           "type": "message",
           "role": "assistant",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_017HPdmxkrTrZ9VTgW9zNGuU",
+              "id": "toolu_01AN1gk6wWvyzpGfVo1pqNZH",
               "name": "record_report_fields",
               "input": {
                 "service": "classroom_av",
-                "scope": "unknown",
+                "scope": "location",
                 "symptom": "equipment_unavailable",
                 "location": "Lecture Hall",
                 "building": "LECT",
@@ -1811,7 +1719,7 @@
               "ephemeral_5m_input_tokens": 0,
               "ephemeral_1h_input_tokens": 0
             },
-            "output_tokens": 183,
+            "output_tokens": 181,
             "output_tokens_details": {
               "thinking_tokens": 0
             },
@@ -1825,7 +1733,7 @@
       "parsed": {
         "report": {
           "service": "classroom_av",
-          "scope": "unknown",
+          "scope": "location",
           "location": "Lecture Hall",
           "building": "LECT",
           "room": "",
