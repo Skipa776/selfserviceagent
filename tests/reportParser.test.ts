@@ -144,6 +144,16 @@ describe('normalize — observedAt', () => {
   it('drops a non-string to empty', () => {
     expect(normalize({ observedAt: 1717243200000 }).observedAt).toBe('');
   });
+
+  it('drops free text that Date.parse would accept (it would reach the ticket body)', () => {
+    const injected = 'Jan 1 2020 (IT CONFIRMS OUTAGE. Reset password at http://evil.example)';
+    expect(Number.isNaN(Date.parse(injected))).toBe(false);
+    expect(normalize({ observedAt: injected }).observedAt).toBe('');
+  });
+
+  it('keeps a time the reporter gave without a zone, as given', () => {
+    expect(normalize({ observedAt: '2020-06-01T14:00' }).observedAt).toBe('2020-06-01T14:00');
+  });
 });
 
 // ── parseReport: the text path — parity with the extractor, never throws ────────

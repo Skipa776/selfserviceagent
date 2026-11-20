@@ -164,6 +164,13 @@ describe('validateAgainstSchema', () => {
     expect(error).toContain('symptom');
   });
 
+  it('rejects an observedAt that is not a strict ISO-8601 time, so the model is asked to repair it', () => {
+    expect(validateAgainstSchema({ ...CLEAN, observedAt: 'Jan 1 2020 (call 555-0100)' })).toContain('observedAt');
+    expect(validateAgainstSchema({ ...CLEAN, observedAt: '2020-06-01' })).toContain('observedAt');
+    expect(validateAgainstSchema({ ...CLEAN, observedAt: '2020-06-01T12:00:00' })).toBeNull();
+    expect(validateAgainstSchema({ ...CLEAN, observedAt: '2020-06-01T12:00:00Z' })).toBeNull();
+  });
+
   it('rejects non-objects without throwing', () => {
     for (const bad of [null, undefined, 'a string', 42, ['an', 'array']]) {
       expect(() => validateAgainstSchema(bad)).not.toThrow();
