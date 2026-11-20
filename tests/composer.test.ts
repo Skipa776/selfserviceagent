@@ -45,6 +45,7 @@ describe('MATCHED_DECLARED — the one reply allowed to speak about service stat
   it('shows a time that is not a full ISO date-time exactly as given', () => {
     expect(readableTime('2026-07-28T11:45:00+02:00')).toBe('28 Jul 2026, 09:45 UTC');
     expect(readableTime('about an hour ago')).toBe('about an hour ago');
+    expect(readableTime('2026-07-28T11:45:00')).toBe('2026-07-28T11:45:00'); // no zone: not ours to guess
   });
 
   it('links the record and states that nothing was created', () => {

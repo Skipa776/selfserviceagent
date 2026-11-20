@@ -61,9 +61,12 @@ const OVERRIDE_AFFORDANCE =
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-/** "2026-07-28T11:45:00.000Z" → "28 Jul 2026, 11:45 UTC". Anything else is shown as given. */
+/**
+ * "2026-07-28T11:45:00.000Z" → "28 Jul 2026, 11:45 UTC". Anything else, including
+ * a time with no zone (which would be read as this server's local time), is shown as given.
+ */
 export function readableTime(value: string): string {
-  const time = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value) ? new Date(value) : null;
+  const time = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})$/.test(value) ? new Date(value) : null;
   if (time === null || Number.isNaN(time.getTime())) return value;
   const pad = (n: number): string => String(n).padStart(2, '0');
   return `${time.getUTCDate()} ${MONTHS[time.getUTCMonth()]} ${time.getUTCFullYear()}, ${pad(time.getUTCHours())}:${pad(time.getUTCMinutes())} UTC`;

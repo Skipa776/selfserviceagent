@@ -647,7 +647,7 @@
     const meta = $('#resultMeta');
     const bits = ['outcome: ' + body.outcome];
     if (body.incident) bits.push('incident ' + body.incident.id + ' — ' + body.incident.status);
-    if (body.cluster) bits.push(body.cluster.reportCount + ' reporters');
+    if (body.cluster) bits.push(body.cluster.reportCount + ' other reporters');
     if (body.missingFields) bits.push('needs: ' + body.missingFields.join(', '));
     meta.innerHTML = bits.map((b) => '<code>' + b.replace(/[&<>]/g, (c)=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</code>').join(' ');
 
