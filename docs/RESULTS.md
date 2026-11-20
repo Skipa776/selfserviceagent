@@ -20,13 +20,14 @@ was not measured is listed as not measured. Failures and negative results are ke
 | Milestone 1 numbers | commit `6308c74`, 2026-11-15 (Haiku rows: 2026-11-20, see below) |
 | Milestone 2 numbers | commit `7473102`, 2026-11-20; training data sha256 `7fe9042b8d99…` (full value in `models/weights.json`) |
 | Milestone 3 numbers | commit `e11d434`, 2026-11-20 |
+| Review round 4 | the 12 code branches of DECISIONS.md R4 merged together locally, 2026-11-20; every offline number below re-measured on that merge and unchanged unless marked |
 | Randomness | Seeds fixed (`20261120`) for the templated data and training. Haiku 5.5 accepts no sampling setting, so every live Haiku number is from several runs. The reporter-hash salt is random per process; only equality of hashes matters. |
 
 ## Test suite
 
 | | Result |
 | --- | --- |
-| `npm test` (offline, no key, no Python) | **525 tests pass** in 39 files (about 4 s) |
+| `npm test` (offline, no key, no Python) | **539 tests pass** in 40 files (about 4 s), on Node 22.23.4 and on Node 24.22.3 (round 4 merge; 525 in 39 files before it) |
 | `npm run build`, `npm run lint` | clean |
 
 ```bash
@@ -201,15 +202,21 @@ N alerts, F firing groups, U alerts in no firing group. Queue reduction = 1 − 
 share of grouped alerts that belong to their group's largest dataset. Fragmentation =
 firing groups per dataset. Dataset coverage = datasets with an alert in a firing group.
 
-| variant | F | U | queue reduction | alert coverage | purity | impure groups | fragmentation median / max | dataset coverage |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| **headline: host, ≥ 2 detectors, 60 min** | 20 | 78 | **0.809** | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
-| window 30 min | 20 | 78 | 0.809 | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
-| window 120 min | 20 | 78 | 0.809 | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
-| baseline: host, no window | 5 | 27 | 0.938 | 0.947 | **0.661** | 4 | 1 / 3 | 20/21 |
-| baseline: host + UTC day | 14 | 76 | 0.825 | 0.852 | 0.909 | 7 | 1 / 2 | 19/21 |
-| baseline: producer's `correlation_key` | 21 | 251 | 0.471 | 0.512 | 1.000 | 0 | 1 / 3 | 14/21 |
-| severity-weighted 1/2/3/5, ≥ 4 | 20 | 78 | 0.809 | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
+The table is `npm run eval:alerts` output as printed (round 4 added the items column):
+
+| variant | N | F | U | items for a human (F + U) | queue reduction | alert coverage | purity | impure groups | fragmentation median / max | dataset coverage |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| headline: host, ≥2 detectors, 60 min | 514 | 20 | 78 | 98 | 0.809 | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
+| window 30 min | 514 | 20 | 78 | 98 | 0.809 | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
+| window 120 min | 514 | 20 | 78 | 98 | 0.809 | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
+| baseline: host, no window | 514 | 5 | 27 | 32 | 0.938 | 0.947 | 0.661 | 4 | 1 / 3 | 20/21 |
+| baseline: host + UTC day | 514 | 14 | 76 | 90 | 0.825 | 0.852 | 0.909 | 7 | 1 / 2 | 19/21 |
+| baseline: producer's correlation_key | 514 | 21 | 251 | 272 | 0.471 | 0.512 | 1.000 | 0 | 1 / 3 | 14/21 |
+| severity-weighted 1/2/3/5, ≥4 | 514 | 20 | 78 | 98 | 0.809 | 0.848 | 1.000 | 0 | 1 / 2 | 18/21 |
+
+`npm run triage:alerts` on the same file shows the analyst exactly these 98 items: the 20
+candidates, most severe first, then the 78 ungrouped alerts as 6 host lines
+(e.g. `hr001.shire.com: 17 alerts, top severity high`).
 
 How to read this honestly:
 
@@ -223,9 +230,9 @@ How to read this honestly:
 | Check | Result | Note |
 | --- | --- | --- |
 | `npm run demo` | runs | flood control narrative |
-| `npm run triage:alerts -- vendor/detection-engineering-ml/alerts.synthetic.jsonl` | 2 candidates (WS1, WS3), WS2 not, authors printed | the SYNTHETIC fixture |
-| `npm run demo:analyst:e2e` | 10 passed, 0 failed | needs no stale server from an earlier run (LEARNINGS.md) |
-| `npm run web:e2e` | **17 passed, 1 failed** | `presentation app explicitly enables synthetic reporter rotation` fails identically on the original base commit `54ba292`; queued as a separate task |
+| `npm run triage:alerts -- vendor/detection-engineering-ml/alerts.synthetic.jsonl` | 2 candidates (WS1, WS3), then WS2 listed as `1 alert, top severity medium`; authors printed | the SYNTHETIC fixture |
+| `npm run demo:analyst:e2e` | **11 passed, 0 failed** (round 4 merge, Node 22 and 24) | was 10/10; the added check refuses a non-JSON report |
+| `npm run web:e2e` | **20 passed, 0 failed** (round 4 merge, Node 22 and 24; three runs in a row on its branch) | was 17/18: the test killed only the `npx` wrapper, so the first server kept the port and answered for the second (LEARNINGS.md). Two checks added: non-JSON refused, `Retry-After` on 429 |
 
 ## Re-measuring
 
