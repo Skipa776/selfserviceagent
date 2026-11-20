@@ -358,6 +358,9 @@ export class ServiceNowIncidentSource implements IncidentSource {
       `${SNOW_COLUMNS.symptom}ISNOTEMPTY`,
       `${SNOW_COLUMNS.reporterHash}ISNOTEMPTY`,
       ...(q.location === '' ? [] : [`${SNOW_COLUMNS.location}ISNOTEMPTY`]),
+      // Newest first: this service never closes tickets, so active ones pile up,
+      // and the recent peers that matter must not fall off the page at `limit`.
+      'ORDERBYDESCopened_at',
     ].join('^');
 
     const fields = [

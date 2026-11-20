@@ -538,6 +538,7 @@ describe('ServiceNowIncidentSource.search', () => {
     expect(url).toContain(`${SNOW_COLUMNS.location}ISNOTEMPTY`);
     expect(url).not.toContain('u_building');
     expect(url).not.toContain('u_room');
+    expect(url).toMatch(/\^ORDERBYDESCopened_at&/);
   });
 
   it('all_tagged omits only the ownership filter', async () => {
