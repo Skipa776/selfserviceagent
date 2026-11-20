@@ -14,16 +14,14 @@ function check(name: string, ok: boolean): void {
   else failed++;
 }
 
-async function waitForServer(): Promise<void> {
-  for (let i = 0; i < 50; i++) {
-    try {
-      if ((await fetch(`${BASE}/`)).ok) return;
-    } catch {
-      // Server is still starting.
-    }
-    await sleep(200);
-  }
-  throw new Error('analyst server did not start');
+// Waits for this server's own "listening" line. Polling the port instead could be
+// answered by a server left over from an earlier run (it was, once).
+async function waitForServer(server: ChildProcessByStdio<null, Readable, Readable>): Promise<void> {
+  let output = '';
+  server.stdout.on('data', (chunk: Buffer) => (output += chunk.toString('utf8')));
+  server.stderr.on('data', (chunk: Buffer) => (output += chunk.toString('utf8')));
+  for (let i = 0; i < 100 && !output.includes(`listening on http://127.0.0.1:${PORT}`); i++) await sleep(100);
+  if (!output.includes(`listening on http://127.0.0.1:${PORT}`)) throw new Error(`analyst server did not start: ${output.trim()}`);
 }
 
 function runServer(): ChildProcessByStdio<null, Readable, Readable> {
@@ -50,7 +48,7 @@ function runServer(): ChildProcessByStdio<null, Readable, Readable> {
 async function main(): Promise<void> {
   const server = runServer();
   try {
-    await waitForServer();
+    await waitForServer(server);
     check('operator page requires authentication', (await fetch(`${BASE}/operator`)).status === 401);
     check('operator login page is available', (await fetch(`${BASE}/operator/login`)).status === 200);
 
