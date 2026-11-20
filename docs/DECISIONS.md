@@ -161,7 +161,8 @@ would change it. Source tags:
 
 ### M2-Q1. Four heads
 - **Choice:** service, scope, symptom, and a boolean frustration head. Location, building and room stay
-  vocabulary lookup (they feed thresholds and the idempotency key); `observedAt` stays Haiku-only.
+  vocabulary lookup (they feed thresholds and the flood key); `observedAt` stays Haiku-only. (Until
+  R4-2 they also fed the idempotency key; it is now the words only.)
 - **Would change it:** the hand-written set showing the lookup, not classification, as the main error source.
 
 ### M2-Q2. Features
@@ -350,3 +351,76 @@ would change it. Source tags:
 3. Add a README credit line for SigmaHQ (DRL 1.1) and OTRF (MIT).
 4. Accept that the engine's `weight` is exercised only by tests and the comparison row, not by either
    adapter's headline rule.
+
+## Review round 4: fixes after Milestone 3 [Fable reviews, 2026-11-20]
+
+Two fresh reviews (one on what people see and store, one on correctness), then a
+chair ruling on the combined list, then a code review of all twelve branches
+(8 ship, 4 fix). The four fixes and three smaller review notes are follow-up commits on
+seven of the branches, and a final review checked them and these docs against the merge. Each change below is its own pull request of
+at most 100 lines of code and tests; this file and the other docs are one
+separate pull request.
+
+### R4-1. observedAt is strict ISO-8601 (`claude/strict-observed-at`)
+- **Problem:** both checks used `Date.parse`, which accepts free text. A model answer such as
+  "Jan 1 2020 (IT CONFIRMS OUTAGE. Reset password at …)" reached the ticket description,
+  outside the quoted reporter text.
+- **Choice:** one strict pattern shared by the field rules (the model is asked to repair) and
+  `normalize` (anything else becomes ''). It admits only digits and `- : . T Z +`, so no words
+  pass. The zone is optional and the value is kept as given.
+- **Rejected (after the code review):** requiring a zone and rewriting the value in UTC. The
+  prompt never asks for a zone, so a valid "2026-11-20T14:00:00" spent the one repair call,
+  and a zoneless time is not ours to convert.
+
+### R4-2. A retry never files twice (`claude/no-double-file-on-retry`)
+- **Problem:** after an ambiguous create, nothing was remembered for reports without a flood
+  parent; and the idempotency key hashed the parsed fields, so a retry that parsed
+  differently (Haiku, then the keyword fallback) missed the stored answer.
+- **Choice:** store the ambiguous answer for the idempotency window (the throttle window:
+  one duration, one place); key = reporter hash + normalised words.
+- **Would change it:** a real outage longer than the window, where people retry later.
+  They then file, which is the behaviour the reply already warns about.
+
+### R4-3. Reports only as JSON (`claude/web-json-only`)
+- **Problem:** any page on another site, open in the same browser, could POST `text/plain`
+  to the local server and file tickets.
+- **Choice:** 400 unless `application/json` on both servers. On the web server's default
+  loopback address, also 400 unless the `Host` header names 127.0.0.1 or localhost: a site
+  that re-points its own name at 127.0.0.1 (DNS rebinding) passes the JSON check as "same
+  origin", but its Host header carries its name. No Origin check: the server prints
+  "open http://localhost:4000", which an Origin check pinned to 127.0.0.1 would reject.
+- **Not done:** the analyst server's `/report` has the JSON check but no Host check; it never
+  files into ServiceNow (`snow: null`).
+
+### R4-4. Bounded reads (`claude/cap-model-input`, `claude/snow-newest-first`)
+- Haiku gets at most the 2,000 characters we keep (it got the full 64 KB).
+- The ServiceNow peer search orders newest first, so recent peers are inside its 100-record page.
+
+### R4-5. What IT and callers can see
+- `claude/server-visibility`: opt-in `AUDIT_LOG_PATH` file sink, read only by the servers, no
+  cap; recommendations and pattern advisories are printed to the web server's console.
+  **Rejected:** a `GET /ledger` endpoint: unauthenticated staff data beside the public form.
+- `claude/retry-after`: `retryAfterSeconds` and `Retry-After` on THROTTLED (the analyst
+  server returns the body field only).
+  **Rejected:** exposing UNAVAILABLE's internal `reason`: it would freeze an internal
+  vocabulary into the API, and after R4-2 no caller needs it.
+- `claude/audit-replied`: one closing `replied` line with `apiOutcome` per request.
+  **Rejected:** trimming fields from `searched` (they log the effective report, whose scope
+  can differ from the parsed one) and omitting empty strings (churn for no reader).
+- `claude/triage-queue`: candidates most severe first; ungrouped alerts listed by host.
+  **Rejected:** `--json`: no consumer yet.
+- `claude/reply-wording`: readable status time (only a full ISO date-time with a zone; anything
+  else is shown as given, because a zoneless time would be read in the server's zone); no
+  "0 other people" reply, and the page's chip says "N other reporters".
+
+### R4-6. Dropped or waiting
+- **Reformatting `models/weights.json` to one bucket per line: dropped.** About 4,900 changed
+  lines of generated data would break the 100-line rule for no behaviour change. Revisit at
+  the next retrain.
+- **Moving the throttle ahead of the parse: waiting for Josh.** It saves model calls for
+  throttled callers, but it changes the README flow and the lifecycle order, and the
+  `throttled` audit line would lose `service`. A caller can bypass the throttle anyway by
+  rotating `identityRef` (README Known Limits).
+- **Kept as deliberate:** `Evidence.withinWindow` (the purity seam `decide.test.ts` exercises)
+  and `void new UnwiredStatusReader()` (the visible stage-3 seam).
+

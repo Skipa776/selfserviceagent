@@ -91,7 +91,8 @@ npm run triage:alerts -- vendor/detection-engineering-ml/alerts.synthetic.jsonl
 
 Optional settings go in `.env` (copy `.env.example`): `ANTHROPIC_API_KEY` turns on the Claude parser;
 `REPORTER_HASH_SALT` is required when ServiceNow is configured;
-`PRIORITY_POLICY_PATH` points to a real policy kept outside the repo. ServiceNow
+`PRIORITY_POLICY_PATH` points to a real policy kept outside the repo;
+`AUDIT_LOG_PATH` keeps the audit log in a file across restarts. ServiceNow
 PDI setup, the HTTP API, the analyst demo, retraining the specialists and every
 script: [docs/SETUP.md](docs/SETUP.md).
 
@@ -109,7 +110,11 @@ Details, commands, hardware and caveats: [docs/RESULTS.md](docs/RESULTS.md).
 ## Known Limits
 
 - Single-process local demonstration. The flood ledger, throttle, idempotency
-  and overrides live in memory; a restart mid-flood opens a second parent.
+  and overrides live in memory; a restart mid-flood opens a second parent. In a
+  long-running server that state, and the in-memory copy of the audit log, only grow.
+- The caller supplies `identityRef` and nothing authenticates it. A caller that
+  invents a new one per report escapes the throttle and inflates the distinct-reporter
+  count that drives priority recommendations.
 - The link window is fixed from the parent's creation, so a long outage gets a
   second incident, and a parent IT closes inside the window still absorbs reports.
 - Reports for one problem are processed one at a time, ServiceNow search included.

@@ -24,8 +24,8 @@ flowchart LR
     svc -.->|parse, optional| claude
     svc -->|search, create| snow
     policy -->|loaded at startup| svc
-    svc -.->|recommendation, local| it
-    svc -.->|candidate alert, local| noc
+    svc -.->|recommendation, server console| it
+    svc -.->|candidate alert, server console| noc
     it --> snow
     detml -->|alerts.jsonl, schema 1.0| svc
     svc -.->|incident candidates, CLI| analyst
@@ -190,19 +190,20 @@ P2, policy rule t2-reporters-15") for a person to apply.
 
 ## Request lifecycle, step by step (`src/orchestrator.ts`)
 
-1. **Parse**: stage 1, the keyword parser; stage 2, the router (specialist, then `llmParser` when a key is set, else keyword). Never throws.
+1. **Parse**: stage 1, the keyword parser; stage 2, the router (specialist, then `llmParser` when a key is set, else keyword). Never throws. The specialists and Haiku see at most the first 2,000 characters, the same cap as the stored text; the keyword parser reads the whole text.
 2. **Identity**: salted hash of the caller's opaque reference.
 3. **Throttle**: per-reporter budget, before any read load.
-4. **Idempotency**: the same reporter and the same text get the same answer back.
+4. **Idempotency**: the same reporter and the same words get the same answer back. The key is the reporter hash and the normalised words only, so a retry that parses differently still matches.
 5. **Completeness**: ask for one missing detail, or fall back to a request.
    - **5b. Flood key**: INC-class reports with a building, or service-wide reports, get a key; others skip the ledger. Reports for one key run one at a time from here.
    - **5c. Flood ledger**: is a parent open for this key? (If its create had an unknown outcome: UNAVAILABLE.)
 6. **Search**: ServiceNow read, retried once; never falls through to a create.
 7. **Reduce**: candidates become booleans and counts.
 8. **Decide** (`decide.ts`): override > declared incident > open parent > peer threshold > file.
-9. **Act**: quote a declared incident, link to the parent, or create one ticket (an INC gets its priority from the policy and becomes a parent).
-10. **Fan out**: event to the advisory pattern detector.
+9. **Act**: quote a declared incident, link to the parent, or create one ticket (an INC gets its priority from the policy and becomes a parent). If a create's outcome is unknown (timeout, 5xx), the UNAVAILABLE answer is stored, so a retry is not a second create.
+10. **Fan out**: event to the advisory pattern detector. The web server drains it after answering and prints advisories and new priority recommendations to its console, for IT.
 11. **Remember**: store the answer for idempotent retries.
+12. **Close**: one `replied` audit line with the API outcome the caller received, on every path.
 
 ## Reading order for a first-time reader
 
@@ -222,3 +223,8 @@ P2, policy rule t2-reporters-15") for a person to apply.
 14. `src/composition.ts`: how it is wired, and which environment variables matter.
 15. Tests to read first: `tests/floodControl.test.ts`, `tests/specialistParity.test.ts`, `tests/router.test.ts`, `tests/alertContract.test.ts`.
 16. `docs/DECISIONS.md`, `docs/RESULTS.md`, `docs/LEARNINGS.md`.
+
+Many comments in `src/` cite design notes by file name (`cluster_gate.md`,
+`error_rescue_map.md`, `boundaries.md` and 20 others). Those notes were never
+committed to this repository, so the comment around each citation is the
+explanation; the code and its tests are the source of truth.
