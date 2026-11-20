@@ -16,7 +16,7 @@ import { createHash } from 'node:crypto';
 import type { Clock } from './adapters/memory';
 import { AmbiguousCreateError } from './adapters/memory';
 import { AuditLog, type AuditLine } from './audit';
-import { CLUSTER_THRESHOLD, floodKey, gateTuning, thresholdFor, type GateTuning } from './clusterGate';
+import { floodKey, gateTuning, thresholdFor, type GateTuning } from './clusterGate';
 import { compose } from './composer';
 import type {
   IdentityContext,
@@ -219,7 +219,6 @@ type Reduced = {
   readonly topDeclared: DeclaredIncident | null;
   readonly qualifyingPeers: readonly PeerTicket[];
   readonly topMatchScore: number;
-  readonly matchedId: string;
   /** The per-topic deflection ceiling applied to this report (clusterGate.ts).
    *  Logged on the `decided` line so a deflect-at-10 vs deflect-at-5 is visible. */
   readonly clusterThreshold: number;
@@ -283,7 +282,6 @@ function reduceCandidates(
     topDeclared,
     qualifyingPeers,
     topMatchScore: byScore[0]?.matchScore ?? 0,
-    matchedId: '',
     clusterThreshold,
   };
 }
@@ -791,6 +789,3 @@ function linkToParent(
     override: { matchId: ticketNumber },
   };
 }
-
-/** Re-exported so a caller can assert the gate constant without a second literal. */
-export { CLUSTER_THRESHOLD };

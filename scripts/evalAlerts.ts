@@ -115,10 +115,10 @@ function main(): number {
   process.stdout.write(`${rows.length} alerts, ${skipped} skipped by the guard, ${new Set(rows.map((r) => r.dataset)).size} datasets, ${new Set(rows.map(hostKey)).size} hosts\n`);
   process.stdout.write(`vacuity: ${vacuity(rows, DEMO_WINDOW_MS)} same-host dataset pairs within 60 min of each other\n\n`);
   const fmt = (x: number | null): string => (x === null ? 'n/a' : x.toFixed(3));
-  process.stdout.write('| variant | N | F | U | queue reduction | alert coverage | purity | impure groups | fragmentation median / max | dataset coverage |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n');
+  process.stdout.write('| variant | N | F | U | items for a human (F + U) | queue reduction | alert coverage | purity | impure groups | fragmentation median / max | dataset coverage |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n');
   for (const v of VARIANTS) {
     const m = measure(rows, v);
-    process.stdout.write(`| ${m.variant} | ${m.N} | ${m.F} | ${m.U} | ${fmt(m.queueReduction)} | ${fmt(m.alertCoverage)} | ${fmt(m.purity)} | ${m.impureGroups} | ${m.fragmentationMedian} / ${m.fragmentationMax} | ${m.datasetCoverage} |\n`);
+    process.stdout.write(`| ${m.variant} | ${m.N} | ${m.F} | ${m.U} | ${m.F + m.U} | ${fmt(m.queueReduction)} | ${fmt(m.alertCoverage)} | ${fmt(m.purity)} | ${m.impureGroups} | ${m.fragmentationMedian} / ${m.fragmentationMax} | ${m.datasetCoverage} |\n`);
   }
   return 0;
 }
