@@ -27,7 +27,8 @@ async function waitForServer(): Promise<void> {
 }
 
 function runServer(): ChildProcessByStdio<null, Readable, Readable> {
-  return spawn('npx', ['tsx', '--env-file-if-exists=.env', 'analyst/server.ts'], {
+  // node itself, not npx: killing an npx wrapper leaves its server running.
+  return spawn(process.execPath, ['--env-file-if-exists=.env', '--import', 'tsx', 'analyst/server.ts'], {
     env: {
       ...process.env,
       ANALYST_PORT: String(PORT),
