@@ -8,7 +8,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { configureGate, resetGate } from '../src/clusterGate';
-import { compose, HUMAN_PATH } from '../src/composer';
+import { compose, HUMAN_PATH, readableTime } from '../src/composer';
 import type { DeclaredIncident, PeerTicket, ProblemReport } from '../src/contracts/types';
 import { handleReport } from '../src/orchestrator';
 import { configureThrottle, resetThrottle } from '../src/throttleLimits';
@@ -39,7 +39,13 @@ describe('MATCHED_DECLARED — the one reply allowed to speak about service stat
   });
 
   it('always carries statusUpdatedAt alongside status — a bare status reads as current', () => {
-    expect(reply()).toContain(DECLARED.statusUpdatedAt);
+    expect(reply()).toContain('last updated 28 Jul 2026, 11:45 UTC');
+  });
+
+  it('shows a time that is not a full ISO date-time exactly as given', () => {
+    expect(readableTime('2026-07-28T11:45:00+02:00')).toBe('28 Jul 2026, 09:45 UTC');
+    expect(readableTime('about an hour ago')).toBe('about an hour ago');
+    expect(readableTime('2026-07-28T11:45:00')).toBe('2026-07-28T11:45:00'); // no zone: not ours to guess
   });
 
   it('links the record and states that nothing was created', () => {
@@ -55,6 +61,12 @@ describe('MATCHED_CLUSTER — counts only, never a claim about the service', () 
   it('reports how many others and that tickets are open', () => {
     expect(reply()).toMatch(/5 other people have/);
     expect(reply()).toMatch(/tickets are already open/);
+  });
+
+  it('with no one else (the same person reporting again) says only what is open', () => {
+    expect(compose({ outcome: 'MATCHED_CLUSTER', reportCount: 0, ticketIds: ['INC7'] })).toMatch(
+      /^A ticket is already open for this \(INC7\)\. I have not created another one\./,
+    );
   });
 
   it('makes NO service-state claim — this is the line that matters most', () => {
