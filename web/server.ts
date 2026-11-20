@@ -118,9 +118,15 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && url === '/report') {
     // JSON only. Any web page the presenter opens can make the browser POST
     // text/plain here without asking; application/json needs a CORS preflight,
-    // which this server never grants. That stops cross-site requests. It does not
-    // stop DNS rebinding (a hostile name re-pointed at 127.0.0.1): there is no Host check.
-    if (!(req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json')) {
+    // which this server never grants. And, on the default loopback address, only
+    // when addressed by a loopback name: a hostile site can re-point its own name
+    // at 127.0.0.1 (DNS rebinding) and send JSON as "same origin", but the Host
+    // header still carries its name.
+    const hostName = (req.headers.host ?? '').replace(/:\d+$/, '');
+    if (
+      !(req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json') ||
+      (HOST === '127.0.0.1' && hostName !== '127.0.0.1' && hostName !== 'localhost')
+    ) {
       writeJson(res, 400, invalidRequestResponse());
       return;
     }
