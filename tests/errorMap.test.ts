@@ -202,6 +202,20 @@ describe('ticket_create_ambiguous', () => {
     expect(h.audit.lines.some((l) => l.errorKind === 'ticket_create_ambiguous')).toBe(true);
   });
 
+  it('answers a retry of the same words the same way, and still files nothing', async () => {
+    // An individual report has no flood parent to hold the problem, so only the
+    // idempotency store stops the retry from filing a second ticket.
+    const h = harness({ ...NORTH_HALL_WIFI, scope: 'individual', location: '', building: '' });
+    h.tickets.failTimes = 1;
+    h.tickets.ambiguous = true;
+    const first = await handleReport(request(), h.deps);
+    const retry = await handleReport(request(), h.deps);
+
+    expect(retry).toEqual(first);
+    expect(retry.outcome).toBe('UNAVAILABLE');
+    expect(h.tickets.filed).toHaveLength(0);
+  });
+
   it('is a distinct error type, so it cannot be mistaken for a plain failure', () => {
     expect(new AmbiguousCreateError()).toBeInstanceOf(Error);
     expect(new AmbiguousCreateError().name).toBe('AmbiguousCreateError');
