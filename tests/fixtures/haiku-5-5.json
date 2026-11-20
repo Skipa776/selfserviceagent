@@ -1,55 +1,62 @@
 {
-  "recorded": false,
-  "note": "SYNTHETIC PLACEHOLDER: hand-built in the Messages API response shape, NOT real model output. Run `npm run record:haiku` with ANTHROPIC_API_KEY set to replace it with recorded Claude Haiku 5.5 responses.",
+  "recorded": true,
+  "note": "Recorded from the live Anthropic API by scripts/recordHaiku.ts. Inputs are the SYNTHETIC corpus in tests/corpus.ts.",
   "model": "claude-haiku-5-5",
-  "modelInfo": null,
-  "recordedAt": "",
+  "modelInfo": {
+    "id": "claude-haiku-5-5",
+    "display_name": "Claude Haiku 5.5"
+  },
+  "recordedAt": "2026-11-20T03:14:24.206Z",
   "sdkVersion": "1.8.0",
   "exchanges": [
     {
       "input": "wifi in North Residence Hall keeps dropping",
       "responses": [
         {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT7QDoPpDDFx6TBQvf8",
           "type": "message",
           "role": "assistant",
-          "model": "claude-haiku-5-5",
-          "container": null,
-          "diagnostics": null,
-          "stop_sequence": null,
-          "stop_details": null,
-          "usage": {
-            "input_tokens": 1200,
-            "output_tokens": 60,
-            "cache_creation": null,
-            "cache_creation_input_tokens": 0,
-            "cache_read_input_tokens": 0,
-            "inference_geo": null,
-            "output_tokens_details": null,
-            "server_tool_use": null,
-            "service_tier": "standard",
-            "speed": "standard"
-          },
-          "id": "msg_SYNTHETIC_1",
-          "stop_reason": "tool_use",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_SYNTHETIC_1",
+              "id": "toolu_01MfTiujmdYBu9SaYTnhDkkY",
               "name": "record_report_fields",
               "input": {
                 "service": "wifi",
                 "scope": "location",
+                "symptom": "intermittent",
                 "location": "North Residence Hall",
                 "building": "NORTH RESIDENCE HALL",
                 "room": "",
-                "symptom": "intermittent",
                 "observedAt": ""
               },
               "caller": {
                 "type": "direct"
               }
             }
-          ]
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 186,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
         }
       ],
       "parsed": {
@@ -68,61 +75,260 @@
       }
     },
     {
-      "input": "The projector in Lecture Hall will not turn on",
+      "input": "the housing portal won't load",
       "responses": [
         {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT7i858xLZxNEPN7Aum",
           "type": "message",
           "role": "assistant",
-          "model": "claude-haiku-5-5",
-          "container": null,
-          "diagnostics": null,
-          "stop_sequence": null,
-          "stop_details": null,
-          "usage": {
-            "input_tokens": 1200,
-            "output_tokens": 60,
-            "cache_creation": null,
-            "cache_creation_input_tokens": 0,
-            "cache_read_input_tokens": 0,
-            "inference_geo": null,
-            "output_tokens_details": null,
-            "server_tool_use": null,
-            "service_tier": "standard",
-            "speed": "standard"
-          },
-          "id": "msg_SYNTHETIC_2",
-          "stop_reason": "tool_use",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_SYNTHETIC_2",
+              "id": "toolu_01XVyo6Yf9hRTk6CWhtEU2CG",
               "name": "record_report_fields",
               "input": {
-                "service": "classroom_av",
-                "scope": "location",
-                "location": "Lecture Hall",
-                "building": "LECT",
+                "service": "web_portal",
+                "scope": "unknown",
+                "symptom": "page_error",
+                "location": "",
+                "building": "",
                 "room": "",
-                "symptom": "equipment_unavailable",
                 "observedAt": ""
               },
               "caller": {
                 "type": "direct"
               }
             }
-          ]
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1759,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 167,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
         }
       ],
       "parsed": {
         "report": {
-          "service": "classroom_av",
-          "scope": "location",
-          "location": "Lecture Hall",
-          "building": "LECT",
+          "service": "web_portal",
+          "scope": "unknown",
+          "location": "",
+          "building": "",
           "room": "",
-          "symptom": "equipment_unavailable",
+          "symptom": "page_error",
           "observedAt": "",
-          "verbatim": "The projector in Lecture Hall will not turn on"
+          "verbatim": "the housing portal won't load"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "I can't get on eduroam anywhere on campus today",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT7rQQWw292oMTdmvZU",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01R74CWq5WzGyAm2AyYzJc6T",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wifi",
+                "scope": "unknown",
+                "symptom": "no_connection",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 167,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wifi",
+          "scope": "unknown",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "no_connection",
+          "observedAt": "",
+          "verbatim": "I can't get on eduroam anywhere on campus today"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "my laptop won't connect to the wifi in my dorm but my roommate's does",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT7vSFNn47a5MLTo15s",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01HkmZHSzn6FM3HGGdowv815",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wifi",
+                "scope": "individual",
+                "symptom": "no_connection",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1776,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 166,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wifi",
+          "scope": "individual",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "no_connection",
+          "observedAt": "",
+          "verbatim": "my laptop won't connect to the wifi in my dorm but my roommate's does"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "the internet in Main Library is super slow this afternoon",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT7zb31hqYEAsiW6HP5",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01NF4fq2jzaFsZmV1oKhwNkt",
+              "name": "record_report_fields",
+              "input": {
+                "service": "unknown",
+                "scope": "location",
+                "symptom": "slow",
+                "location": "Main Library",
+                "building": "LIB",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 170,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "unknown",
+          "scope": "location",
+          "location": "Main Library",
+          "building": "LIB",
+          "room": "",
+          "symptom": "slow",
+          "observedAt": "",
+          "verbatim": "the internet in Main Library is super slow this afternoon"
         },
         "source": "llm",
         "repairAttempted": false
@@ -132,46 +338,50 @@
       "input": "VPN keeps asking me to sign in over and over",
       "responses": [
         {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT84STR5R5NCQQaHgcc",
           "type": "message",
           "role": "assistant",
-          "model": "claude-haiku-5-5",
-          "container": null,
-          "diagnostics": null,
-          "stop_sequence": null,
-          "stop_details": null,
-          "usage": {
-            "input_tokens": 1200,
-            "output_tokens": 60,
-            "cache_creation": null,
-            "cache_creation_input_tokens": 0,
-            "cache_read_input_tokens": 0,
-            "inference_geo": null,
-            "output_tokens_details": null,
-            "server_tool_use": null,
-            "service_tier": "standard",
-            "speed": "standard"
-          },
-          "id": "msg_SYNTHETIC_3",
-          "stop_reason": "tool_use",
           "content": [
             {
               "type": "tool_use",
-              "id": "toolu_SYNTHETIC_3",
+              "id": "toolu_01DYvY7SSEbeJ5NvoSQ6bpuv",
               "name": "record_report_fields",
               "input": {
                 "service": "vpn",
                 "scope": "individual",
+                "symptom": "auth_failure",
                 "location": "",
                 "building": "",
                 "room": "",
-                "symptom": "auth_failure",
                 "observedAt": ""
               },
               "caller": {
                 "type": "direct"
               }
             }
-          ]
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1767,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 167,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
         }
       ],
       "parsed": {
@@ -184,6 +394,1444 @@
           "symptom": "auth_failure",
           "observedAt": "",
           "verbatim": "VPN keeps asking me to sign in over and over"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "my printer is out of toner",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT88He1C1qZRcEDhLvx",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01FTd12MKvjButCBco64jKat",
+              "name": "record_report_fields",
+              "input": {
+                "service": "unknown",
+                "scope": "unknown",
+                "symptom": "equipment_unavailable",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1759,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 171,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "unknown",
+          "scope": "unknown",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "my printer is out of toner"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "when is the housing application deadline",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8CRgJRFNGdZwNLcyM",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_018ibQ3zm6TWZt89gw4hU4PZ",
+              "name": "record_report_fields",
+              "input": {
+                "service": "unknown",
+                "scope": "unknown",
+                "symptom": "unknown",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1760,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 166,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "unknown",
+          "scope": "unknown",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "unknown",
+          "observedAt": "",
+          "verbatim": "when is the housing application deadline"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "The projector in Lecture Hall will not turn on",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8HLbUb6jc15fD8Q3z",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01WiXmEVVwqdQYL8SskvsT3g",
+              "name": "record_report_fields",
+              "input": {
+                "service": "classroom_av",
+                "scope": "unknown",
+                "symptom": "equipment_unavailable",
+                "location": "Lecture Hall",
+                "building": "LECT",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1767,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 183,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "classroom_av",
+          "scope": "unknown",
+          "location": "Lecture Hall",
+          "building": "LECT",
+          "room": "",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "The projector in Lecture Hall will not turn on"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "North Residence Hall wireless keeps cutting out for my class",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8MpDqe2CnWHi2aTeW",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01YYiqvZn9WCjWzMLjiya5Aq",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wifi",
+                "scope": "location",
+                "symptom": "intermittent",
+                "location": "North Residence Hall",
+                "building": "NORTH RESIDENCE HALL",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1771,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 186,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wifi",
+          "scope": "location",
+          "location": "North Residence Hall",
+          "building": "NORTH RESIDENCE HALL",
+          "room": "",
+          "symptom": "intermittent",
+          "observedAt": "",
+          "verbatim": "North Residence Hall wireless keeps cutting out for my class"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "Our Wi-Fi connection in North Residence Hall is on and off again",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8SEP66ApoQtWEaHgE",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01SfQCBVv15emifsHQtZD72G",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wifi",
+                "scope": "location",
+                "symptom": "intermittent",
+                "location": "North Residence Hall",
+                "building": "NORTH RESIDENCE HALL",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1775,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 186,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wifi",
+          "scope": "location",
+          "location": "North Residence Hall",
+          "building": "NORTH RESIDENCE HALL",
+          "room": "",
+          "symptom": "intermittent",
+          "observedAt": "",
+          "verbatim": "Our Wi-Fi connection in North Residence Hall is on and off again"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "the ethernet at HAB room 201 is crawling",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8WMgSKqg4qrtkkAn2",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01CVUC1oxqQCb1yMnc2e137r",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wired_network",
+                "scope": "unknown",
+                "symptom": "slow",
+                "location": "",
+                "building": "HAB",
+                "room": "201",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 170,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        },
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8aXxBdtJ9DCjfdRkZ",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01WbaooabMaffvoZzDnuFJxF",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wired_network",
+                "scope": "unknown",
+                "symptom": "slow",
+                "location": "HAB",
+                "building": "HAB",
+                "room": "201",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1993,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 173,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wired_network",
+          "scope": "unknown",
+          "location": "Hillside Academic Building",
+          "building": "HAB",
+          "room": "201",
+          "symptom": "slow",
+          "observedAt": "",
+          "verbatim": "the ethernet at HAB room 201 is crawling"
+        },
+        "source": "llm",
+        "repairAttempted": true
+      }
+    },
+    {
+      "input": "Wired network in the Hillside Academic Building is very sluggish",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8edWjS8U5xWZgFJW6",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_015ujUGbVJSbND6aMumVDain",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wired_network",
+                "scope": "location",
+                "symptom": "slow",
+                "location": "Hillside Academic Building",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1772,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 173,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        },
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8ijKUQSKfgciXbUoV",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_015qSQsBoh521uNNNPCNCBBH",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wired_network",
+                "scope": "location",
+                "symptom": "slow",
+                "location": "Hillside Academic Building",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 2000,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 173,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wired_network",
+          "scope": "location",
+          "location": "Hillside Academic Building",
+          "building": "HAB",
+          "room": "",
+          "symptom": "slow",
+          "observedAt": "",
+          "verbatim": "Wired network in the Hillside Academic Building is very sluggish"
+        },
+        "source": "keyword",
+        "repairAttempted": true
+      }
+    },
+    {
+      "input": "I am seeing a slow LAN connection in HAB",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8nUYX3uhRBEWxZouA",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01YWuB3sxvi8XMKhM6veipir",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wired_network",
+                "scope": "unknown",
+                "symptom": "slow",
+                "location": "HAB",
+                "building": "HAB",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 172,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wired_network",
+          "scope": "unknown",
+          "location": "Hillside Academic Building",
+          "building": "HAB",
+          "room": "",
+          "symptom": "slow",
+          "observedAt": "",
+          "verbatim": "I am seeing a slow LAN connection in HAB"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "the network jack in Student Center will not connect",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8rhYdnP1trYGCNNze",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01BsfQUd6qBxAYAb2zF58Evo",
+              "name": "record_report_fields",
+              "input": {
+                "service": "wired_network",
+                "scope": "location",
+                "symptom": "no_connection",
+                "location": "Student Center",
+                "building": "STUC",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1764,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 173,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "wired_network",
+          "scope": "location",
+          "location": "Student Center",
+          "building": "STUC",
+          "room": "",
+          "symptom": "no_connection",
+          "observedAt": "",
+          "verbatim": "the network jack in Student Center will not connect"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "My campus VPN login loops whenever I try to connect",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8vYiKQFHTfWSZktxX",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_0168GXSyhpmrcPabqFETC9rH",
+              "name": "record_report_fields",
+              "input": {
+                "service": "vpn",
+                "scope": "individual",
+                "symptom": "auth_failure",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 167,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "vpn",
+          "scope": "individual",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "auth_failure",
+          "observedAt": "",
+          "verbatim": "My campus VPN login loops whenever I try to connect"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "Nobody can connect to the campus VPN right now",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT8zA21atX7VPu3hu5u",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_014zDZnmtc9dTrU12cL1SWVJ",
+              "name": "record_report_fields",
+              "input": {
+                "service": "vpn",
+                "scope": "service_wide",
+                "symptom": "no_connection",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1767,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 168,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "vpn",
+          "scope": "service_wide",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "no_connection",
+          "observedAt": "",
+          "verbatim": "Nobody can connect to the campus VPN right now"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "Canvas is returning an error for everyone in my course",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT944fMYESFj5srha2w",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01717oRZc8w1nDE9PHWKdL14",
+              "name": "record_report_fields",
+              "input": {
+                "service": "web_portal",
+                "scope": "service_wide",
+                "symptom": "page_error",
+                "location": "\"\"",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1767,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 169,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        },
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT98DSkeGoRAhN5XQ79",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_0154fMrkZKCHai3J8YZWw2Gb",
+              "name": "record_report_fields",
+              "input": {
+                "service": "web_portal",
+                "scope": "service_wide",
+                "symptom": "page_error",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1996,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 168,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "web_portal",
+          "scope": "service_wide",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "page_error",
+          "observedAt": "",
+          "verbatim": "Canvas is returning an error for everyone in my course"
+        },
+        "source": "llm",
+        "repairAttempted": true
+      }
+    },
+    {
+      "input": "I am the only one who cannot sign in to the housing website",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9BthvmwyJCGMm9sfw",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_0135SS3hKqRjrcpSj7qv8pBH",
+              "name": "record_report_fields",
+              "input": {
+                "service": "web_portal",
+                "scope": "individual",
+                "symptom": "auth_failure",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 168,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "web_portal",
+          "scope": "individual",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "auth_failure",
+          "observedAt": "",
+          "verbatim": "I am the only one who cannot sign in to the housing website"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "The registration site is showing an error",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9FQnxCBgwTjy7oHGM",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01Wjm9SjELUfg3zvRTjUZDK3",
+              "name": "record_report_fields",
+              "input": {
+                "service": "web_portal",
+                "scope": "unknown",
+                "symptom": "page_error",
+                "location": "",
+                "building": "",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1760,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 167,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "web_portal",
+          "scope": "unknown",
+          "location": "",
+          "building": "",
+          "room": "",
+          "symptom": "page_error",
+          "observedAt": "",
+          "verbatim": "The registration site is showing an error"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "Internet access around Main Library is painfully slow",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9K7nbNzRkLtmDnKKZ",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01ER7vP5LPodYAUZGMVZ4fmS",
+              "name": "record_report_fields",
+              "input": {
+                "service": "unknown",
+                "scope": "location",
+                "symptom": "slow",
+                "location": "Main Library",
+                "building": "LIB",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1766,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 170,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "unknown",
+          "scope": "location",
+          "location": "Main Library",
+          "building": "LIB",
+          "room": "",
+          "symptom": "slow",
+          "observedAt": "",
+          "verbatim": "Internet access around Main Library is painfully slow"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "The display in room 214, Lecture Hall is blank",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9P8dBXW4iUHmrAQWZ",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01AYf3kdpdfjwjCKxY3Aidz4",
+              "name": "record_report_fields",
+              "input": {
+                "service": "classroom_av",
+                "scope": "location",
+                "symptom": "equipment_unavailable",
+                "location": "Lecture Hall",
+                "building": "LECT",
+                "room": "214",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 182,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "classroom_av",
+          "scope": "location",
+          "location": "Lecture Hall",
+          "building": "LECT",
+          "room": "214",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "The display in room 214, Lecture Hall is blank"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "Lecture Hall 214 projector will not power on",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9T51Pnmtcse4mr139",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01XCZzteRaSANmwEfnwa2Cdp",
+              "name": "record_report_fields",
+              "input": {
+                "service": "classroom_av",
+                "scope": "unknown",
+                "symptom": "equipment_unavailable",
+                "location": "Lecture Hall",
+                "building": "LECT",
+                "room": "214",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1767,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 184,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "classroom_av",
+          "scope": "unknown",
+          "location": "Lecture Hall",
+          "building": "LECT",
+          "room": "214",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "Lecture Hall 214 projector will not power on"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "In LECT room 214, the classroom display has no image",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9WuwkGcQXBh7HgKqw",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_01NJBjd91FDVFhwodjpWVaL9",
+              "name": "record_report_fields",
+              "input": {
+                "service": "classroom_av",
+                "scope": "location",
+                "symptom": "equipment_unavailable",
+                "location": "Lecture Hall",
+                "building": "LECT",
+                "room": "214",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1767,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 182,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "classroom_av",
+          "scope": "location",
+          "location": "Lecture Hall",
+          "building": "LECT",
+          "room": "214",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "In LECT room 214, the classroom display has no image"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "Projectors across Lecture Hall are not turning on",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9arq1cEqouwabAzwP",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_018SgXkGXzBc9BB2TVowpoFZ",
+              "name": "record_report_fields",
+              "input": {
+                "service": "classroom_av",
+                "scope": "location",
+                "symptom": "equipment_unavailable",
+                "location": "Lecture Hall",
+                "building": "LECT",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1768,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 181,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "classroom_av",
+          "scope": "location",
+          "location": "Lecture Hall",
+          "building": "LECT",
+          "room": "",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "Projectors across Lecture Hall are not turning on"
+        },
+        "source": "llm",
+        "repairAttempted": false
+      }
+    },
+    {
+      "input": "Faculty reports that the AV equipment in Lecture Hall is unavailable",
+      "responses": [
+        {
+          "model": "claude-haiku-5-5",
+          "id": "msg_011ChDT9fCmVTRLrHNLgEnDo",
+          "type": "message",
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "toolu_017HPdmxkrTrZ9VTgW9zNGuU",
+              "name": "record_report_fields",
+              "input": {
+                "service": "classroom_av",
+                "scope": "unknown",
+                "symptom": "equipment_unavailable",
+                "location": "Lecture Hall",
+                "building": "LECT",
+                "room": "",
+                "observedAt": ""
+              },
+              "caller": {
+                "type": "direct"
+              }
+            }
+          ],
+          "container": null,
+          "stop_reason": "tool_use",
+          "stop_sequence": null,
+          "stop_details": null,
+          "usage": {
+            "input_tokens": 1777,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_tokens": 183,
+            "output_tokens_details": {
+              "thinking_tokens": 0
+            },
+            "service_tier": "standard",
+            "inference_geo": "global",
+            "speed": "standard"
+          },
+          "diagnostics": null
+        }
+      ],
+      "parsed": {
+        "report": {
+          "service": "classroom_av",
+          "scope": "unknown",
+          "location": "Lecture Hall",
+          "building": "LECT",
+          "room": "",
+          "symptom": "equipment_unavailable",
+          "observedAt": "",
+          "verbatim": "Faculty reports that the AV equipment in Lecture Hall is unavailable"
         },
         "source": "llm",
         "repairAttempted": false

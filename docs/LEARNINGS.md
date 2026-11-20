@@ -32,3 +32,12 @@ failed. Newest last.
 
 - **Splitting commits needed care.** The parser and flood changes touched the same files (`composition.ts`, `package.json`). I staged parser-only versions of those files, committed, and ran the full suite on that commit in a separate worktree before pushing.
 - **Ponytail reviews found something every time:** a bad command example, a stale comment, a dead field, a missing line number in the hand-written-set loader, and a missing canonical-location check that would have silently marked every parser wrong on a mistyped row.
+
+## First real Haiku 5.5 run (2026-11-20)
+
+- **Haiku 5.5 is conservative on scope.** Five of its six misses on the synthetic corpus are `scope: unknown` where a named building should mean `location`, even though the prompt says so. That fails safe (a follow-up question), but it costs field accuracy.
+- **It sometimes leaves the building code empty next to a canonical location**, and the repair turn repeats the same answer. Our validator then rejects it and the keyword parser answers, although the building follows from the location by a table lookup.
+- **It once wrote a literal `""` (two quote characters) as a field value.** The repair turn fixed that one.
+- **Runs are not repeatable.** Haiku 5.5 accepts no temperature setting, and 3 runs of the same 26 inputs gave different answers. The recorded fixture pins one run for the offline tests; accuracy claims need several runs.
+- **The prompt is most of the cost:** about 1,790 input tokens per call against about 175 output tokens.
+

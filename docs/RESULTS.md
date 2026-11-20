@@ -26,8 +26,8 @@ that was not measured is listed as not measured.
 | Local ledger count of 30 | **30** distinct reporter hashes on the parent | same |
 | One priority recommendation citing its policy rule | **1 pending**: raise P4 → P2, rule `t2-reporters-15` (set at the 15th reporter). The `t2-reporters-5` recommendation fired first and was replaced. | same |
 | ServiceNow adapter has no update method | asserted by `tests/servicenow.test.ts` (method list) and by running the burst through the real adapter over a fake Table API: **1 POST, 0 PATCH/PUT/DELETE** | `tests/servicenow.test.ts`, `tests/floodControl.test.ts` |
-| `llmParser` on the Anthropic SDK, forced tool, `claude-haiku-5-5` | done; model id **not yet confirmed** with the Models API (no key in this session) | `src/parser/llmParser.ts`, `npm run record:haiku` |
-| Tests offline against recorded Haiku 5.5 responses | harness done; fixture is a **SYNTHETIC placeholder** until recorded | `tests/fixtures/haiku-5-5.json` |
+| `llmParser` on the Anthropic SDK, forced tool, `claude-haiku-5-5` | done; model id **confirmed** by the Models API on 2026-11-20: `claude-haiku-5-5` ("Claude Haiku 5.5") | `src/parser/llmParser.ts`, `npm run record:haiku` |
+| Tests offline against recorded Haiku 5.5 responses | done: **26 real recorded exchanges** (29 API calls), replayed offline | `tests/fixtures/haiku-5-5.json` (`"recorded": true`) |
 | Keyword fallback with no key | yes: the parser is not built without `ANTHROPIC_API_KEY`, and it falls back on any API failure | `tests/llmParser.test.ts` |
 | `npm test`, `npm run build`, `npm run lint` offline | **477 tests pass** in 34 files (3.0 s); build and lint clean | commands below |
 
@@ -77,12 +77,20 @@ How to read this honestly:
 | Parser | Set | Fields correct | Rows exact | Groups consistent | Command |
 | --- | --- | ---: | ---: | ---: | --- |
 | Keyword (baseline) | synthetic corpus, 26 rows (`tests/corpus.ts`) | 137/156 (87.8%) | 13/26 | 10/16 | `npm run eval:llm` |
-| Claude Haiku 5.5 | synthetic corpus | **not measured**: no API key in this session | | | `npm run eval:llm` with `ANTHROPIC_API_KEY` |
+| Claude Haiku 5.5 (run 1 of 3) | synthetic corpus, 26 rows | 150/156 (96.2%) | 20/26 | 12/16 | `LLM_EVAL_RUNS=3 npm run eval:llm` with `ANTHROPIC_API_KEY` |
 | Keyword and Haiku 5.5 | hand-written set | **not measured**: the set is still a placeholder | | | `npm run eval:llm -- data/handwritten/reports.jsonl` |
 
 The keyword parser's misses are mostly `symptom: unknown` and a few scopes it
 deliberately leaves `unknown` (it is meant to be visibly imperfect). The
 per-row misses are printed by the command.
+
+Haiku 5.5 details (measured 2026-11-20, cloud session, same hardware, prompt and
+corpus as commit `5a93463`, SDK 1.8.0):
+
+- Across 3 runs × 26 rows = 78 parses: **1 keyword fallback**, **5 repairs**, and the outputs are **not identical across runs** (no sampling control on Haiku 5.5).
+- **5 "unsafe" errors** in run 1 (scope, building, room or grouping wrong). Five of the six misses are `scope: unknown` where a building was named and `location` was expected. That is conservative: `unknown` scope leads to a follow-up question, not a wrong ticket. The sixth labels "my printer is out of toner" `equipment_unavailable` (expected `unknown`).
+- The one fallback in the recording: for "Wired network in the Hillside Academic Building is very sluggish", Haiku returned the canonical location with an **empty building code**, twice, so validation failed and the keyword parser answered. The building follows deterministically from the location; see DECISIONS.md M2-C12.
+- Recording cost: 29 calls, 51,942 input and 5,038 output tokens (about 1,790 input tokens per call, almost all of it the system prompt and tool schema).
 
 ## Other checks (not part of `npm test`)
 
@@ -92,27 +100,8 @@ per-row misses are printed by the command.
 | `npm run demo:analyst:e2e` | 10 passed, 0 failed | only when no server from an earlier run is still alive (see LEARNINGS.md) |
 | `npm run web:e2e` | **17 passed, 1 failed** | `presentation app explicitly enables synthetic reporter rotation` fails identically on the original base commit `54ba292`; not caused by M1. Queued as a separate task. |
 
-## Steps for Josh's Mac
+## Re-recording
 
-The cloud session could not reach the Anthropic API with a key. Run these
-with `ANTHROPIC_API_KEY` in `.env`, then commit the fixture and record the
-numbers here:
-
-```bash
-npm run record:haiku
-```
-
-This confirms `claude-haiku-5-5` with the Models API (it prints the id and
-display name), records real responses for the 26 corpus inputs, and rewrites
-`tests/fixtures/haiku-5-5.json` with `"recorded": true`. Then:
-
-```bash
-npm test
-```
-
-```bash
-LLM_EVAL_RUNS=3 npm run eval:llm
-```
-
-Record the Haiku field accuracy, repairs, fallbacks and repeatability from
-that output in the table above, with the commit and date.
+`npm run record:haiku` (needs `ANTHROPIC_API_KEY`) re-confirms the model id and
+rewrites `tests/fixtures/haiku-5-5.json`. The replay test then pins the parser to
+those responses. Re-record after any change to the system prompt or tool schema.
