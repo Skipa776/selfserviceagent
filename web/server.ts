@@ -118,7 +118,8 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && url === '/report') {
     // JSON only. Any web page the presenter opens can make the browser POST
     // text/plain here without asking; application/json needs a CORS preflight,
-    // which this server never grants. So no other site can file tickets through it.
+    // which this server never grants. That stops cross-site requests. It does not
+    // stop DNS rebinding (a hostile name re-pointed at 127.0.0.1): there is no Host check.
     if (!(req.headers['content-type'] ?? '').toLowerCase().startsWith('application/json')) {
       writeJson(res, 400, invalidRequestResponse());
       return;
